@@ -47,6 +47,7 @@ class Form extends Cc
     public function useCcv()
     {
         return $this->_config->isCcvEnabled();
+
     }
 
     /** @return bool */
