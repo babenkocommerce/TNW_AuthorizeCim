@@ -1,6 +1,6 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
+ * TNW_AuthorizeCim extension
  * NOTICE OF LICENSE
  *
  * This source file is subject to the OSL 3.0 License
@@ -9,19 +9,20 @@
  * https://opensource.org/licenses/osl-3.0.php
  *
  * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
+ * @package   TNW_AuthorizeCim
  * @copyright Copyright (c) 2017-2018
  * @license   Open Software License (OSL 3.0)
  */
 
-namespace Pmclain\AuthorizenetCim\Gateway\Http\Client;
+namespace TNW\AuthorizeCim\Gateway\Http\Client;
 
-use Pmclain\AuthorizenetCim\Model\Adapter\AuthorizenetAdapter;
+use Magento\Framework\DataObject;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger;
 use Psr\Log\LoggerInterface;
+use Magento\Framework\DataObjectFactory;
 
 abstract class AbstractTransaction implements ClientInterface
 {
@@ -31,25 +32,31 @@ abstract class AbstractTransaction implements ClientInterface
     /** @var Logger */
     protected $_customLogger;
 
-    /** @var AuthorizenetAdapter */
-    protected $_adapter;
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
 
     /**
-     * AbstractTransaction constructor.
+     * @param DataObjectFactory $dataObjectFactory
      * @param LoggerInterface $logger
      * @param Logger $customLogger
-     * @param AuthorizenetAdapter $adapter
      */
     public function __construct(
+        DataObjectFactory $dataObjectFactory,
         LoggerInterface $logger,
-        Logger $customLogger,
-        AuthorizenetAdapter $adapter
+        Logger $customLogger
     ) {
+        $this->dataObjectFactory = $dataObjectFactory;
         $this->_logger = $logger;
         $this->_customLogger = $customLogger;
-        $this->_adapter = $adapter;
     }
 
+    /**
+     * @param TransferInterface $transferObject
+     * @return mixed
+     * @throws ClientException
+     */
     public function placeRequest(TransferInterface $transferObject)
     {
         $data = $transferObject->getBody();
@@ -72,6 +79,26 @@ abstract class AbstractTransaction implements ClientInterface
         }
 
         return $response;
+    }
+
+    /**
+     * Create data object
+     *
+     * @param array $data
+     * @return array|DataObject
+     */
+    protected function createDataObject($data)
+    {
+        $convert = false;
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = $this->createDataObject($value);
+            }
+            if (!is_numeric($key)) {
+                $convert = true;
+            }
+        }
+        return $convert ? $this->dataObjectFactory->create(['data' => $data]) : $data;
     }
 
     abstract protected function process(array $data);

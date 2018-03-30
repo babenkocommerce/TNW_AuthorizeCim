@@ -1,27 +1,17 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Block;
+namespace TNW\AuthorizeCim\Block;
 
-use Magento\Payment\Block\Form\Cc;
-use Pmclain\AuthorizenetCim\Gateway\Config\Config;
-use Magento\Payment\Model\Config as PaymentConfig;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Payment\Block\Form\Cc;
 use Magento\Payment\Helper\Data as Helper;
-use Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider;
+use Magento\Payment\Model\Config as PaymentConfig;
+use TNW\AuthorizeCim\Gateway\Config\Config;
+use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 
 class Form extends Cc
 {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
+ * TNW_AuthorizeCim extension
  * NOTICE OF LICENSE
  *
  * This source file is subject to the OSL 3.0 License
@@ -9,14 +9,14 @@
  * https://opensource.org/licenses/osl-3.0.php
  *
  * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
+ * @package   TNW_AuthorizeCim
  * @copyright Copyright (c) 2017-2018
  * @license   Open Software License (OSL 3.0)
  */
 
-namespace Pmclain\AuthorizenetCim\Gateway\Http\Client;
+namespace TNW\AuthorizeCim\Gateway\Http\Client;
 
-use Pmclain\AuthorizenetCim\Gateway\Request\PaymentDataBuilder;
+use TNW\AuthorizeCim\Gateway\Request\PaymentDataBuilder;
 
 class TransactionRefund extends AbstractTransaction
 {

@@ -1,24 +1,14 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Block\Customer;
+namespace TNW\AuthorizeCim\Block\Customer;
 
-use Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Block\AbstractCardRenderer;
+use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 
 class CardRenderer extends AbstractCardRenderer
 {

@@ -1,33 +1,23 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Gateway\Request;
+namespace TNW\AuthorizeCim\Gateway\Request;
 
-use Magento\Payment\Gateway\Request\BuilderInterface;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
-use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session;
-use Pmclain\Authnet\CustomerProfileFactory;
-use Pmclain\Authnet\CustomerProfile;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
+use TNW\AuthorizeCim\Model\Request\Data\CustomerDataFactory;
 
+/**
+ * Class for build request customer data
+ */
 class CustomerDataBuilder implements BuilderInterface
 {
-    const CUSTOMER_ID = 'customer_id';
-    const PROFILE_ID = 'profile_id';
-    const CUSTOMER_PROFILE = 'customer_profile';
+    /** key for build customer data */
+    const CUSTOMER_BUILD_KEY = 'customer_data';
 
     /**
      * @var SubjectReader
@@ -38,37 +28,29 @@ class CustomerDataBuilder implements BuilderInterface
      * @var Session
      */
     protected $session;
-
     /**
-     * @var CustomerRepositoryInterface
+     * @var CustomerDataFactory
      */
-    protected $customerRepository;
+    private $customerDataFactory;
 
     /**
-     * @var CustomerProfileFactory
-     */
-    protected $customerProfileFactory;
-
-    /**
-     * CustomerDataBuilder constructor.
      * @param SubjectReader $subjectReader
      * @param Session $session
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param CustomerProfileFactory $customerProfileFactory
+     * @param CustomerDataFactory $customerDataFactory
      */
     public function __construct(
         SubjectReader $subjectReader,
         Session $session,
-        CustomerRepositoryInterface $customerRepository,
-        CustomerProfileFactory $customerProfileFactory
+        CustomerDataFactory $customerDataFactory
     ) {
         $this->subjectReader = $subjectReader;
         $this->session = $session;
-        $this->customerRepository = $customerRepository;
-        $this->customerProfileFactory = $customerProfileFactory;
+        $this->customerDataFactory = $customerDataFactory;
     }
 
     /**
+     * Build customer data
+     *
      * @param array $subject
      * @return array
      */
@@ -77,37 +59,13 @@ class CustomerDataBuilder implements BuilderInterface
         $paymentDataObject = $this->subjectReader->readPayment($subject);
         $order = $paymentDataObject->getOrder();
         $email = $order->getBillingAddress()->getEmail();
-
-        $customerId = null;
-        $profileId = null;
-
-        if ($this->session->isLoggedIn()) {
-            $customerId = $this->session->getCustomerId();
-            $profileId = $this->getCimProfileId();
-        }
-
-        /**
-         * @var CustomerProfile $customerProfile
-         */
-        $customerProfile = $this->customerProfileFactory->create();
-        $customerProfile->setCustomerId($customerId);
-        $customerProfile->setEmail($email ?: $order->getOrderIncrementId() . '_' . mt_rand() . '-' . time());
+        $customerId = $this->session->getCustomerId() ? : null;
+        $customerDataObj = $this->customerDataFactory->create();
+        $customerDataObj->setCustomerEmail($email)
+            ->setCustomerId($customerId);
 
         return [
-            self::CUSTOMER_ID => $customerId,
-            self::PROFILE_ID => $profileId,
-            self::CUSTOMER_PROFILE => $customerProfile,
+            self::CUSTOMER_BUILD_KEY => $customerDataObj
         ];
-    }
-
-    /**
-     * @return string|null
-     */
-    protected function getCimProfileId()
-    {
-        $customer = $this->customerRepository->getById($this->session->getCustomerId());
-        $cimProfileId = $customer->getCustomAttribute('authorizenet_cim_profile_id');
-
-        return $cimProfileId ? $cimProfileId->getValue() : null;
     }
 }

@@ -1,70 +1,114 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Gateway\Config;
+namespace TNW\AuthorizeCim\Gateway\Config;
 
-class Config extends \Magento\Payment\Gateway\Config\Config
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Payment\Gateway\Config\Config as MagentoGatewayConfig;
+
+/**
+ * Config for payment config values
+ */
+class Config extends MagentoGatewayConfig
 {
-    const KEY_ACTIVE = 'active';
-    const KEY_USE_CCV = 'useccv';
-    const KEY_LOGIN = 'login';
-    const KEY_TRANSACTION_KEY = 'trans_key';
-    const KEY_TEST = 'test';
-    const KEY_CURRENCY = 'currency';
-    const KEY_VALIDATION_MODE = 'validation_mode';
+    /** is method active field name */
+    const ACTIVE = 'active';
+    /** is need use CCV field name */
+    const USE_CCV = 'useccv';
+    /** API login id field name */
+    const LOGIN = 'login';
+    /** API transaction key field name */
+    const TRANSACTION_KEY = 'trans_key';
+    /** API client key field name */
+    const CLIENT_KEY = 'client_key';
+    /** payment mode field name */
+    const TEST = 'test';
+    /** currency code field name */
+    const CURRENCY = 'currency';
+    /** validation mode field name */
+    const VALIDATION_MODE = 'validation_mode';
 
-    /** @return bool */
+    /**
+     * Can method is active
+     *
+     * @return bool
+     */
     public function isActive()
     {
-        return (bool)$this->getValue(self::KEY_ACTIVE);
+        return (bool)$this->getValue(self::ACTIVE);
     }
 
-    /** @return bool */
+
+    /**
+     * Is need enter CVV code (for vault)
+     *
+     * @return bool
+     */
     public function isCcvEnabled()
     {
-        return (bool)$this->getValue(self::KEY_USE_CCV);
+        return (bool)$this->getValue(self::USE_CCV);
     }
 
-    /** @return string */
+    /**
+     * Get API login
+     *
+     * @return string|null
+     */
     public function getApiLoginId()
     {
-        return $this->getValue(self::KEY_LOGIN);
+        return $this->getValue(self::LOGIN);
     }
 
-    /** @return string */
+    /**
+     * Get API transaction key
+     *
+     * @return string|null
+     */
     public function getTransactionKey()
     {
-        return $this->getValue(self::KEY_TRANSACTION_KEY);
+        return $this->getValue(self::TRANSACTION_KEY);
     }
 
-    /** @return bool */
+    /**
+     * Get API client key
+     *
+     * @return null|string
+     */
+    public function getClientKey()
+    {
+        return $this->getValue(self::CLIENT_KEY);
+    }
+
+    /**
+     * Get in what mode is the payment method (test or live modes)
+     *
+     * @return bool
+     */
     public function isTest()
     {
-        return (bool)$this->getValue(self::KEY_TEST);
+        return (bool)$this->getValue(self::TEST);
     }
 
-    /** @return string */
+    /**
+     * Get currency code
+     *
+     * @return string
+     */
     public function getCurrency()
     {
-        return $this->getValue(self::KEY_CURRENCY);
+        return $this->getValue(self::CURRENCY);
     }
 
-    /** @return string */
+    /**
+     * Get validation mode
+     *
+     * @return string
+     */
     public function getValidationMode()
     {
-        return $this->getValue(self::KEY_VALIDATION_MODE);
+        return $this->getValue(self::VALIDATION_MODE);
     }
 }

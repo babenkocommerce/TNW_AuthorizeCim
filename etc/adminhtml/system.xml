@@ -1,25 +1,15 @@
 <?xml version="1.0" ?>
 <!--
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
   <system>
     <section id="payment">
-      <group id="pmclain_authorizenetcim" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Authorize.net CIM</label>
+      <group id="tnw_authorize_cim" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>TNW Authorize.net CIM</label>
         <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Enable</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -69,12 +59,12 @@
         </field>
         <field id="validation_mode" translate="label" type="select" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Validation Mode</label>
-          <source_model>Pmclain\AuthorizenetCim\Model\Config\Source\ValidationMode</source_model>
+          <source_model>TNW\AuthorizeCim\Model\Config\Source\ValidationMode</source_model>
         </field>
         <field id="vault_active" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Allow Stored Credit Cards</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-          <config_path>payment/pmclain_authorizenetcim_vault/active</config_path>
+          <config_path>payment/tnw_authorizecim_vault/active</config_path>
         </field>
         <field id="allowspecific" translate="label" type="allowspecific" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
           <label>Payment from Applicable Countries</label>

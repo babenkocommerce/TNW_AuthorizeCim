@@ -1,20 +1,10 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Model\Ui;
+namespace TNW\AuthorizeCim\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -22,60 +12,95 @@ use Magento\Store\Model\ScopeInterface;
 
 class ConfigProvider implements ConfigProviderInterface
 {
-    const CODE = 'pmclain_authorizenetcim';
-    const CC_VAULT_CODE = 'pmclain_authorizenetcim_vault';
+    /** Payment code */
+    const CODE = 'tnw_authorize_cim';
+    /** Vault payment code */
+    const VAULT_CODE = 'tnw_authorize_cim_vault';
 
     /** @var ScopeConfigInterface */
-    protected $_config;
+    private $config;
 
     /**
-     * ConfigProvider constructor.
      * @param ScopeConfigInterface $config
      */
-    public function __construct(ScopeConfigInterface $config)
-    {
-        $this->_config = $config;
+    public function __construct(
+        ScopeConfigInterface $config
+    ) {
+        $this->config = $config;
     }
 
+    /**
+     * Get payment config array for payment method in checkout
+     *
+     * @return array
+     */
     public function getConfig()
     {
         return [
             'payment' => [
                 self::CODE => [
-                    'clientKey' => $this->_getClientKey(),
-                    'apiLoginId' => $this->_getApiLoginId(),
-                    'useccv' => $this->_getUseCcv(),
-                    'vaultCode' => self::CC_VAULT_CODE,
-                    'test' => $this->_getIsTest(),
+                    'clientKey'     => $this->getClientKey(),
+                    'apiLoginId'    => $this->getApiLoginId(),
+                    'useccv'        => $this->getUseCcv(),
+                    'vaultCode'     => self::VAULT_CODE,
+                    'test'          => $this->getIsTest(),
                 ]
             ]
         ];
     }
 
-    protected function _getClientKey()
+    /**
+     * Get client key config
+     *
+     * @return null|string
+     */
+    private function getClientKey()
     {
-        return $this->_getConfig('client_key');
+        return $this->getConfigByKey('client_key');
     }
 
-    protected function _getApiLoginId()
+    /**
+     * Get API login ID config
+     *
+     * @return null|string
+     */
+    private function getApiLoginId()
     {
-        return $this->_getConfig('login');
+        return $this->getConfigByKey('login');
     }
 
-    protected function _getIsTest()
+    /**
+     * Get use is CVV enabled config
+     *
+     * @return null|string
+     */
+    private function getUseCcv()
     {
-        return $this->_getConfig('test');
+        return $this->getConfigByKey('useccv');
     }
 
-    protected function _getUseCcv()
+    /**
+     * Get API in test mode
+     *
+     * @return null|string
+     */
+    private function getIsTest()
     {
-        return $this->_getConfig('useccv');
+        return $this->getConfigByKey('test');
     }
 
-    protected function _getConfig($value)
+    /**
+     * Retrieve config by key
+     *
+     * @param string $key
+     * @return string|null
+     */
+    private function getConfigByKey($key)
     {
-        return $this->_config->getValue(
-            'payment/pmclain_authorizenetcim/' . $value,
+        $paymentCode = self::CODE;
+
+        return $this->config->getValue(
+            "payment/{$paymentCode}/{$key}",
             ScopeInterface::SCOPE_STORE
         );
     }

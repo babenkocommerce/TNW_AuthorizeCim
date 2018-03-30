@@ -1,25 +1,15 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Block\Vault;
+namespace TNW\AuthorizeCim\Block\Vault;
 
 use Magento\Framework\View\Element\Template;
-use Magento\Vault\Model\CustomerTokenManagement;
-use Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider;
 use Magento\Payment\Model\CcConfigProvider;
+use Magento\Vault\Model\CustomerTokenManagement;
+use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 
 class Tokens extends \Magento\Framework\View\Element\Template
 {

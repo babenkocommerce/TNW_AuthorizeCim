@@ -1,30 +1,20 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Gateway\Command;
+namespace TNW\AuthorizeCim\Gateway\Command;
 
-use Magento\Payment\Gateway\CommandInterface;
-use Magento\Payment\Gateway\Command\CommandPoolInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Framework\Api\FilterBuilder;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\ContextHelper;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
 class CaptureStrategyCommand implements CommandInterface
 {
