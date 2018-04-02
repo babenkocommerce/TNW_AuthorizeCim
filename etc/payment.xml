@@ -11,8 +11,8 @@
         <method name="tnw_authorizecim">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
-        <method name="tnw_authorizecim_vault">
-            <allow_multiple_address>1</allow_multiple_address>
-        </method>
+        <!--<method name="tnw_authorizecim_vault">-->
+            <!--<allow_multiple_address>1</allow_multiple_address>-->
+        <!--</method>-->
     </methods>
 </payment>

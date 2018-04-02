@@ -38,16 +38,16 @@ class ResponseData extends DataObject
             throw new \Exception(__('Response from authorize.net is empty'));
         }
 
-        $curlEncode = json_decode($curlResult, true);
+        $curlDecode = json_decode($curlResult, true);
 
-        if (isset($curlEncode['messages'])) {
-            $message = $curlEncode['messages']['message'][0];
+        if (isset($curlDecode['messages'])) {
+            $message = $curlDecode['messages']['message'][0];
             $this->setData(self::RESPONSE_CODE_KEY, $message['code']);
             $this->setData(self::RESPONSE_TEXT_KEY, $message['text']);
-            unset($curlEncode['messages']);
+            unset($curlDecode['messages']);
         }
 
-        $this->setData(self::RESPONSE_DATA_KEY, $curlEncode);
+        $this->setData(self::RESPONSE_DATA_KEY, $curlDecode);
 
         return $this;
     }

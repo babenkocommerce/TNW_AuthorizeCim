@@ -14,9 +14,11 @@ class TransactionTypesResource
     //TODO Дописать описание типов транзакций
     const TYPE_REFUND = 'refundTransaction';
     const TYPE_AUTH_CAPTURE = 'authCaptureTransaction';
+    /** Authorize credit card */
     const TYPE_AUTH_ONLY = 'authOnlyTransaction';
     const TYPE_GET_DETAILS = 'getDetailsTransaction';
     const TYPE_AUTH_ONLY_CONTINUE = 'authOnlyContinueTransaction';
+    /** Capture payment */
     const TYPE_PRIOR_AUTH_CAPTURE = 'priorAuthCaptureTransaction';
     const TYPE_AUTH_CAPTURE_CONTINUE = 'authCaptureContinueTransaction';
     const TYPE_VOID = 'voidTransaction';

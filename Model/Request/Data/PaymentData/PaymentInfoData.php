@@ -25,6 +25,12 @@ class PaymentInfoData extends DataObject
     /** Credit card expiration year field key */
     const PAYMENT_INFO_EXP_YEAR_KEY = 'info_exp_year';
 
+    /** Credit card number field key */
+    const PAYMENT_INFO_CARD_NUMBER = 'info_card_number';
+
+    /** Credit card code */
+    const PAYMENT_INFO_CARD_CODE = 'info_card_code';
+
     /**
      * Set credit card type
      *
@@ -115,5 +121,51 @@ class PaymentInfoData extends DataObject
     public function getExpYear()
     {
         return $this->getData(self::PAYMENT_INFO_EXP_YEAR_KEY);
+    }
+
+    /**
+     * Set credit card number
+     *
+     * @param string $cardNumber
+     * @return $this
+     */
+    public function setCardNumber($cardNumber)
+    {
+        $this->setData(self::PAYMENT_INFO_CARD_NUMBER, $cardNumber);
+
+        return $this;
+    }
+
+    /**
+     * Return credit card number
+     *
+     * @return string|null
+     */
+    public function getCardNumber()
+    {
+        return $this->getData(self::PAYMENT_INFO_CARD_NUMBER);
+    }
+
+    /**
+     * Set credit card code
+     *
+     * @param string $cardCode
+     * @return $this
+     */
+    public function setCardCode($cardCode)
+    {
+        $this->setData(self::PAYMENT_INFO_CARD_CODE, $cardCode);
+
+        return $this;
+    }
+
+    /**
+     * Return credit card code
+     *
+     * @return string|null
+     */
+    public function getCardCode()
+    {
+        return $this->getData(self::PAYMENT_INFO_CARD_CODE);
     }
 }

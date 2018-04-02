@@ -34,6 +34,9 @@ class PaymentData extends DataObject
     /** Save in vault field key key */
     const SAVE_IN_VAULT_KEY = 'save_in_vault';
 
+    /** Transaction ID of the original authOnlyTransaction request */
+    const REF_TRANS_ID_KEY = 'refTransId';
+
     /**
      * @var PaymentDataFactory
      */
@@ -65,6 +68,29 @@ class PaymentData extends DataObject
         $this->transactionRequestDataFactory = $transactionRequestDataFactory;
         $this->paymentInfoDataFactory = $paymentInfoDataFactory;
         parent::__construct($data);
+    }
+
+    /**
+     * Set transaction ID of the original authOnlyTransaction request
+     *
+     * @param string $refTransId
+     * @return $this
+     */
+    public function setReferenceTransactionId($refTransId)
+    {
+        $this->setData(self::REF_TRANS_ID_KEY, $refTransId);
+
+        return $this;
+    }
+
+    /**
+     * Get transaction ID of the original authOnlyTransaction request
+     *
+     * @return string|null
+     */
+    public function getReferenceTransactionId()
+    {
+        return $this->getData(self::REF_TRANS_ID_KEY);
     }
 
     /**

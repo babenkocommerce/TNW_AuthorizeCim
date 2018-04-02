@@ -41,10 +41,10 @@
                 <vault_active>1</vault_active>
                 <allowspecific>0</allowspecific>
             </tnw_authorize_cim>
-            <tnw_authorize_cim_vault>
-                <model>AuthorizeCimVaultFacade</model>
-                <title>Credit Cards (Authorize.net CIM)</title>
-            </tnw_authorize_cim_vault>
+            <!--<tnw_authorize_cim_vault>-->
+                <!--<model>AuthorizeCimVaultFacade</model>-->
+                <!--<title>Credit Cards (Authorize.net CIM)</title>-->
+            <!--</tnw_authorize_cim_vault>-->
         </payment>
     </default>
 </config>

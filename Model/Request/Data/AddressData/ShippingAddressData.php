@@ -15,10 +15,10 @@ use Magento\Payment\Gateway\Data\AddressAdapterInterface;
 class ShippingAddressData extends DataObject
 {
     /** Customer first name field key*/
-    const FIRST_NAME_KEY = 'first_name';
+    const FIRST_NAME_KEY = 'firstName';
 
     /** Customer last name field key */
-    const LAST_NAME_KEY = 'last_name';
+    const LAST_NAME_KEY = 'lastName';
 
     /** Customer company field key */
     const COMPANY_KEY = 'company';
@@ -267,5 +267,22 @@ class ShippingAddressData extends DataObject
             ->setPhoneNumber($shippingAddress->getTelephone());
 
         return $this;
+    }
+
+    /**
+     * To transaction array
+     *
+     * @return array
+     */
+    public function toTransactionArray()
+    {
+        return [
+            self::FIRST_NAME_KEY => $this->getFirstName(),
+            self::LAST_NAME_KEY => $this->getLastName(),
+            self::ADDRESS_KEY => $this->getAddress(),
+            self::CITY_KEY => $this->getCity(),
+            self::STATE_KEY => $this->getState(),
+            self::ZIP_KEY => $this->getZip(),
+        ];
     }
 }

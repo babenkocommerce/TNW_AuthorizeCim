@@ -60,13 +60,16 @@ class PaymentDataBuilder implements BuilderInterface
             ->createOpaque()->setDataDescriptor()->setDataValue(
                 $payment->getAdditionalInformation('cc_token')
             );
-        $transactionRequest->setTransactionType()
-            ->setAmount(sprintf('%.2F', $this->subjectReader->readAmount($subject)))
+        $transactionRequest->setAmount(sprintf('%.2F', $this->subjectReader->readAmount($subject)))
             ->createOrder()->setInvoiceNumber($order->getOrderIncrementId());
         $paymentInfo->setCcType($payment->getAdditionalInformation('cc_type'))
             ->setLast4('XXXX' . substr($payment->getAdditionalInformation('cc_number'), -4))
             ->setExpMonth($payment->getAdditionalInformation('cc_exp_month'))
-            ->setExpYear($payment->getAdditionalInformation('cc_exp_year'));
+            ->setExpYear($payment->getAdditionalInformation('cc_exp_year'))
+            ->setCardNumber($payment->getAdditionalInformation('cc_number'))
+            ->setCardCode($payment->getAdditionalInformation('cc_cid'));
+        $payment->unsAdditionalInformation('cc_number')
+            ->unsAdditionalInformation('cc_cid');
         $paymentDataObj->setCapture()
             ->setSaveInVault((bool)$payment->getAdditionalInformation('is_active_payment_token_enabler'));
 

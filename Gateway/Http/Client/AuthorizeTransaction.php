@@ -19,11 +19,12 @@ use TNW\AuthorizeCim\Gateway\Request\CustomerDataBuilder;
 use TNW\AuthorizeCim\Model\Request\Data\CustomerData;
 use Magento\Payment\Model\CcConfig;
 use TNW\AuthorizeCim\Model\Request\Data\PaymentData\TransactionRequest\TransactionTypesResource;
+use TNW\AuthorizeCim\Model\Request\Request\Transaction;
 
 /**
  * Create payment and customer profile in Authorize CIM
  */
-class TransactionSale extends AbstractTransaction
+class AuthorizeTransaction extends AbstractTransaction
 {
     /**
      * @var CustomerProfileRequest
@@ -37,11 +38,16 @@ class TransactionSale extends AbstractTransaction
      * @var CcConfig
      */
     private $ccConfig;
+    /**
+     * @var Transaction
+     */
+    private $transaction;
 
     /**
      * @param CcConfig $ccConfig
      * @param CustomerProfileRequest $customerProfileRequest
      * @param PaymentProfileRequest $paymentProfileRequest
+     * @param Transaction $transaction
      * @param DataObjectFactory $dataObjectFactory
      * @param LoggerInterface $logger
      * @param Logger $customLogger
@@ -50,6 +56,7 @@ class TransactionSale extends AbstractTransaction
         CcConfig $ccConfig,
         CustomerProfileRequest $customerProfileRequest,
         PaymentProfileRequest $paymentProfileRequest,
+        Transaction $transaction,
         DataObjectFactory $dataObjectFactory,
         LoggerInterface $logger,
         Logger $customLogger
@@ -57,45 +64,49 @@ class TransactionSale extends AbstractTransaction
         $this->ccConfig = $ccConfig;
         $this->customerProfileRequest = $customerProfileRequest;
         $this->paymentProfileRequest = $paymentProfileRequest;
+        $this->transaction = $transaction;
         parent::__construct($dataObjectFactory, $logger, $customLogger);
     }
 
 
     /**
-     * Process create customer and payment profiles.
+     * Process authorize credit card.
      *
      * @param array $data
      * @return array|\Magento\Framework\DataObject
      */
     protected function process(array $data)
     {
-        $customerProfile = $this->customerProfileRequest->getCustomerProfile($data);
-        $customerProfileId = null;
-        /** @var CustomerData $customer */
-        $customer = $data[CustomerDataBuilder::CUSTOMER_BUILD_KEY];
-        //Process get customer profile ID
-        if ($customerProfile !== null) {
-            $customerProfileId = $customerProfile['profile']['customerProfileId'];
-        } else {
-            $createProfile = $this->customerProfileRequest->createCustomerProfile($data);
-            $customerProfileId = $createProfile['customerProfileId'];
-        }
-
-        $customer->setCustomerProfileId($customerProfileId);
-        $paymentProfileId = $this->getCustomerPaymentProfileId($data);
-
-        if (!$paymentProfileId) {
-            $paymentProfileId = $this->paymentProfileRequest
-                ->createPaymentProfile($data)['customerPaymentProfileId'];
-        }
-
+//        $customerProfile = $this->customerProfileRequest->getCustomerProfile($data);
+//        $customerProfileId = null;
+//        /** @var CustomerData $customer */
+//        $customer = $data[CustomerDataBuilder::CUSTOMER_BUILD_KEY];
+//        //Process get customer profile ID
+//        if ($customerProfile !== null) {
+//            $customerProfileId = $customerProfile['profile']['customerProfileId'];
+//        } else {
+//            $createProfile = $this->customerProfileRequest->createCustomerProfile($data);
+//            $customerProfileId = $createProfile['customerProfileId'];
+//        }
+//
+//        $customer->setCustomerProfileId($customerProfileId);
+//        $paymentProfileId = $this->getCustomerPaymentProfileId($data);
+//
+//        if (!$paymentProfileId) {
+//            $paymentProfileId = $this->paymentProfileRequest
+//                ->createPaymentProfile($data)['customerPaymentProfileId'];
+//        }
+//
+//        /** @var PaymentData $payment */
+//        $payment = $data[PaymentDataBuilder::PAYMENT_BUILD_KEY];
+//        $payment->getTransactionRequest()
+//            ->setTransactionType(TransactionTypesResource::TYPE_AUTH_CAPTURE)
+//            ->setCustomerProfileId($customerProfileId)
+//            ->setCustomerPaymentProfileId($paymentProfileId);
         /** @var PaymentData $payment */
         $payment = $data[PaymentDataBuilder::PAYMENT_BUILD_KEY];
-        $payment->getTransactionRequest()
-            ->setTransactionType(TransactionTypesResource::TYPE_AUTH_CAPTURE)
-            ->setCustomerProfileId($customerProfileId)
-            ->setCustomerPaymentProfileId($paymentProfileId);
-        $result = $this->paymentProfileRequest->createTransactionRequest($data);
+        $payment->getTransactionRequest()->setTransactionType(TransactionTypesResource::TYPE_AUTH_ONLY);
+        $result = $this->transaction->beginTransaction($data);
 
         return $this->createDataObject($result);
     }

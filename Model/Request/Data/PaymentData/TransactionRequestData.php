@@ -56,9 +56,7 @@ class TransactionRequestData extends DataObject
      * @return $this
      * @throws PaymentException
      */
-    public function setTransactionType(
-        $transactionType = TransactionTypesResource::TYPE_AUTH_ONLY
-    ) {
+    public function setTransactionType($transactionType) {
         if (!in_array($transactionType, TransactionTypesResource::getAvailableTypes(), true)) {
             throw new PaymentException(__('Transaction type %1 is not available', $transactionType));
         }

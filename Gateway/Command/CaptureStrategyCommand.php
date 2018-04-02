@@ -37,7 +37,6 @@ class CaptureStrategyCommand implements CommandInterface
     private $_commandPool;
 
     /**
-     * CaptureStrategyCommand constructor.
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
      * @param FilterBuilder $filterBuilder

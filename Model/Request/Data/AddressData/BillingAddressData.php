@@ -15,10 +15,10 @@ use Magento\Payment\Gateway\Data\AddressAdapterInterface;
 class BillingAddressData extends DataObject
 {
     /** Customer first name field key*/
-    const FIRST_NAME_KEY = 'first_name';
+    const FIRST_NAME_KEY = 'firstName';
 
     /** Customer last name field key */
-    const LAST_NAME_KEY = 'last_name';
+    const LAST_NAME_KEY = 'lastName';
 
     /** Customer company field key */
     const COMPANY_KEY = 'company';
@@ -39,7 +39,7 @@ class BillingAddressData extends DataObject
     const COUNTRY_KEY = 'country';
 
     /** Customer phone number field key */
-    const PHONE_NUMBER_KEY = 'phone_number';
+    const PHONE_NUMBER_KEY = 'phoneNumber';
 
     /**
      * Return billing address first name
@@ -267,5 +267,22 @@ class BillingAddressData extends DataObject
             ->setPhoneNumber($billingAddress->getTelephone());
 
         return $this;
+    }
+
+    /**
+     * To transaction array
+     *
+     * @return array
+     */
+    public function toTransactionArray()
+    {
+        return [
+            self::FIRST_NAME_KEY => $this->getFirstName(),
+            self::LAST_NAME_KEY => $this->getLastName(),
+            self::ADDRESS_KEY => $this->getAddress(),
+            self::CITY_KEY => $this->getCity(),
+            self::STATE_KEY => $this->getState(),
+            self::ZIP_KEY => $this->getZip(),
+        ];
     }
 }
