@@ -5,8 +5,9 @@
  */
 namespace TNW\AuthorizeCim\Model\Adapter;
 
-use net\authorize\api\contract\v1 as AnetAPI;
-use net\authorize\api\controller as AnetController;
+use net\authorize\api\constants\ANetEnvironment;
+use net\authorize\api\contract\v1\CreateTransactionRequest;
+use net\authorize\api\controller\CreateTransactionController;
 use TNW\AuthorizeCim\Gateway\Helper\DataObject;
 
 class AuthorizeAdapter
@@ -22,9 +23,9 @@ class AuthorizeAdapter
     private $transactionKey;
 
     /**
-     * @var string
+     * @var bool
      */
-    private $environment;
+    private $sandboxMode;
 
     /**
      * @var DataObject
@@ -35,37 +36,42 @@ class AuthorizeAdapter
      * AuthorizeAdapter constructor.
      * @param string $apiLoginId
      * @param string $transactionKey
-     * @param string $environment
+     * @param string $sandboxMode
      * @param DataObject $dataObjectHelper
      */
     public function __construct(
         $apiLoginId,
         $transactionKey,
-        $environment,
+        $sandboxMode,
         DataObject $dataObjectHelper
     ) {
         $this->apiLoginId = $apiLoginId;
         $this->transactionKey = $transactionKey;
-        $this->environment = $environment;
+        $this->sandboxMode = $sandboxMode;
         $this->dataObjectHelper = $dataObjectHelper;
     }
 
     /**
      * @param array $attributes
-     * @return AnetAPI\AnetApiResponseType
+     * @return \net\authorize\api\contract\v1\AnetApiResponseType
      */
     public function transaction(array $attributes)
     {
-        $transactionRequest = new AnetAPI\CreateTransactionRequest();
-        $this->dataObjectHelper->populateWithArray(
-            $transactionRequest,
-            array_merge($attributes, [
-                'transaction_request' => ['transaction_type' => 'authCaptureTransaction'],
-                'merchant_authentication' => ['name' => $this->apiLoginId, 'transaction_key' => $this->transactionKey]
-            ])
-        );
+        $transactionRequest = new CreateTransactionRequest();
 
-        $controller = new AnetController\CreateTransactionController($transactionRequest);
-        return $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
+        // Filling the object
+        $this->dataObjectHelper->populateWithArray($transactionRequest, array_merge($attributes, [
+            'merchant_authentication' => [
+                'name' => $this->apiLoginId,
+                'transaction_key' => $this->transactionKey
+            ]
+        ]));
+
+        $endPoint = $this->sandboxMode
+            ? ANetEnvironment::SANDBOX
+            : ANetEnvironment::PRODUCTION;
+
+        $controller = new CreateTransactionController($transactionRequest);
+        return $controller->executeWithApiResponse($endPoint);
     }
 }

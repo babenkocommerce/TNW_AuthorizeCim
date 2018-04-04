@@ -10,6 +10,7 @@ use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger;
 use Psr\Log\LoggerInterface;
+use TNW\AuthorizeCim\Gateway\Helper\DataObject;
 use TNW\AuthorizeCim\Model\Adapter\AuthorizeAdapterFactory;
 
 abstract class AbstractTransaction implements ClientInterface
@@ -30,18 +31,26 @@ abstract class AbstractTransaction implements ClientInterface
     protected $adapterFactory;
 
     /**
+     * @var DataObject
+     */
+    private $dataObjectHelper;
+
+    /**
      * @param LoggerInterface $logger
      * @param Logger $customLogger
      * @param AuthorizeAdapterFactory $adapterFactory
+     * @param DataObject $dataObjectHelper
      */
     public function __construct(
         LoggerInterface $logger,
         Logger $customLogger,
-        AuthorizeAdapterFactory $adapterFactory
+        AuthorizeAdapterFactory $adapterFactory,
+        DataObject $dataObjectHelper
     ) {
         $this->logger = $logger;
         $this->customLogger = $customLogger;
         $this->adapterFactory = $adapterFactory;
+        $this->dataObjectHelper = $dataObjectHelper;
     }
 
     /**
@@ -66,7 +75,8 @@ abstract class AbstractTransaction implements ClientInterface
             $this->logger->critical($message);
             throw new ClientException($message);
         } finally {
-            $log['response'] = (array)$response['object'];
+            $log['response'] = [];
+            $this->dataObjectHelper->populateWithObject($log['response'], $response['object']);
             $this->customLogger->debug($log);
         }
 

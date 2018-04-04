@@ -18,16 +18,16 @@ use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 class VaultDetailsHandler implements HandlerInterface
 {
     /** @var CreditCardTokenFactory */
-    protected $_paymentTokenFactory;
+    private $paymentTokenFactory;
 
     /** @var OrderPaymentExtensionInterfaceFactory */
-    protected $_paymentExtensionFactory;
+    private $paymentExtensionFactory;
 
     /** @var SubjectReader */
-    protected $_subjectReader;
+    private $subjectReader;
 
     /** @var Config */
-    protected $_config;
+    private $config;
 
     public function __construct(
         CreditCardTokenFactory $creditCardTokenFactory,
@@ -35,17 +35,19 @@ class VaultDetailsHandler implements HandlerInterface
         Config $config,
         SubjectReader $subjectReader
     ) {
-        $this->_paymentTokenFactory = $creditCardTokenFactory;
-        $this->_paymentExtensionFactory = $paymentExtensionFactory;
-        $this->_subjectReader = $subjectReader;
-        $this->_config = $config;
+        $this->paymentTokenFactory = $creditCardTokenFactory;
+        $this->paymentExtensionFactory = $paymentExtensionFactory;
+        $this->subjectReader = $subjectReader;
+        $this->config = $config;
     }
 
     public function handle(array $subject, array $response)
     {
-        $paymentDO = $this->_subjectReader->readPayment($subject);
-        $transaction = $this->_subjectReader->readTransaction($response);
-        $transaction = $transaction->getData('transactionResponse');
+        $paymentDO = $this->subjectReader->readPayment($subject);
+
+        /** @var \net\authorize\api\contract\v1\CreateTransactionResponse $transaction */
+        $transaction = $this->subjectReader->readTransaction($response);
+        $transaction = $transaction->getTransactionResponse();
         $payment = $paymentDO->getPayment();
 
         if (!$payment->getAdditionalInformation('is_active_payment_token_enabler')) {
@@ -59,16 +61,21 @@ class VaultDetailsHandler implements HandlerInterface
         }
     }
 
+    /**
+     * @param \net\authorize\api\contract\v1\CreateTransactionResponse $transaction
+     * @param $payment
+     * @return PaymentTokenInterface|null
+     */
     private function getVaultPaymentToken($transaction, $payment)
     {
         // Check token existing in gateway response
-        $paymentProfileId = $transaction->getProfile()->getData('customerPaymentProfileId');
+        $paymentProfileId = $transaction->getProfileResponse()->getCustomerProfileId();
         if (!isset($paymentProfileId)) {
             return null;
         }
 
         /** @var PaymentTokenInterface $paymentToken */
-        $paymentToken = $this->_paymentTokenFactory->create();
+        $paymentToken = $this->paymentTokenFactory->create();
         $paymentToken->setGatewayToken($paymentProfileId);
         $paymentToken->setExpiresAt($this->_getExpirationDate($payment));
 
@@ -112,7 +119,7 @@ class VaultDetailsHandler implements HandlerInterface
     {
         $extensionAttributes = $payment->getExtensionAttributes();
         if (null === $extensionAttributes) {
-            $extensionAttributes = $this->_paymentExtensionFactory->create();
+            $extensionAttributes = $this->paymentExtensionFactory->create();
             $payment->setExtensionAttributes($extensionAttributes);
         }
         return $extensionAttributes;

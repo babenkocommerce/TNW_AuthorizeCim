@@ -30,6 +30,10 @@ class Config extends MagentoGatewayConfig
     const CURRENCY = 'currency';
     /** validation mode field name */
     const VALIDATION_MODE = 'validation_mode';
+    /** js sdk url */
+    const SDK_URL = 'sdk_url';
+    /** js sdk url */
+    const SDK_URL_TEST = 'sdk_url_test_mode';
 
     /**
      * Can method is active
@@ -115,5 +119,18 @@ class Config extends MagentoGatewayConfig
     public function getValidationMode($storeId = null)
     {
         return $this->getValue(self::VALIDATION_MODE, $storeId);
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getSdkUrl($storeId = null)
+    {
+        if ($this->isSandboxMode($storeId)) {
+            return $this->getValue(self::SDK_URL_TEST, $storeId);
+        }
+
+        return $this->getValue(self::SDK_URL, $storeId);
     }
 }

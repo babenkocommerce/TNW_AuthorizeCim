@@ -21,7 +21,7 @@ class TransactionCapture extends AbstractTransaction
 
         return $this->adapterFactory->create($storeId)
             ->transaction(array_merge_recursive($data, [
-                'transaction_request' => ['transaction_type' => 'authCaptureTransaction'],
+                'transaction_request' => ['transaction_type' => 'priorAuthCaptureTransaction'],
             ]));
     }
 }

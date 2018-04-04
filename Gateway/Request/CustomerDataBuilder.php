@@ -36,8 +36,17 @@ class CustomerDataBuilder implements BuilderInterface
     public function build(array $subject)
     {
         $paymentDO = $this->subjectReader->readPayment($subject);
-        $order = $paymentDO->getOrder();
 
-        return [];
+        $order = $paymentDO->getOrder();
+        $billingAddress = $order->getBillingAddress();
+
+        return [
+            'transaction_request' => [
+                'customer' => [
+                    'type' => 'individual',
+                    'email' => $billingAddress->getEmail()
+                ]
+            ]
+        ];
     }
 }

@@ -3,173 +3,204 @@
  * See TNW_LICENSE.txt for license details.
  */
 
-define(
-    [
-        'jquery',
-        'ko',
-        'Magento_Payment/js/view/payment/cc-form',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Checkout/js/action/redirect-on-success',
-        'Magento_Payment/js/model/credit-card-validation/validator',
-        'mage/validation',
-        'TNW_authorize_cim_accept_js_sandbox'
-    ],
-    function (
-        $,
-        ko,
-        Component,
-        additionalValidators,
-        redirectOnSuccess
-    ) {
-        'use strict';
-        return Component.extend({
-            defaults: {
-                template: 'TNW_AuthorizeCim/payment/cc-form',
-                payment_method_code: 'tnw_authorize_cim',
-                opaqueToken: null
-            },
+define([
+    'jquery',
+    'Magento_Payment/js/view/payment/cc-form',
+    'Magento_Checkout/js/model/full-screen-loader'
+],
+function ($, Component, fullScreenLoader) {
+    'use strict';
 
-            initialize: function () {
-                this._super();
-                window['acceptJs_' + this.getCode() + '_callback'] = function(response) {
-                    this.handleAcceptResponse(response);
-                }.bind(this);
-            },
+    return Component.extend({
+        defaults: {
+            template: 'TNW_AuthorizeCim/payment/cc-form',
+            ccCode: null,
+            ccMessageContainer: null,
+            code: 'tnw_authorize_cim',
+            accept: null,
+            imports: {
+                onActiveChange: 'active'
+            }
+        },
 
-            isShowLegend: function() {
-                return true;
-            },
+        /**
+         * Set list of observable attributes
+         *
+         * @returns {exports.initObservable}
+         */
+        initObservable: function () {
+            this._super()
+                .observe(['active']);
 
-            isActive: function() {
-                return true;
-            },
+            return this;
+        },
 
-            /**
-             * Get payment method code
-             *
-             * @returns {string}
-             */
-            getCode: function () {
-                return this.payment_method_code;
-            },
+        /**
+         * Check if payment is active
+         *
+         * @returns {Boolean}
+         */
+        isActive: function() {
+            var active = this.getCode() === this.isChecked();
 
-            /**
-             * Get data
-             *
-             * @returns {Object}
-             */
-            getData: function () {
-                //TODO Удалить ненужную инфу
-                return {
-                    'method': this.item.method,
-                    'additional_data': {
-                        'cc_cid': this.creditCardVerificationNumber(),
-                        'cc_ss_start_month': this.creditCardSsStartMonth(),
-                        'cc_ss_start_year': this.creditCardSsStartYear(),
-                        'cc_ss_issue': this.creditCardSsIssue(),
-                        'cc_type': this.creditCardType(),
-                        'cc_exp_year': this.creditCardExpYear(),
-                        'cc_exp_month': this.creditCardExpMonth(),
-                        'cc_number': this.creditCardNumber(),
-                        'cc_token' : this.opaqueToken
-                    }
-                };
-            },
+            this.active(active);
 
-            /**
-             * Action to place order
-             */
-            placeOrder: function (data, event) {
-                debugger;
-                if (event) {
-                    event.preventDefault();
-                }
+            return active;
+        },
 
+        /**
+         * Triggers when payment method change
+         * @param {Boolean} isActive
+         */
+        onActiveChange: function (isActive) {
+            var self = this;
+
+            if (!isActive) {
+                return;
+            }
+
+            this.restoreMessageContainer();
+            this.restoreCode();
+
+            fullScreenLoader.startLoader();
+            require([this.getSdkUrl()], function () {
+                self.accept = window.Accept;
+                fullScreenLoader.stopLoader();
+            });
+        },
+
+        /**
+         * Get full selector name
+         *
+         * @param {String} field
+         * @returns {String}
+         */
+        getSelector: function (field) {
+            return '#' + this.getCode() + '_' + field;
+        },
+
+        /**
+         * Restore original message container for cc-form component
+         */
+        restoreMessageContainer: function () {
+            this.messageContainer = this.ccMessageContainer;
+        },
+
+        /**
+         * Restore original code for cc-form component
+         */
+        restoreCode: function () {
+            this.code = this.ccCode;
+        },
+
+        /** @inheritdoc */
+        initChildren: function () {
+            this._super();
+            this.ccMessageContainer = this.messageContainer;
+            this.ccCode = this.code;
+
+            return this;
+        },
+
+        /**
+         * Get payment method code
+         *
+         * @returns {string}
+         */
+        getCode: function () {
+            return this.code;
+        },
+
+        /**
+         * Get data
+         *
+         * @returns {Object}
+         */
+        getData: function () {
+            return this._super();
+        },
+
+        /**
+         * Returns state of place order button
+         * @returns {Boolean}
+         */
+        isButtonActive: function () {
+            return this.isActive() && this.isPlaceOrderActionAllowed();
+        },
+
+        /**
+         * Validate current credit card type
+         * @returns {Boolean}
+         */
+        validateCardType: function () {
+            return this.selectedCardType() !== null;
+        },
+
+        /**
+         * Triggers order placing
+         */
+        placeOrderClick: function () {
+            var self = this;
+
+            if (this.validateCardType()) {
                 this.isPlaceOrderActionAllowed(false);
-
-                if (this.validate() && additionalValidators.validate()) {
-                    this.createTokenAndSaveOrder();
-                }
-            },
-
-            /**
-             * Send payment info via Accept.js and call callback
-             */
-            createTokenAndSaveOrder: function () {
-                debugger;
-                var form = $('#' + this.getCode() + '-form'),
-                    paymentData = {
+                var paymentData = {
                         cardData: {
-                            cardNumber: form.find('#' + this.getCode() + '_cc_number').val().replace(/\D/g, ''),
-                            month: form.find('#' + this.getCode() + '_expiration').val(),
-                            year: form.find('#' + this.getCode() + '_expiration_yr').val(),
-                            cardCode: ''
+                            cardNumber: $(this.getSelector('cc_number')).val().replace(/\D/g, ''),
+                            month: $(this.getSelector('expiration')).val(),
+                            year: $(this.getSelector('expiration_yr')).val(),
+                            cardCode: $(this.getSelector('cc_cid')).val()
                         },
                         authData: {
-                            clientKey: this.getUiData().clientKey,
-                            apiLoginID: this.getUiData().apiLoginId
+                            clientKey: this.getClientKey(),
+                            apiLoginID: this.getApiLoginId()
                         }
                     };
 
-                if (form.find('#' + this.getCode() + '_cc_cid').length > 0) {
-                    paymentData['cardData']['cardCode'] = form.find('#' + this.getCode() + '_cc_cid').val();
-                }
-
-                Accept.dispatchData(paymentData, 'acceptJs_' + this.getCode() + '_callback');
-            },
-
-            /**
-             * Process accept.js response
-             *
-             * @param acceptResponse
-             */
-            handleAcceptResponse: function (acceptResponse) {
-                debugger;
-                if (acceptResponse.messages.resultCode === "Error") {
-                    //TODO обработать ошибку
-                } else {
-                    if (typeof acceptResponse.opaqueData === 'object' &&
-                        typeof acceptResponse.opaqueData.dataValue === 'string') {
-                        this.opaqueToken = acceptResponse.opaqueData.dataValue;
-                    }
-                    this.saveOrder();
-                }
-            },
-
-            /**
-             * Save order in DB
-             */
-            saveOrder: function () {
-                var self = this;
-                this.getPlaceOrderDeferredObject()
-                    .fail(function () {
+                this.accept.dispatchData(paymentData, function (response) {
+                    if (response.messages.resultCode === "Error") {
                         self.isPlaceOrderActionAllowed(true);
-                    }).done(function () {
-                    self.isPlaceOrderActionAllowed(true);
-                    redirectOnSuccess.execute();
+
+                        var i = 0;
+                        while (i < response.messages.message.length) {
+                            self.messageContainer.addErrorMessage({
+                                message:response.messages.message[i].code + ": " + response.messages.message[i].text
+                            });
+                            i = i + 1;
+                        }
+                    } else {
+                        response.opaqueData.dataValue;
+                    }
                 });
-
-            },
-
-            /**
-             * Validate form fields
-             *
-             * @returns {boolean}
-             */
-            validate: function () {
-                var form = $('#' + this.getCode() + '-form');
-
-                return form.validation() && form.validation('isValid');
-            },
-
-            /**
-             * Get config data from UI config provider
-             *
-             * @returns {object}
-             */
-            getUiData: function () {
-                return window.checkoutConfig.payment[this.getCode()];
             }
-        });
-    }
-);
+        },
+
+        /**
+         * @returns {String}
+         */
+        getClientKey: function () {
+            return window.checkoutConfig.payment[this.getCode()].clientKey;
+        },
+
+        /**
+         * @returns {String}
+         */
+        getApiLoginId: function () {
+            return window.checkoutConfig.payment[this.getCode()].apiLoginId;
+        },
+
+        /**
+         * @returns {String}
+         */
+        getVaultCode: function () {
+            return window.checkoutConfig.payment[this.getCode()].ccVaultCode;
+        },
+
+        /**
+         * @returns {String}
+         */
+        getSdkUrl: function () {
+            return window.checkoutConfig.payment[this.getCode()].sdkUrl;
+        }
+    });
+});

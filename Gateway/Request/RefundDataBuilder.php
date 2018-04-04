@@ -5,16 +5,19 @@
  */
 namespace TNW\AuthorizeCim\Gateway\Request;
 
-use Magento\Payment\Gateway\Request\BuilderInterface;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use TNW\AuthorizeCim\Helper\Payment\Formatter;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
- * Class for build request payment data
+ * Refund Data Builder
  */
-class PaymentDataBuilder implements BuilderInterface
+class RefundDataBuilder implements BuilderInterface
 {
     use Formatter;
+
+    const TRANSACTION_ID = 'transaction_id';
 
     /**
      * @var SubjectReader
@@ -22,6 +25,7 @@ class PaymentDataBuilder implements BuilderInterface
     private $subjectReader;
 
     /**
+     * RefundDataBuilder constructor.
      * @param SubjectReader $subjectReader
      */
     public function __construct(
@@ -31,21 +35,20 @@ class PaymentDataBuilder implements BuilderInterface
     }
 
     /**
-     * Build payment data
-     *
-     * @param array $subject
-     * @return array
+     * {@inheritdoc}
+     * @throws LocalizedException
      */
     public function build(array $subject)
     {
         $paymentDO = $this->subjectReader->readPayment($subject);
-        $order = $paymentDO->getOrder();
+
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
+        $payment = $paymentDO->getPayment();
 
         return [
             'transaction_request' => [
                 'amount' => $this->formatPrice($this->subjectReader->readAmount($subject)),
-                'currency_code' => $order->getCurrencyCode(),
-                'po_number' => $order->getOrderIncrementId()
+                'ref_trans_id' => $payment->getParentTransactionId()
             ]
         ];
     }

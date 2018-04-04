@@ -50,7 +50,7 @@ class DataObject
      */
     public function populateWithArray($dataObject, array $data)
     {
-        $dataObjectMethods = get_class_methods(get_class($dataObject));
+        $dataObjectMethods = get_class_methods($dataObject);
         foreach ($data as $key => $value) {
             /* First, verify is there any setter for the key on the Service Data Object */
             $camelCaseKey = SimpleDataObjectConverter::snakeCaseToUpperCamelCase($key);
@@ -86,6 +86,60 @@ class DataObject
 
                     $dataObject->$methodName($object);
                     break;
+            }
+        }
+    }
+
+    /**
+     * @param array $data
+     * @param $dataObject
+     */
+    public function populateWithObject(array &$data, $dataObject)
+    {
+        foreach (get_class_methods($dataObject) as $methodName) {
+            if (strpos($methodName, 'get') !== 0) {
+                continue;
+            }
+
+            $snakeCaseKey = SimpleDataObjectConverter::camelCaseToSnakeCase(substr($methodName, 3));
+            $value = $dataObject->$methodName();
+
+            switch (true) {
+                case $value === null:
+                    break;
+
+                case \is_scalar($value):
+                    $data[$snakeCaseKey] = $value;
+                    break;
+
+                case \is_array($value):
+                    $arrays = [];
+                    foreach ($value as $key => $arrayElementData) {
+                        $array = [];
+                        switch (true) {
+                            case $arrayElementData === null:
+                                break;
+
+                            case \is_object($arrayElementData):
+                                $this->populateWithObject($array, $arrayElementData);
+                                break;
+
+                            default:
+                                $array = $arrayElementData;
+                                break;
+                        }
+
+                        $arrays[$key] = $array;
+                    }
+
+                    $data[$snakeCaseKey] = $arrays;
+                    break;
+
+                default:
+                    $array = [];
+                    $this->populateWithObject($array, $value);
+
+                    $data[$snakeCaseKey] = $array;
             }
         }
     }

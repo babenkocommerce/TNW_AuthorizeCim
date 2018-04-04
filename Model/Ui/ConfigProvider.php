@@ -7,7 +7,6 @@ namespace TNW\AuthorizeCim\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Session\SessionManagerInterface;
-use Magento\Store\Model\ScopeInterface;
 use TNW\AuthorizeCim\Gateway\Config\Config;
 
 class ConfigProvider implements ConfigProviderInterface
@@ -47,71 +46,12 @@ class ConfigProvider implements ConfigProviderInterface
             'payment' => [
                 self::CODE => [
                     'isActive' => $this->config->isActive($storeId),
-                    'clientKey' => $this->getClientKey(),
-                    'apiLoginId' => $this->getApiLoginId(),
-                    'countrySpecificCardTypes' => $this->config->getCountrySpecificCardTypeConfig($storeId),
-                    'availableCardTypes' => $this->config->getAvailableCardTypes($storeId),
-                    'useccv' => $this->getUseCcv(),
+                    'clientKey' => $this->config->getClientKey(),
+                    'apiLoginId' => $this->config->getApiLoginId(),
+                    'sdkUrl' => $this->config->getSdkUrl(),
                     'vaultCode' => self::VAULT_CODE,
-                    'test' => $this->getIsTest(),
                 ]
             ]
         ];
-    }
-
-    /**
-     * Get client key config
-     *
-     * @return null|string
-     */
-    private function getClientKey()
-    {
-        return $this->getConfigByKey('client_key');
-    }
-
-    /**
-     * Get API login ID config
-     *
-     * @return null|string
-     */
-    private function getApiLoginId()
-    {
-        return $this->getConfigByKey('login');
-    }
-
-    /**
-     * Get use is CVV enabled config
-     *
-     * @return null|string
-     */
-    private function getUseCcv()
-    {
-        return $this->getConfigByKey('useccv');
-    }
-
-    /**
-     * Get API in test mode
-     *
-     * @return null|string
-     */
-    private function getIsTest()
-    {
-        return $this->getConfigByKey('test');
-    }
-
-    /**
-     * Retrieve config by key
-     *
-     * @param string $key
-     * @return string|null
-     */
-    private function getConfigByKey($key)
-    {
-        $paymentCode = self::CODE;
-
-        return $this->config->getValue(
-            "payment/{$paymentCode}/{$key}",
-            ScopeInterface::SCOPE_STORE
-        );
     }
 }

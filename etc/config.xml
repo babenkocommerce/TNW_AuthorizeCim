@@ -42,6 +42,8 @@
                 <privateInfoKeys>auth_code,avs_code,cavv_code,cvv_code</privateInfoKeys>
                 <paymentInfoKeys>cc_type,cc_number,auth_code,avs_code,cavv_code,cvv_code</paymentInfoKeys>
                 <debugReplaceKeys />
+                <sdk_url_test_mode><![CDATA[https://jstest.authorize.net/v1/Accept.js]]></sdk_url_test_mode>
+                <sdk_url><![CDATA[https://js.authorize.net/v1/Accept.js]]></sdk_url>
             </tnw_authorize_cim>
             <tnw_authorize_cim_vault>
                 <model>AuthorizeCimVaultFacade</model>

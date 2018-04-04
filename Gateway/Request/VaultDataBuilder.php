@@ -5,23 +5,21 @@
  */
 namespace TNW\AuthorizeCim\Gateway\Request;
 
-use Magento\Payment\Gateway\Request\BuilderInterface;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
-use TNW\AuthorizeCim\Helper\Payment\Formatter;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
 /**
- * Class for build request payment data
+ * Vault Data Builder
  */
-class PaymentDataBuilder implements BuilderInterface
+class VaultDataBuilder implements BuilderInterface
 {
-    use Formatter;
-
     /**
      * @var SubjectReader
      */
     private $subjectReader;
 
     /**
+     * VoidDataBuilder constructor.
      * @param SubjectReader $subjectReader
      */
     public function __construct(
@@ -31,21 +29,20 @@ class PaymentDataBuilder implements BuilderInterface
     }
 
     /**
-     * Build payment data
-     *
-     * @param array $subject
-     * @return array
+     * @inheritdoc
      */
-    public function build(array $subject)
+    public function build(array $buildSubject)
     {
         $paymentDO = $this->subjectReader->readPayment($subject);
-        $order = $paymentDO->getOrder();
+
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
+        $payment = $paymentDO->getPayment();
 
         return [
             'transaction_request' => [
-                'amount' => $this->formatPrice($this->subjectReader->readAmount($subject)),
-                'currency_code' => $order->getCurrencyCode(),
-                'po_number' => $order->getOrderIncrementId()
+                'profile' => [
+                    'create_profile' => $payment->getAdditionalInformation('is_active_payment_token_enabler')
+                ]
             ]
         ];
     }

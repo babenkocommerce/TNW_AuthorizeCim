@@ -38,13 +38,19 @@ class CaptureDataBuilder implements BuilderInterface
     public function build(array $subject)
     {
         $paymentDO = $this->subjectReader->readPayment($subject);
-        $payment = $paymentDO->getPayment();
-        $transactionId = $payment->getCcTransId();
 
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
+        $payment = $paymentDO->getPayment();
+
+        $transactionId = $payment->getCcTransId();
         if (!$transactionId) {
             throw new LocalizedException(__('No authorization transaction to proceed capture.'));
         }
 
-        return [];
+        return [
+            'transaction_request' => [
+                'ref_trans_id' => $transactionId
+            ]
+        ];
     }
 }
