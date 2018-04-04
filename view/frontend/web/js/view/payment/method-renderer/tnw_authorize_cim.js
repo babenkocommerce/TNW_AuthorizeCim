@@ -6,9 +6,10 @@
 define([
     'jquery',
     'Magento_Payment/js/view/payment/cc-form',
+    'Magento_Vault/js/view/payment/vault-enabler',
     'Magento_Checkout/js/model/full-screen-loader'
 ],
-function ($, Component, fullScreenLoader) {
+function ($, Component, VaultEnabler, fullScreenLoader) {
     'use strict';
 
     return Component.extend({
@@ -18,10 +19,23 @@ function ($, Component, fullScreenLoader) {
             ccMessageContainer: null,
             code: 'tnw_authorize_cim',
             accept: null,
+            paymentMethodToken: null,
             imports: {
                 onActiveChange: 'active'
             }
         },
+
+        /**
+         * @returns {exports.initialize}
+         */
+        initialize: function () {
+            this._super();
+            this.vaultEnabler = new VaultEnabler();
+            this.vaultEnabler.setPaymentCode(this.getVaultCode());
+
+            return this;
+        },
+
 
         /**
          * Set list of observable attributes
@@ -117,7 +131,20 @@ function ($, Component, fullScreenLoader) {
          * @returns {Object}
          */
         getData: function () {
-            return this._super();
+            var data = this._super();
+
+            data['additional_data']['cc_token'] = this.paymentMethodToken;
+            this.vaultEnabler.visitAdditionalData(data);
+
+            return data;
+        },
+
+        /**
+         * Set payment nonce
+         * @param {String} paymentMethodToken
+         */
+        setPaymentMethodToken: function (paymentMethodToken) {
+            this.paymentMethodToken = paymentMethodToken;
         },
 
         /**
@@ -169,7 +196,8 @@ function ($, Component, fullScreenLoader) {
                             i = i + 1;
                         }
                     } else {
-                        response.opaqueData.dataValue;
+                        self.setPaymentMethodToken(response.opaqueData.dataValue);
+                        self.placeOrder();
                     }
                 });
             }
