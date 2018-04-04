@@ -13,7 +13,7 @@ use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 class CaptureHandler implements HandlerInterface
 {
     /** @var SubjectReader  */
-    protected $_subjectReader;
+    protected $subjectReader;
 
     /**
      * @param SubjectReader $subjectReader
@@ -21,7 +21,7 @@ class CaptureHandler implements HandlerInterface
     public function __construct(
         SubjectReader $subjectReader
     ) {
-        $this->_subjectReader = $subjectReader;
+        $this->subjectReader = $subjectReader;
     }
 
     /**
@@ -33,15 +33,9 @@ class CaptureHandler implements HandlerInterface
      */
     public function handle(array $subject, array $response)
     {
-        $apiResponse = $response['object']->getData('transactionResponse');
         /** @var Payment $payment */
-        $payment = $this->_subjectReader->readPayment($subject)->getPayment();
-
-        if ($payment instanceof Payment) {
-            $payment->setTransactionId($apiResponse['transId']);
-            $payment->setIsTransactionClosed(false);
-            $payment->setShouldCloseParentTransaction(false);
-        }
+        $payment = $this->subjectReader->readPayment($subject)->getPayment();
+        $transaction = $this->subjectReader->readTransaction($response);
 
         return $this;
     }

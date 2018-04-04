@@ -12,8 +12,10 @@ use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 
 class Payment extends Template
 {
-    /** @var ConfigProvider */
-    protected $_config;
+    /**
+     * @var ConfigProvider
+     */
+    private $config;
 
     /**
      * Payment constructor.
@@ -27,15 +29,17 @@ class Payment extends Template
         array $data = []
     ) {
         parent::__construct($context);
-        $this->_config = $configProvider;
+        $this->config = $configProvider;
     }
 
     /** @return string */
     public function getPaymentConfig()
     {
-        $payment = $this->_config->getConfig()['payment'];
+        $payment = $this->config->getConfig()['payment'];
+
         $config = $payment[$this->getCode()];
         $config['code'] = $this->getCode();
+
         return json_encode($config, JSON_UNESCAPED_SLASHES);
     }
 

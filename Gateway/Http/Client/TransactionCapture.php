@@ -6,9 +6,9 @@
 namespace TNW\AuthorizeCim\Gateway\Http\Client;
 
 /**
- * Transaction Void
+ * Transaction Capture
  */
-class TransactionVoid extends AbstractTransaction
+class TransactionCapture extends AbstractTransaction
 {
     /**
      * @inheritdoc

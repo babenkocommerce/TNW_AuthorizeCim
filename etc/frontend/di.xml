@@ -27,4 +27,11 @@
       </argument>
     </arguments>
   </type>
+  <type name="Magento\Vault\Model\Ui\TokensConfigProvider">
+    <arguments>
+      <argument name="tokenUiComponentProviders" xsi:type="array">
+        <item name="tnw_stripe" xsi:type="object">TNW\AuthorizeCim\Model\Ui\TokenUiComponentProvider</item>
+      </argument>
+    </arguments>
+  </type>
 </config>

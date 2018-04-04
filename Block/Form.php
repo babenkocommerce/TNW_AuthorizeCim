@@ -3,7 +3,6 @@
  * Copyright © 2017 TechNWeb, Inc. All rights reserved.
  * See TNW_LICENSE.txt for license details.
  */
-
 namespace TNW\AuthorizeCim\Block;
 
 use Magento\Framework\View\Element\Template\Context;
@@ -16,11 +15,19 @@ use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 class Form extends Cc
 {
     /** @var Config */
-    protected $_config;
+    private $config;
 
     /** @var Helper */
-    protected $_helper;
+    private $helper;
 
+    /**
+     * Form constructor.
+     * @param Context $context
+     * @param PaymentConfig $paymentConfig
+     * @param Config $config
+     * @param Helper $helper
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         PaymentConfig $paymentConfig,
@@ -29,18 +36,20 @@ class Form extends Cc
         array $data = []
     ) {
         parent::__construct($context, $paymentConfig, $data);
-        $this->_config = $config;
-        $this->_helper = $helper;
+        $this->config = $config;
+        $this->helper = $helper;
     }
 
     /** @return bool */
     public function useCcv()
     {
-        return $this->_config->isCcvEnabled();
-
+        return $this->config->isCcvEnabled();
     }
 
-    /** @return bool */
+    /**
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function isVaultEnabled()
     {
         $storeId = $this->_storeManager->getStore()->getId();
@@ -48,9 +57,12 @@ class Form extends Cc
         return $vaultPayment->isActive($storeId);
     }
 
-    /** @return \Magento\Vault\Model\VaultPaymentInterface */
+    /**
+     * @return \Magento\Payment\Model\MethodInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function getVaultPayment()
     {
-        return $this->_helper->getMethodInstance(ConfigProvider::CC_VAULT_CODE);
+        return $this->helper->getMethodInstance(ConfigProvider::VAULT_CODE);
     }
 }

@@ -3,12 +3,12 @@
  * Copyright © 2017 TechNWeb, Inc. All rights reserved.
  * See TNW_LICENSE.txt for license details.
  */
-
 namespace TNW\AuthorizeCim\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use TNW\AuthorizeCim\Gateway\Config\Config;
 
 class ConfigProvider implements ConfigProviderInterface
 {
@@ -17,16 +17,22 @@ class ConfigProvider implements ConfigProviderInterface
     /** Vault payment code */
     const VAULT_CODE = 'tnw_authorize_cim_vault';
 
-    /** @var ScopeConfigInterface */
+    /** @var Config */
     private $config;
 
+    /** @var SessionManagerInterface */
+    private $session;
+
     /**
-     * @param ScopeConfigInterface $config
+     * @param Config $config
+     * @param SessionManagerInterface $session
      */
     public function __construct(
-        ScopeConfigInterface $config
+        Config $config,
+        SessionManagerInterface $session
     ) {
         $this->config = $config;
+        $this->session = $session;
     }
 
     /**
@@ -36,14 +42,18 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
+        $storeId = $this->session->getStoreId();
         return [
             'payment' => [
                 self::CODE => [
-                    'clientKey'     => $this->getClientKey(),
-                    'apiLoginId'    => $this->getApiLoginId(),
-                    'useccv'        => $this->getUseCcv(),
-                    'vaultCode'     => self::VAULT_CODE,
-                    'test'          => $this->getIsTest(),
+                    'isActive' => $this->config->isActive($storeId),
+                    'clientKey' => $this->getClientKey(),
+                    'apiLoginId' => $this->getApiLoginId(),
+                    'countrySpecificCardTypes' => $this->config->getCountrySpecificCardTypeConfig($storeId),
+                    'availableCardTypes' => $this->config->getAvailableCardTypes($storeId),
+                    'useccv' => $this->getUseCcv(),
+                    'vaultCode' => self::VAULT_CODE,
+                    'test' => $this->getIsTest(),
                 ]
             ]
         ];

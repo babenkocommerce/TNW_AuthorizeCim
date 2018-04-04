@@ -12,29 +12,41 @@ use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
 class CardDetailsHandler implements HandlerInterface
 {
-    /** @var SubjectReader */
-    protected $_subjectReader;
+    const CARD_NUMBER = 'cc_number';
 
+    /** @var
+     * SubjectReader
+     */
+    private $subjectReader;
+
+    /**
+     * CardDetailsHandler constructor.
+     * @param SubjectReader $subjectReader
+     */
     public function __construct(
         SubjectReader $subjectReader
     ) {
-        $this->_subjectReader = $subjectReader;
+        $this->subjectReader = $subjectReader;
     }
 
     public function handle(array $subject, array $response)
     {
-        $paymentDataObject = $this->_subjectReader->readPayment($subject);
-        $transaction = $this->_subjectReader->readTransaction($response);
-        $transaction = $transaction->getData('transactionResponse');
-        $payment = $paymentDataObject->getPayment();
+        $paymentDO = $this->subjectReader->readPayment($subject);
+
+        /** @var \net\authorize\api\contract\v1\CreateTransactionResponse $transaction */
+        $transaction = $this->subjectReader->readTransaction($response);
+
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
+        $payment = $paymentDO->getPayment();
         ContextHelper::assertOrderPayment($payment);
 
-        $payment->setCcLast4($this->_getLast4($transaction->getData('accountNumber')));
-        $payment->setCcType($transaction->getData('accountType'));
-    }
+        $transactionResponse = $transaction->getTransactionResponse();
 
-    protected function _getLast4($string)
-    {
-        return substr($string, strlen($string) - 4, strlen($string));
+        $payment->setCcLast4($transactionResponse->getAccountNumber());
+        $payment->setCcType($transactionResponse->getAccountType());
+
+        // set card details to additional info
+        $payment->setAdditionalInformation(self::CARD_NUMBER, $transactionResponse->getAccountNumber());
+        $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $transactionResponse->getAccountType());
     }
 }

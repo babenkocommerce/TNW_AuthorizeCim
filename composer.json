@@ -1,21 +1,20 @@
 {
-  "name": "pmclain/magento2-authorizenetcim",
+  "name": "tnw/module-authorizenetcim",
   "description": "Authorize.net CIM for Magento 2",
   "type": "magento2-module",
   "license": [
     "OSL-3.0"
   ],
   "require": {
-    "magento/framework": "~101.0.0",
-    "magento/module-vault": "100.1.*",
-    "pmclain/authorizenet-php-sdk": "~0.1.4"
+    "magento/framework": "~100.1.0|~101.0.0",
+    "authorizenet/authorizenet": "~1.9.6"
   },
   "autoload": {
     "files": [
       "registration.php"
     ],
     "psr-4": {
-      "Pmclain\\AuthorizenetCim\\": ""
+      "TNW\\AuthorizenetCim\\": ""
     }
   }
 }

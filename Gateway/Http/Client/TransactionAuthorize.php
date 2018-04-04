@@ -6,9 +6,9 @@
 namespace TNW\AuthorizeCim\Gateway\Http\Client;
 
 /**
- * Transaction Void
+ * Transaction Authorize
  */
-class TransactionVoid extends AbstractTransaction
+class TransactionAuthorize extends AbstractTransaction
 {
     /**
      * @inheritdoc
@@ -21,7 +21,7 @@ class TransactionVoid extends AbstractTransaction
 
         return $this->adapterFactory->create($storeId)
             ->transaction(array_merge_recursive($data, [
-                'transaction_request' => ['transaction_type' => 'authCaptureTransaction'],
+                'transaction_request' => ['transaction_type' => 'authOnlyTransaction'],
             ]));
     }
 }

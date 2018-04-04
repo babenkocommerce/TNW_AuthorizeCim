@@ -1,43 +1,30 @@
 <?php
 /**
- * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
  * See TNW_LICENSE.txt for license details.
  */
-
 namespace TNW\AuthorizeCim\Gateway\Request;
 
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
-use TNW\AuthorizeCim\Model\Request\Data\AddressDataFactory;
 
 /**
  * Class for build request address data
  */
 class AddressDataBuilder implements BuilderInterface
 {
-    /** key for build address data */
-    const ADDRESS_BUILD_KEY = 'address_data';
-
     /**
      * @var SubjectReader
      */
-    protected $subjectReader;
-
-    /**
-     * @var AddressDataFactory
-     */
-    private $addressDataFactory;
+    private $subjectReader;
 
     /**
      * @param SubjectReader $subjectReader
-     * @param AddressDataFactory $addressDataFactory
      */
     public function __construct(
-        SubjectReader $subjectReader,
-        AddressDataFactory $addressDataFactory
+        SubjectReader $subjectReader
     ) {
         $this->subjectReader = $subjectReader;
-        $this->addressDataFactory = $addressDataFactory;
     }
 
     /**
@@ -48,19 +35,12 @@ class AddressDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        $paymentDataObject = $this->subjectReader->readPayment($buildSubject);
-        $order = $paymentDataObject->getOrder();
+        $paymentDO = $this->subjectReader->readPayment($buildSubject);
+
+        $order = $paymentDO->getOrder();
         $billingAddress = $order->getBillingAddress();
         $shippingAddress = $order->getShippingAddress();
-        $addressDataObj = $this->addressDataFactory->create();
-        $addressDataObj->createBillingAddress()->copyDataFromBillingAddress($billingAddress);
 
-        if ($shippingAddress) {
-            $addressDataObj->createShippingAddress()->copyDataFromShippingAddress($shippingAddress);
-        }
-
-        return [
-            self::ADDRESS_BUILD_KEY => $addressDataObj
-        ];
+        return [];
     }
 }

@@ -3,24 +3,34 @@
  * Copyright © 2017 TechNWeb, Inc. All rights reserved.
  * See TNW_LICENSE.txt for license details.
  */
-
 namespace TNW\AuthorizeCim\Gateway\Response;
 
 use Magento\Sales\Model\Order\Payment;
 
 class VoidHandler extends TransactionIdHandler
 {
-    protected function _setTransactionId(Payment $orderPayment, $transaction)
+    /**
+     * @param Payment $orderPayment
+     * @param $transaction
+     */
+    protected function setTransactionId(Payment $orderPayment, $transaction)
     {
         return;
     }
 
-    protected function _shouldCloseTransaction()
+    /**
+     * @return bool
+     */
+    protected function shouldCloseTransaction()
     {
         return true;
     }
 
-    protected function _shouldCloseParentTransaction(Payment $orderPayment)
+    /**
+     * @param Payment $orderPayment
+     * @return bool
+     */
+    protected function shouldCloseParentTransaction(Payment $orderPayment)
     {
         return true;
     }

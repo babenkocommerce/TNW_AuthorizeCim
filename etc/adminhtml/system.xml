@@ -9,7 +9,7 @@
   <system>
     <section id="payment">
       <group id="tnw_authorize_cim" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>TNW Authorize.net CIM</label>
+        <label>Authorize.net CIM</label>
         <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Enable</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -37,9 +37,9 @@
           <label>New Order Status</label>
           <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
         </field>
-        <field id="test" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Test Mode</label>
-          <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+        <field id="environment" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+          <label>Environment</label>
+          <source_model>TNW\AuthorizeCim\Model\Adminhtml\Source\Environment</source_model>
         </field>
         <field id="currency" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
           <label>Accepted Currency</label>
@@ -56,10 +56,6 @@
         <field id="useccv" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Credit Card Verification</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-        </field>
-        <field id="validation_mode" translate="label" type="select" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Validation Mode</label>
-          <source_model>TNW\AuthorizeCim\Model\Config\Source\ValidationMode</source_model>
         </field>
         <field id="vault_active" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Allow Stored Credit Cards</label>

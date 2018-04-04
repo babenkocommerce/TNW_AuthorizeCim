@@ -32,7 +32,6 @@
                 <trans_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <order_status>processing</order_status>
-                <test>1</test>
                 <currency>USD</currency>
                 <debug>0</debug>
                 <cctypes>AE,VI,MC,DI,JCB,DN</cctypes>
@@ -40,11 +39,15 @@
                 <validation_mode>none</validation_mode>
                 <vault_active>1</vault_active>
                 <allowspecific>0</allowspecific>
+                <privateInfoKeys>auth_code,avs_code,cavv_code,cvv_code</privateInfoKeys>
+                <paymentInfoKeys>cc_type,cc_number,auth_code,avs_code,cavv_code,cvv_code</paymentInfoKeys>
+                <debugReplaceKeys />
             </tnw_authorize_cim>
-            <!--<tnw_authorize_cim_vault>-->
-                <!--<model>AuthorizeCimVaultFacade</model>-->
-                <!--<title>Credit Cards (Authorize.net CIM)</title>-->
-            <!--</tnw_authorize_cim_vault>-->
+            <tnw_authorize_cim_vault>
+                <model>AuthorizeCimVaultFacade</model>
+                <title>Stored Cards (Authorize.net CIM)</title>
+                <active>0</active>
+            </tnw_authorize_cim_vault>
         </payment>
     </default>
 </config>

@@ -3,12 +3,10 @@
  * Copyright © 2018 TechNWeb, Inc. All rights reserved.
  * See TNW_LICENSE.txt for license details.
  */
-
 namespace TNW\AuthorizeCim\Gateway\Request;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use TNW\AuthorizeCim\Model\Request\Data\CaptureDataFactory;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
 /**
@@ -16,28 +14,17 @@ use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
  */
 class CaptureDataBuilder implements BuilderInterface
 {
-    /** key for build capture data */
-    const CAPTURE_BUILD_KEY = 'capture_data';
-
-    /**
-     * @var CaptureDataFactory
-     */
-    private $captureDataFactory;
-
     /**
      * @var SubjectReader
      */
     private $subjectReader;
 
     /**
-     * @param CaptureDataFactory $captureDataFactory
      * @param SubjectReader $subjectReader
      */
     public function __construct(
-        CaptureDataFactory $captureDataFactory,
         SubjectReader $subjectReader
     ) {
-        $this->captureDataFactory = $captureDataFactory;
         $this->subjectReader = $subjectReader;
     }
 
@@ -58,10 +45,6 @@ class CaptureDataBuilder implements BuilderInterface
             throw new LocalizedException(__('No authorization transaction to proceed capture.'));
         }
 
-        $captureDataObj = $this->captureDataFactory->create();
-        $captureDataObj->setTransactionId($transactionId)
-            ->setAmount(sprintf('%.2F', $this->subjectReader->readAmount($subject)));
-
-        return [self::CAPTURE_BUILD_KEY => $captureDataObj];
+        return [];
     }
 }

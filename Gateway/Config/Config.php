@@ -6,8 +6,8 @@
 
 namespace TNW\AuthorizeCim\Gateway\Config;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Config\Config as MagentoGatewayConfig;
+use TNW\AuthorizeCim\Model\Adminhtml\Source\Environment;
 
 /**
  * Config for payment config values
@@ -25,7 +25,7 @@ class Config extends MagentoGatewayConfig
     /** API client key field name */
     const CLIENT_KEY = 'client_key';
     /** payment mode field name */
-    const TEST = 'test';
+    const ENVIRONMENT = 'environment';
     /** currency code field name */
     const CURRENCY = 'currency';
     /** validation mode field name */
@@ -34,81 +34,86 @@ class Config extends MagentoGatewayConfig
     /**
      * Can method is active
      *
+     * @param int|null $storeId
      * @return bool
      */
-    public function isActive()
+    public function isActive($storeId = null)
     {
-        return (bool)$this->getValue(self::ACTIVE);
+        return (bool)$this->getValue(self::ACTIVE, $storeId);
     }
-
 
     /**
      * Is need enter CVV code (for vault)
      *
+     * @param int|null $storeId
      * @return bool
      */
-    public function isCcvEnabled()
+    public function isCcvEnabled($storeId = null)
     {
-        return (bool)$this->getValue(self::USE_CCV);
+        return (bool)$this->getValue(self::USE_CCV, $storeId);
     }
 
     /**
      * Get API login
      *
+     * @param int|null $storeId
      * @return string|null
      */
-    public function getApiLoginId()
+    public function getApiLoginId($storeId = null)
     {
-        return $this->getValue(self::LOGIN);
+        return $this->getValue(self::LOGIN, $storeId);
     }
 
     /**
      * Get API transaction key
      *
+     * @param int|null $storeId
      * @return string|null
      */
-    public function getTransactionKey()
+    public function getTransactionKey($storeId = null)
     {
-        return $this->getValue(self::TRANSACTION_KEY);
+        return $this->getValue(self::TRANSACTION_KEY, $storeId);
     }
 
     /**
      * Get API client key
      *
+     * @param int|null $storeId
      * @return null|string
      */
-    public function getClientKey()
+    public function getClientKey($storeId = null)
     {
-        return $this->getValue(self::CLIENT_KEY);
+        return $this->getValue(self::CLIENT_KEY, $storeId);
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getEnvironment($storeId = null)
+    {
+        return $this->getValue(self::ENVIRONMENT, $storeId);
     }
 
     /**
      * Get in what mode is the payment method (test or live modes)
      *
+     * @param int|null $storeId
      * @return bool
      */
-    public function isTest()
+    public function isSandboxMode($storeId = null)
     {
-        return (bool)$this->getValue(self::TEST);
-    }
-
-    /**
-     * Get currency code
-     *
-     * @return string
-     */
-    public function getCurrency()
-    {
-        return $this->getValue(self::CURRENCY);
+        return $this->getEnvironment($storeId) == Environment::ENVIRONMENT_SANDBOX;
     }
 
     /**
      * Get validation mode
      *
+     * @param int|null $storeId
      * @return string
      */
-    public function getValidationMode()
+    public function getValidationMode($storeId = null)
     {
-        return $this->getValue(self::VALIDATION_MODE);
+        return $this->getValue(self::VALIDATION_MODE, $storeId);
     }
 }
