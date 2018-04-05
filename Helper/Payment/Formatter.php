@@ -14,8 +14,6 @@ trait Formatter
      */
     public function formatPrice($price)
     {
-        $price = sprintf('%.2F', $price);
-
-        return str_replace('.', '', $price);
+        return sprintf('%.2F', $price);
     }
 }

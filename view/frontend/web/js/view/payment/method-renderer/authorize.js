@@ -5,11 +5,13 @@
 
 define([
     'jquery',
+    'mage/translate',
     'Magento_Payment/js/view/payment/cc-form',
+    'Magento_Checkout/js/model/quote',
     'Magento_Vault/js/view/payment/vault-enabler',
     'Magento_Checkout/js/model/full-screen-loader'
 ],
-function ($, Component, VaultEnabler, fullScreenLoader) {
+function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
     'use strict';
 
     return Component.extend({
@@ -19,7 +21,14 @@ function ($, Component, VaultEnabler, fullScreenLoader) {
             ccMessageContainer: null,
             code: 'tnw_authorize_cim',
             accept: null,
-            paymentMethodToken: null,
+
+            /**
+             * Additional payment data
+             *
+             * {Object}
+             */
+            additionalData: {},
+
             imports: {
                 onActiveChange: 'active'
             }
@@ -132,19 +141,19 @@ function ($, Component, VaultEnabler, fullScreenLoader) {
          */
         getData: function () {
             var data = this._super();
-
-            data['additional_data']['cc_token'] = this.paymentMethodToken;
+            delete data['additional_data']['cc_cid'];
+            delete data['additional_data']['cc_number'];
+            data['additional_data'] = _.extend(data['additional_data'], this.additionalData);
             this.vaultEnabler.visitAdditionalData(data);
 
             return data;
         },
 
         /**
-         * Set payment nonce
-         * @param {String} paymentMethodToken
+         * @returns {Boolean}
          */
-        setPaymentMethodToken: function (paymentMethodToken) {
-            this.paymentMethodToken = paymentMethodToken;
+        isVaultEnabled: function () {
+            return this.vaultEnabler.isVaultEnabled();
         },
 
         /**
@@ -196,7 +205,8 @@ function ($, Component, VaultEnabler, fullScreenLoader) {
                             i = i + 1;
                         }
                     } else {
-                        self.setPaymentMethodToken(response.opaqueData.dataValue);
+                        self.additionalData['opaqueDescriptor'] = response.opaqueData.dataDescriptor;
+                        self.additionalData['opaqueValue'] = response.opaqueData.dataValue;
                         self.placeOrder();
                     }
                 });
@@ -221,7 +231,7 @@ function ($, Component, VaultEnabler, fullScreenLoader) {
          * @returns {String}
          */
         getVaultCode: function () {
-            return window.checkoutConfig.payment[this.getCode()].ccVaultCode;
+            return window.checkoutConfig.payment[this.getCode()].vaultCode;
         },
 
         /**

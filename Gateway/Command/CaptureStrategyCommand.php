@@ -3,7 +3,6 @@
  * Copyright © 2017 TechNWeb, Inc. All rights reserved.
  * See TNW_LICENSE.txt for license details.
  */
-
 namespace TNW\AuthorizeCim\Gateway\Command;
 
 use Magento\Framework\Api\FilterBuilder;
@@ -22,19 +21,19 @@ class CaptureStrategyCommand implements CommandInterface
     const CAPTURE = 'settlement';
 
     /** @var SearchCriteriaBuilder */
-    private $_searchCriteriaBuilder;
+    private $searchCriteriaBuilder;
 
     /** @var TransactionRepositoryInterface */
-    private $_transactionRepository;
+    private $transactionRepository;
 
     /** @var FilterBuilder */
-    private $_filterBuilder;
+    private $filterBuilder;
 
     /** @var SubjectReader */
-    private $_subjectReader;
+    private $subjectReader;
 
     /** @var CommandPoolInterface */
-    private $_commandPool;
+    private $commandPool;
 
     /**
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
@@ -50,25 +49,27 @@ class CaptureStrategyCommand implements CommandInterface
         SubjectReader $subjectReader,
         CommandPoolInterface $commandPool
     ) {
-        $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->_transactionRepository = $transactionRepository;
-        $this->_filterBuilder = $filterBuilder;
-        $this->_subjectReader = $subjectReader;
-        $this->_commandPool = $commandPool;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->transactionRepository = $transactionRepository;
+        $this->filterBuilder = $filterBuilder;
+        $this->subjectReader = $subjectReader;
+        $this->commandPool = $commandPool;
     }
 
     /**
      * @param array $commandSubject
      * @return void
+     * @throws \Magento\Framework\Exception\NotFoundException
+     * @throws \Magento\Payment\Gateway\Command\CommandException
      */
     public function execute(array $commandSubject)
     {
-        $paymentDataObject = $this->_subjectReader->readPayment($commandSubject);
+        $paymentDataObject = $this->subjectReader->readPayment($commandSubject);
         $paymentInfo = $paymentDataObject->getPayment();
         ContextHelper::assertOrderPayment($paymentInfo);
 
         $command = $this->getCommand($paymentInfo);
-        $this->_commandPool->get($command)->execute($commandSubject);
+        $this->commandPool->get($command)->execute($commandSubject);
     }
 
     /**
@@ -93,27 +94,13 @@ class CaptureStrategyCommand implements CommandInterface
      */
     private function isExistsCaptureTransaction(OrderPaymentInterface $payment)
     {
-        $this->_searchCriteriaBuilder->addFilters(
-            [
-                $this->_filterBuilder
-                    ->setField('payment_id')
-                    ->setValue($payment->getId())
-                    ->create()
-            ]
-        );
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('payment_id', $payment->getId())
+            ->addFilter('txn_type', TransactionInterface::TYPE_CAPTURE)
+            ->create();
 
-        $this->_searchCriteriaBuilder->addFilters(
-            [
-                $this->_filterBuilder
-                    ->setField('txn_type')
-                    ->setValue(TransactionInterface::TYPE_CAPTURE)
-                    ->create()
-            ]
-        );
-
-        $searchCriteria = $this->_searchCriteriaBuilder->create();
-
-        $count = $this->_transactionRepository->getList($searchCriteria)->getTotalCount();
-        return (boolean)$count;
+        return (boolean)$this->transactionRepository
+            ->getList($searchCriteria)
+            ->getTotalCount();
     }
 }

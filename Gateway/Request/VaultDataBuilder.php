@@ -33,7 +33,7 @@ class VaultDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        $paymentDO = $this->subjectReader->readPayment($subject);
+        $paymentDO = $this->subjectReader->readPayment($buildSubject);
 
         /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = $paymentDO->getPayment();
@@ -41,7 +41,7 @@ class VaultDataBuilder implements BuilderInterface
         return [
             'transaction_request' => [
                 'profile' => [
-                    'create_profile' => $payment->getAdditionalInformation('is_active_payment_token_enabler')
+                    'create_profile' => (bool)$payment->getAdditionalInformation('is_active_payment_token_enabler')
                 ]
             ]
         ];

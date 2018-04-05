@@ -21,7 +21,7 @@
                             <item name="renders" xsi:type="array">
                               <item name="children" xsi:type="array">
                                 <item name="tnw_authorize_cim" xsi:type="array">
-                                  <item name="component" xsi:type="string">TNW_AuthorizeCim/js/view/payment/tnw_authorize_cim</item>
+                                  <item name="component" xsi:type="string">TNW_AuthorizeCim/js/view/payment/method</item>
                                   <item name="methods" xsi:type="array">
                                     <item name="tnw_authorize_cim" xsi:type="array">
                                       <item name="isBillingAddressRequired" xsi:type="boolean">true</item>

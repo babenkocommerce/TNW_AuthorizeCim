@@ -9,6 +9,7 @@ namespace TNW\AuthorizeCim\Gateway\Response;
 use Magento\Payment\Gateway\Helper\ContextHelper;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class CardDetailsHandler implements HandlerInterface
 {

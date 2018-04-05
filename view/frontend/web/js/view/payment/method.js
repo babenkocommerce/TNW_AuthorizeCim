@@ -15,7 +15,7 @@ define([
         rendererList.push(
             {
                 type: type,
-                component: 'TNW_AuthorizeCim/js/view/payment/method-renderer/tnw_authorize_cim'
+                component: 'TNW_AuthorizeCim/js/view/payment/method-renderer/authorize'
             }
         );
     }

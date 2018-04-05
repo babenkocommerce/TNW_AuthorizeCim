@@ -21,6 +21,10 @@
         <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
           <label>Title</label>
         </field>
+        <field id="environment" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+          <label>Environment</label>
+          <source_model>TNW\AuthorizeCim\Model\Adminhtml\Source\Environment</source_model>
+        </field>
         <field id="login" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>API Login ID</label>
           <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -37,14 +41,6 @@
           <label>New Order Status</label>
           <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
         </field>
-        <field id="environment" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Environment</label>
-          <source_model>TNW\AuthorizeCim\Model\Adminhtml\Source\Environment</source_model>
-        </field>
-        <field id="currency" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Accepted Currency</label>
-          <source_model>Magento\Config\Model\Config\Source\Locale\Currency</source_model>
-        </field>
         <field id="debug" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
           <label>Debug</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -60,7 +56,7 @@
         <field id="vault_active" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Allow Stored Credit Cards</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-          <config_path>payment/tnw_authorizecim_vault/active</config_path>
+          <config_path>payment/tnw_authorize_cim_vault/active</config_path>
         </field>
         <field id="allowspecific" translate="label" type="allowspecific" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
           <label>Payment from Applicable Countries</label>

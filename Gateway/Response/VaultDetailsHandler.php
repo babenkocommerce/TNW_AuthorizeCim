@@ -41,6 +41,9 @@ class VaultDetailsHandler implements HandlerInterface
         $this->config = $config;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function handle(array $subject, array $response)
     {
         $paymentDO = $this->subjectReader->readPayment($subject);

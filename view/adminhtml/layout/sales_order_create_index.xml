@@ -10,8 +10,21 @@
     <referenceBlock name="order_create_billing_form">
       <action method="setMethodFormTemplate">
         <argument name="method" xsi:type="string">tnw_authorize_cim</argument>
-        <argument name="template" xsi:type="string">Magento_Payment::form/cc.phtml</argument>
+        <argument name="template" xsi:type="string">TNW_AuthorizeCim::form/cc.phtml</argument>
       </action>
+    </referenceBlock>
+    <referenceBlock name="order_create_billing_form">
+      <action method="setMethodFormTemplate">
+        <argument name="method" xsi:type="string">tnw_authorize_cim_vault</argument>
+        <argument name="template" xsi:type="string">Magento_Vault::form/vault.phtml</argument>
+      </action>
+    </referenceBlock>
+    <referenceBlock name="content">
+      <block name="tnw_authorize_cim_payment_script"
+             as="tnw_authorize_cim_payment_script"
+             template="TNW_AuthorizeCim::payment/script.phtml"
+             class="TNW\AuthorizeCim\Block\Payment"
+             after="billing_method"/>
     </referenceBlock>
   </body>
 </page>

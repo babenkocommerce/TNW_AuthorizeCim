@@ -51,7 +51,8 @@ class PaymentDetailsHandler implements HandlerInterface
             'cvv_code' => $transaction->getCvvResultCode()
         ];
 
-        $payment->unsAdditionalInformation('payment_method_nonce');
+        $payment->unsAdditionalInformation('opaqueDescriptor');
+        $payment->unsAdditionalInformation('opaqueValue');
         foreach ($additionalInformation as $key => $value) {
             $payment->setAdditionalInformation($key, $value);
         }

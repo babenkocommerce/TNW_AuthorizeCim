@@ -7,15 +7,12 @@ namespace TNW\AuthorizeCim\Gateway\Request;
 
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
-use TNW\AuthorizeCim\Helper\Payment\Formatter;
 
 /**
  * Class for build request payment data
  */
-class PaymentDataBuilder implements BuilderInterface
+class CardholderDataBuilder implements BuilderInterface
 {
-    use Formatter;
-
     /**
      * @var SubjectReader
      */
@@ -39,18 +36,13 @@ class PaymentDataBuilder implements BuilderInterface
     public function build(array $subject)
     {
         $paymentDO = $this->subjectReader->readPayment($subject);
-        $order = $paymentDO->getOrder();
+        $payment = $paymentDO->getPayment();
 
         return [
             'transaction_request' => [
-                'amount' => $this->formatPrice($this->subjectReader->readAmount($subject)),
-                'currency_code' => $order->getCurrencyCode(),
-                'po_number' => $order->getOrderIncrementId(),
-                'payment' => [
-                    'opaque_data' => [
-                        'data_descriptor' => '',
-                        'data_value' => ''
-                    ]
+                'cardholderAuthentication' => [
+                    'authenticationIndicator' => $payment->getAdditionalInformation('ECIFlag'),
+                    'cardholderAuthenticationValue' => $payment->getAdditionalInformation('CAVV'),
                 ]
             ]
         ];

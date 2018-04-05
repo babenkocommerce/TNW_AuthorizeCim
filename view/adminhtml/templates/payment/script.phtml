@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
+ */
+
+/** @var TNW\Stripe\Block\Payment $block */
+
+$code = $block->escapeHtml($block->getCode());
+?>
+<script>
+    //<![CDATA[
+    require(
+        [
+            'jquery',
+            'TNW_AuthorizeCim/js/authorize',
+            'Magento_Sales/order/create/form',
+            'domReady!'
+        ], function($, Authorize) {
+            var config = <?php /* @noEscape */ echo $block->getPaymentConfig(); ?>,
+                payment,
+                form = $('#payment_form_<?php /* @noEscape */ echo $code; ?>');
+
+            config.active = form.length > 0 && !form.is(':hidden');
+            payment = new Authorize(config);
+        });
+    //]]>
+</script>
