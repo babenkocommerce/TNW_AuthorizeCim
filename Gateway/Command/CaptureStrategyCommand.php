@@ -19,6 +19,7 @@ class CaptureStrategyCommand implements CommandInterface
 {
     const SALE = 'sale';
     const CAPTURE = 'settlement';
+    const CUSTOMER = 'customer';
 
     /** @var SearchCriteriaBuilder */
     private $searchCriteriaBuilder;
@@ -65,11 +66,17 @@ class CaptureStrategyCommand implements CommandInterface
     public function execute(array $commandSubject)
     {
         $paymentDataObject = $this->subjectReader->readPayment($commandSubject);
+
+        /** @var \Magento\Sales\Model\Order\Payment $paymentInfo */
         $paymentInfo = $paymentDataObject->getPayment();
         ContextHelper::assertOrderPayment($paymentInfo);
 
         $command = $this->getCommand($paymentInfo);
         $this->commandPool->get($command)->execute($commandSubject);
+
+        if ($paymentInfo->getAdditionalInformation('is_active_payment_token_enabler')) {
+            $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
+        }
     }
 
     /**

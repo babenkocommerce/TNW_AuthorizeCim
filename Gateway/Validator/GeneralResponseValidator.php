@@ -9,7 +9,7 @@ use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 
-class GeneralResponseValidator extends AbstractValidator
+abstract class GeneralResponseValidator extends AbstractValidator
 {
     /**
      * @var SubjectReader
@@ -54,27 +54,5 @@ class GeneralResponseValidator extends AbstractValidator
     /**
      * @return array
      */
-    protected function getResponseValidators()
-    {
-        return [
-            function ($response) {
-                $isValid = true;
-                $errorMessages = [];
-
-                /** @var \net\authorize\api\contract\v1\TransactionResponseType\MessagesAType\MessageAType $message */
-                foreach ($response->getTransactionResponse()->getMessages() as $message) {
-                    if ($message->getCode() != 1) {
-                        $isValid = false;
-                        $errorMessages[] = $message->getDescription();
-                        break;
-                    }
-                }
-
-                return [
-                    $isValid,
-                    $errorMessages
-                ];
-            }
-        ];
-    }
+    abstract protected function getResponseValidators();
 }

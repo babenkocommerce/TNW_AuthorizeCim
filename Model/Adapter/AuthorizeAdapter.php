@@ -7,7 +7,9 @@ namespace TNW\AuthorizeCim\Model\Adapter;
 
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
+use net\authorize\api\contract\v1\CreateCustomerProfileFromTransactionRequest;
 use net\authorize\api\controller\CreateTransactionController;
+use net\authorize\api\controller\CreateCustomerProfileFromTransactionController;
 use TNW\AuthorizeCim\Gateway\Helper\DataObject;
 
 class AuthorizeAdapter
@@ -53,7 +55,7 @@ class AuthorizeAdapter
 
     /**
      * @param array $attributes
-     * @return \net\authorize\api\contract\v1\AnetApiResponseType
+     * @return \net\authorize\api\contract\v1\CreateTransactionResponse
      */
     public function transaction(array $attributes)
     {
@@ -72,6 +74,30 @@ class AuthorizeAdapter
             : ANetEnvironment::PRODUCTION;
 
         $controller = new CreateTransactionController($transactionRequest);
+        return $controller->executeWithApiResponse($endPoint);
+    }
+
+    /**
+     * @param array $attributes
+     * @return \net\authorize\api\contract\v1\CreateCustomerProfileResponse
+     */
+    public function createCustomerProfileFromTransaction(array $attributes)
+    {
+        $transactionRequest = new CreateCustomerProfileFromTransactionRequest();
+
+        // Filling the object
+        $this->dataObjectHelper->populateWithArray($transactionRequest, array_merge($attributes, [
+            'merchant_authentication' => [
+                'name' => $this->apiLoginId,
+                'transaction_key' => $this->transactionKey
+            ]
+        ]));
+
+        $endPoint = $this->sandboxMode
+            ? ANetEnvironment::SANDBOX
+            : ANetEnvironment::PRODUCTION;
+
+        $controller = new CreateCustomerProfileFromTransactionController($transactionRequest);
         return $controller->executeWithApiResponse($endPoint);
     }
 }

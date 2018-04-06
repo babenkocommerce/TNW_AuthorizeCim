@@ -48,9 +48,8 @@ class VaultDetailsHandler implements HandlerInterface
     {
         $paymentDO = $this->subjectReader->readPayment($subject);
 
-        /** @var \net\authorize\api\contract\v1\CreateTransactionResponse $transaction */
+        /** @var \net\authorize\api\contract\v1\CreateCustomerProfileResponse $transaction */
         $transaction = $this->subjectReader->readTransaction($response);
-        $transaction = $transaction->getTransactionResponse();
         $payment = $paymentDO->getPayment();
 
         if (!$payment->getAdditionalInformation('is_active_payment_token_enabler')) {
@@ -65,14 +64,14 @@ class VaultDetailsHandler implements HandlerInterface
     }
 
     /**
-     * @param \net\authorize\api\contract\v1\CreateTransactionResponse $transaction
+     * @param \net\authorize\api\contract\v1\CreateCustomerProfileResponse $transaction
      * @param $payment
      * @return PaymentTokenInterface|null
      */
     private function getVaultPaymentToken($transaction, $payment)
     {
         // Check token existing in gateway response
-        $paymentProfileId = $transaction->getProfileResponse()->getCustomerProfileId();
+        $paymentProfileId = $transaction->getCustomerProfileId();
         if (!isset($paymentProfileId)) {
             return null;
         }
@@ -85,26 +84,31 @@ class VaultDetailsHandler implements HandlerInterface
         $paymentToken->setTokenDetails($this->_convertDetailsToJSON([
             'type' => $payment->getAdditionalInformation('cc_type'),
             'maskedCC' => $payment->getAdditionalInformation('cc_last4'),
-            'expirationDate' => $payment->getAdditionalInformation('cc_exp_month') . '/' . $payment->getAdditionalInformation('cc_exp_year')
+            'expirationDate' => sprintf(
+                '%s/%s',
+                $payment->getAdditionalInformation('cc_exp_month'),
+                $payment->getAdditionalInformation('cc_exp_year')
+            )
         ]));
 
         return $paymentToken;
     }
 
+    /**
+     * @param $payment
+     * @return string
+     */
     private function _getExpirationDate($payment)
     {
-        $expDate = new \DateTime(
-            trim($payment->getAdditionalInformation('cc_exp_year'))
-            . '-'
-            . trim($payment->getAdditionalInformation('cc_exp_month'))
-            . '-'
-            . '01'
-            . ' '
-            . '00:00:00',
-            new \DateTimeZone('UTC')
+        $time = sprintf(
+            '%s-%s-01 00:00:00',
+            trim($payment->getAdditionalInformation('cc_exp_year')),
+            trim($payment->getAdditionalInformation('cc_exp_month'))
         );
-        $expDate->add(new \DateInterval('P1M'));
-        return $expDate->format('Y-m-d 00:00:00');
+
+        return date_create($time, timezone_open('UTC'))
+            ->modify('+1 month')
+            ->format('Y-m-d 00:00:00');
     }
 
     private function _convertDetailsToJSON($details)
