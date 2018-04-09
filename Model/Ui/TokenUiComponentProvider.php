@@ -47,15 +47,13 @@ class TokenUiComponentProvider implements TokenUiComponentProviderInterface
     {
         $jsonDetails = json_decode($paymentToken->getTokenDetails() ?: '{}', true);
 
-        return $this->componentFactory->create(
-            [
-                'config' => [
-                    'code' => ConfigProvider::VAULT_CODE,
-                    TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
-                    TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash()
-                ],
-                'name' => 'Magento_Vault/js/view/payment/method-renderer/vault'
-            ]
-        );
+        return $this->componentFactory->create([
+            'config' => [
+                'code' => ConfigProvider::VAULT_CODE,
+                TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
+                TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash()
+            ],
+            'name' => 'TNW_AuthorizeCim/js/view/payment/method-renderer/vault'
+        ]);
     }
 }

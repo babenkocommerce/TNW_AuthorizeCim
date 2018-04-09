@@ -134,7 +134,7 @@
     <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
         <arguments>
             <argument name="executors" xsi:type="array">
-                <item name="authorize_cim" xsi:type="string">AuthorizeCimCommandManager</item>
+                <item name="tnw_authorize_cim" xsi:type="string">AuthorizeCimCommandManager</item>
             </argument>
         </arguments>
     </type>
@@ -198,7 +198,7 @@
     <virtualType name="AuthorizeCimVaultAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="customer" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CustomerDataBuilder</item>
+                <item name="customer" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\ProfileDataBuilder</item>
                 <item name="payment" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\PaymentDataBuilder</item>
                 <item name="address" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\AddressDataBuilder</item>
                 <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
@@ -270,7 +270,7 @@
             <argument name="requestBuilder" xsi:type="object">AuthorizeCimCustomerProfileBuilder</argument>
             <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\CustomerProfileCreate</argument>
-            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\CustomerProfileResponseValidator</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\GeneralResponseValidator</argument>
             <argument name="handler" xsi:type="object">TNW\AuthorizeCim\Gateway\Response\VaultDetailsHandler</argument>
         </arguments>
     </virtualType>

@@ -45,16 +45,14 @@ class TokenUiComponentProvider implements TokenUiComponentProviderInterface
             true
         );
 
-        return $this->componentFactory->create(
-            [
-                'config' => [
-                    'code' => ConfigProvider::VAULT_CODE,
-                    TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
-                    TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash(),
-                    'template' => 'Magento_Vault::form/vault.phtml'
-                ],
-                'name' => Template::class
-            ]
-        );
+        return $this->componentFactory->create([
+            'config' => [
+                'code' => ConfigProvider::VAULT_CODE,
+                TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
+                TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash(),
+                'template' => 'TNW_AuthorizeCim::form/vault.phtml'
+            ],
+            'name' => Template::class
+        ]);
     }
 }

@@ -16,7 +16,7 @@
   <type name="Magento\Vault\Model\Ui\Adminhtml\TokensConfigProvider">
     <arguments>
       <argument name="tokenUiComponentProviders" xsi:type="array">
-        <item name="tnw_authorizenetcim" xsi:type="object">TNW\AuthorizeCim\Model\Ui\Adminhtml\TokenUiComponentProvider</item>
+        <item name="tnw_authorize_cim" xsi:type="object">TNW\AuthorizeCim\Model\Ui\Adminhtml\TokenUiComponentProvider</item>
       </argument>
     </arguments>
   </type>

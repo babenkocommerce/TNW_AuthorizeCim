@@ -18,7 +18,7 @@ class TransactionResponseValidator extends GeneralResponseValidator
      */
     protected function getResponseValidators()
     {
-        return [
+        return array_merge(parent::getResponseValidators(), [
             function (CreateTransactionResponse $response) {
                 $messages = $response->getTransactionResponse()->getMessages();
                 $errorMessages = array_map([$this, 'map'], array_filter($messages, [$this, 'filter']));
@@ -28,7 +28,7 @@ class TransactionResponseValidator extends GeneralResponseValidator
                     $errorMessages
                 ];
             }
-        ];
+        ]);
     }
 
     /**

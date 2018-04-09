@@ -8,8 +8,13 @@ namespace TNW\AuthorizeCim\Gateway\Validator;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use net\authorize\api\contract\v1\ANetApiResponseType;
+use net\authorize\api\contract\v1\MessagesType\MessageAType;
 
-abstract class GeneralResponseValidator extends AbstractValidator
+/**
+ * Validate response data
+ */
+class GeneralResponseValidator extends AbstractValidator
 {
     /**
      * @var SubjectReader
@@ -54,5 +59,20 @@ abstract class GeneralResponseValidator extends AbstractValidator
     /**
      * @return array
      */
-    abstract protected function getResponseValidators();
+    protected function getResponseValidators()
+    {
+        return [
+            function (ANetApiResponseType $response) {
+                $messages = $response->getMessages();
+                $errorMessages = array_map(function (MessageAType $message) {
+                    return __('%1: %2', $message->getCode(), $message->getText());
+                }, $messages->getMessage());
+
+                return [
+                    strcasecmp($messages->getResultCode(), 'Ok')  === 0,
+                    $errorMessages
+                ];
+            }
+        ];
+    }
 }
