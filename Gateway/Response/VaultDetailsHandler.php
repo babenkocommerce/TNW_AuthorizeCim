@@ -70,19 +70,16 @@ class VaultDetailsHandler implements HandlerInterface
      */
     private function getVaultPaymentToken($transaction, $payment)
     {
-        // Check token existing in gateway response
-        $paymentProfileId = $transaction->getCustomerProfileId();
-        if (!isset($paymentProfileId)) {
-            return null;
-        }
+        $profileId = $transaction->getCustomerProfileId();
+        $paymentProfileIdList = $transaction->getCustomerPaymentProfileIdList();
 
         /** @var PaymentTokenInterface $paymentToken */
-        $paymentToken = $this->paymentTokenFactory->create();
-        $paymentToken->setGatewayToken($paymentProfileId);
-        $paymentToken->setExpiresAt($this->_getExpirationDate($payment));
+        $paymentToken = $this->paymentTokenFactory->create()
+            ->setExpiresAt($this->_getExpirationDate($payment))
+            ->setGatewayToken(sprintf('%s/%s', $profileId, reset($paymentProfileIdList)));
 
         $paymentToken->setTokenDetails($this->_convertDetailsToJSON([
-            'type' => $payment->getAdditionalInformation('cc_type'),
+            'type' => $this->getCreditCardType($payment->getAdditionalInformation('cc_type')),
             'maskedCC' => $payment->getAdditionalInformation('cc_last4'),
             'expirationDate' => sprintf(
                 '%s/%s',
@@ -115,6 +112,20 @@ class VaultDetailsHandler implements HandlerInterface
     {
         $json = \Zend_Json::encode($details);
         return $json ? $json : '{}';
+    }
+
+    /**
+     * Get type of credit card mapped from Braintree
+     *
+     * @param string $type
+     * @return array
+     */
+    private function getCreditCardType($type)
+    {
+        $replaced = str_replace(' ', '-', strtolower($type));
+        $mapper = $this->config->getCctypesMapper();
+
+        return $mapper[$replaced];
     }
 
     /**

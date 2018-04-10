@@ -48,7 +48,13 @@ class RefundDataBuilder implements BuilderInterface
         return [
             'transaction_request' => [
                 'amount' => $this->formatPrice($this->subjectReader->readAmount($subject)),
-                'ref_trans_id' => $payment->getParentTransactionId()
+                'ref_trans_id' => $payment->getParentTransactionId(),
+                'payment' => [
+                    'credit_card' => [
+                        'card_number' => $payment->getCcLast4(),
+                        'expiration_date' => 'XXXX',
+                    ]
+                ]
             ]
         ];
     }

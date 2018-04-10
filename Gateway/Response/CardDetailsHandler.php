@@ -14,6 +14,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 class CardDetailsHandler implements HandlerInterface
 {
     const CARD_NUMBER = 'cc_number';
+    const CARD_LAST4 = 'cc_last4';
 
     /** @var
      * SubjectReader
@@ -30,6 +31,11 @@ class CardDetailsHandler implements HandlerInterface
         $this->subjectReader = $subjectReader;
     }
 
+    /**
+     * @param array $subject
+     * @param array $response
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function handle(array $subject, array $response)
     {
         $paymentDO = $this->subjectReader->readPayment($subject);
@@ -42,12 +48,14 @@ class CardDetailsHandler implements HandlerInterface
         ContextHelper::assertOrderPayment($payment);
 
         $transactionResponse = $transaction->getTransactionResponse();
+        $ccLast4 = substr($transactionResponse->getAccountNumber(), -4);
 
-        $payment->setCcLast4($transactionResponse->getAccountNumber());
+        $payment->setCcLast4($ccLast4);
         $payment->setCcType($transactionResponse->getAccountType());
 
         // set card details to additional info
-        $payment->setAdditionalInformation(self::CARD_NUMBER, $transactionResponse->getAccountNumber());
+        $payment->setAdditionalInformation(self::CARD_LAST4, $ccLast4);
+        $payment->setAdditionalInformation(self::CARD_NUMBER, 'xxxx-' . $ccLast4);
         $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $transactionResponse->getAccountType());
     }
 }

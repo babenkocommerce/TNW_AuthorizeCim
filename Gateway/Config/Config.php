@@ -34,6 +34,8 @@ class Config extends MagentoGatewayConfig
     const SDK_URL = 'sdk_url';
     /** js sdk url */
     const SDK_URL_TEST = 'sdk_url_test_mode';
+    /** cc types mapper */
+    const CC_TYPES_MAPPER = 'cctypes_mapper';
 
     /**
      * Can method is active
@@ -132,5 +134,20 @@ class Config extends MagentoGatewayConfig
         }
 
         return $this->getValue(self::SDK_URL, $storeId);
+    }
+
+    /**
+     * Retrieve mapper between Magento and Authorize.Net card types
+     *
+     * @return array
+     */
+    public function getCcTypesMapper()
+    {
+        $result = json_decode(
+            $this->getValue(self::CC_TYPES_MAPPER),
+            true
+        );
+
+        return is_array($result) ? $result : [];
     }
 }

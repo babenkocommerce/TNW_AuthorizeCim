@@ -46,7 +46,7 @@ define([
          */
         initEventHandlers: function () {
             this.$container.find('[name="payment[token_switcher]"]')
-                .on('click', this.selectPaymentMethod.bind(this));
+                .on('click', this.setPaymentDetails.bind(this));
         },
 
         /**

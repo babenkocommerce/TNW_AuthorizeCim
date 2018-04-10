@@ -42,13 +42,16 @@ class ProfileDataBuilder implements BuilderInterface
         $extensionAttributes = $payment->getExtensionAttributes();
         $paymentToken = $extensionAttributes->getVaultPaymentToken();
 
+        list($profileId, $paymentProfileId)
+            = explode('/', $paymentToken->getGatewayToken(), 2);
+
         return [
             'transaction_request' => [
                 'profile' => [
-                    'customer_profile_id' => $paymentToken->getGatewayToken(),
-//                    'payment_profile' => [
-//                        'payment_profile_id' => '',
-//                    ]
+                    'customer_profile_id' => $profileId,
+                    'payment_profile' => [
+                        'payment_profile_id' => $paymentProfileId
+                    ]
                 ]
             ]
         ];

@@ -46,12 +46,6 @@ class PaymentDataBuilder implements BuilderInterface
                 'amount' => $this->formatPrice($this->subjectReader->readAmount($subject)),
                 'currency_code' => $order->getCurrencyCode(),
                 'po_number' => $order->getOrderIncrementId(),
-                'payment' => [
-                    'opaque_data' => [
-                        'data_descriptor' => '',
-                        'data_value' => ''
-                    ]
-                ]
             ]
         ];
     }

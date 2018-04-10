@@ -200,7 +200,6 @@
             <argument name="builders" xsi:type="array">
                 <item name="customer" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\ProfileDataBuilder</item>
                 <item name="payment" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\PaymentDataBuilder</item>
-                <item name="address" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\AddressDataBuilder</item>
                 <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
             </argument>
         </arguments>
