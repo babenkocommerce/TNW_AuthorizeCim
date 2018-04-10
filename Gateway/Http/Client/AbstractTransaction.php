@@ -55,7 +55,7 @@ abstract class AbstractTransaction implements ClientInterface
 
     /**
      * @param TransferInterface $transferObject
-     * @return mixed
+     * @return array
      * @throws ClientException
      */
     public function placeRequest(TransferInterface $transferObject)
