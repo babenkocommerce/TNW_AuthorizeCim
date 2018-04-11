@@ -85,6 +85,16 @@
             <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
         </arguments>
     </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\CreateCustomerProfile">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\CreateCustomerProfileFromTransaction">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
     <!-- END Logger, initialized with BraintreeConfig -->
 
     <!-- Commands infrastructure -->
@@ -268,7 +278,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AuthorizeCimCustomerProfileBuilder</argument>
             <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
-            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\CustomerProfileCreate</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\CreateCustomerProfileFromTransaction</argument>
             <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\GeneralResponseValidator</argument>
             <argument name="handler" xsi:type="object">TNW\AuthorizeCim\Gateway\Response\VaultDetailsHandler</argument>
         </arguments>

@@ -8,7 +8,7 @@ namespace TNW\AuthorizeCim\Gateway\Http\Client;
 /**
  * Customer Profile Create
  */
-class CustomerProfileCreate extends AbstractTransaction
+class CreateCustomerProfile extends AbstractTransaction
 {
     /**
      * @inheritdoc
@@ -20,6 +20,6 @@ class CustomerProfileCreate extends AbstractTransaction
         unset($data['store_id']);
 
         return $this->adapterFactory->create($storeId)
-            ->createCustomerProfileFromTransaction($data);
+            ->createCustomerProfile($data);
     }
 }

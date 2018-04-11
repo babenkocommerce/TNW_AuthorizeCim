@@ -8,8 +8,7 @@
   ],
   "require": {
     "magento/framework": "~100.1.0|~101.0.0",
-    "authorizenet/authorizenet": "~1.9.6",
-    "symfony/yaml": "^3.0",
+    "authorizenet/authorizenet": "~1.9.6"
   },
   "autoload": {
     "files": [

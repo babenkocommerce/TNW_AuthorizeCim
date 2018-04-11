@@ -8,8 +8,10 @@ namespace TNW\AuthorizeCim\Model\Adapter;
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CreateCustomerProfileFromTransactionRequest;
+use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
 use net\authorize\api\controller\CreateTransactionController;
 use net\authorize\api\controller\CreateCustomerProfileFromTransactionController;
+use net\authorize\api\controller\CreateCustomerProfileController;
 use TNW\AuthorizeCim\Gateway\Helper\DataObject;
 
 class AuthorizeAdapter
@@ -54,6 +56,16 @@ class AuthorizeAdapter
     }
 
     /**
+     * @return string
+     */
+    private function endPoint()
+    {
+        return $this->sandboxMode
+            ? ANetEnvironment::SANDBOX
+            : ANetEnvironment::PRODUCTION;
+    }
+
+    /**
      * @param array $attributes
      * @return \net\authorize\api\contract\v1\CreateTransactionResponse
      */
@@ -69,12 +81,8 @@ class AuthorizeAdapter
             ]
         ]));
 
-        $endPoint = $this->sandboxMode
-            ? ANetEnvironment::SANDBOX
-            : ANetEnvironment::PRODUCTION;
-
         $controller = new CreateTransactionController($transactionRequest);
-        return $controller->executeWithApiResponse($endPoint);
+        return $controller->executeWithApiResponse($this->endPoint());
     }
 
     /**
@@ -93,11 +101,27 @@ class AuthorizeAdapter
             ]
         ]));
 
-        $endPoint = $this->sandboxMode
-            ? ANetEnvironment::SANDBOX
-            : ANetEnvironment::PRODUCTION;
-
         $controller = new CreateCustomerProfileFromTransactionController($transactionRequest);
-        return $controller->executeWithApiResponse($endPoint);
+        return $controller->executeWithApiResponse($this->endPoint());
+    }
+
+    /**
+     * @param array $attributes
+     * @return \net\authorize\api\contract\v1\CreateCustomerProfileResponse
+     */
+    public function createCustomerProfile(array $attributes)
+    {
+        $transactionRequest = new CreateCustomerProfileRequest();
+
+        // Filling the object
+        $this->dataObjectHelper->populateWithArray($transactionRequest, array_merge($attributes, [
+            'merchant_authentication' => [
+                'name' => $this->apiLoginId,
+                'transaction_key' => $this->transactionKey
+            ]
+        ]));
+
+        $controller = new CreateCustomerProfileController($transactionRequest);
+        return $controller->executeWithApiResponse($this->endPoint());
     }
 }

@@ -36,6 +36,8 @@ class Config extends MagentoGatewayConfig
     const SDK_URL_TEST = 'sdk_url_test_mode';
     /** cc types mapper */
     const CC_TYPES_MAPPER = 'cctypes_mapper';
+    /** cc types */
+    const CC_TYPES = 'cctypes';
 
     /**
      * Can method is active
@@ -134,6 +136,19 @@ class Config extends MagentoGatewayConfig
         }
 
         return $this->getValue(self::SDK_URL, $storeId);
+    }
+
+    /**
+     * Retrieve available credit card types
+     *
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getAvailableCardTypes($storeId = null)
+    {
+        $ccTypes = $this->getValue(self::CC_TYPES, $storeId);
+
+        return !empty($ccTypes) ? explode(',', $ccTypes) : [];
     }
 
     /**

@@ -20,7 +20,12 @@ class TransactionResponseValidator extends GeneralResponseValidator
     {
         return array_merge(parent::getResponseValidators(), [
             function (CreateTransactionResponse $response) {
-                $messages = $response->getTransactionResponse()->getMessages();
+                $transactionResponse = $response->getTransactionResponse();
+                if (!$transactionResponse) {
+                    return [true, [__('')]];
+                }
+
+                $messages = $transactionResponse->getMessages();
                 $errorMessages = array_map([$this, 'map'], array_filter($messages, [$this, 'filter']));
 
                 return [
