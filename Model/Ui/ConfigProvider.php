@@ -8,6 +8,8 @@ namespace TNW\AuthorizeCim\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Session\SessionManagerInterface;
 use TNW\AuthorizeCim\Gateway\Config\Config;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
 
 class ConfigProvider implements ConfigProviderInterface
 {
@@ -46,12 +48,35 @@ class ConfigProvider implements ConfigProviderInterface
             'payment' => [
                 self::CODE => [
                     'isActive' => $this->config->isActive($storeId),
-                    'clientKey' => $this->config->getClientKey(),
-                    'apiLoginId' => $this->config->getApiLoginId(),
-                    'sdkUrl' => $this->config->getSdkUrl(),
+                    'clientKey' => $this->config->getClientKey($storeId),
+                    'apiLoginId' => $this->config->getApiLoginId($storeId),
+                    'sdkUrl' => $this->config->getSdkUrl($storeId),
+                    //'verifySdkUrl' => $this->config->getVerifySdkUrl($storeId),
+                    //'cardinalRequestJwt' => (string)$this->generateJwtToken($storeId),
                     'vaultCode' => self::VAULT_CODE,
                 ]
             ]
         ];
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return \Lcobucci\JWT\Token
+     */
+    private function generateJwtToken($storeId = null)
+    {
+        $currentTime = time();
+        $expireTime = 3600; // expiration in seconds - this equals 1hr
+
+        return (new Builder())
+            ->setIssuer($this->config->getVerifyApiIdentifier($storeId))
+            ->setId(\uniqid(), true)
+            ->setIssuedAt($currentTime)
+            ->setExpiration($currentTime + $expireTime)
+            ->set('OrgUnitId', $this->config->getVerifyOrgUnitId($storeId))
+            ->set('Payload', ["OrderDetails" => ["OrderNumber" =>  'ORDER-' . \strval(mt_rand(1000, 10000))]])
+            ->set('ObjectifyPayload', true)
+            ->sign(new Sha256(), $this->config->getVerifyApiKey($storeId))
+            ->getToken();
     }
 }

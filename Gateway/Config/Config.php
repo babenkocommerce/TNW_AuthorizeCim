@@ -38,6 +38,11 @@ class Config extends MagentoGatewayConfig
     const CC_TYPES_MAPPER = 'cctypes_mapper';
     /** cc types */
     const CC_TYPES = 'cctypes';
+    const VERIFY_3DSECURE = 'verify_3dsecure';
+    const VERIFY_API_IDENTIFIER = 'verify_api_identifier';
+    const VERIFY_ORG_UNIT_ID = 'verify_org_unit_id';
+    const VERIFY_API_KEY = 'verify_api_key';
+    const VERIFY_SDK_URL = 'verify_script_url';
 
     /**
      * Can method is active
@@ -164,5 +169,50 @@ class Config extends MagentoGatewayConfig
         );
 
         return is_array($result) ? $result : [];
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getVerify3dSecure($storeId = null)
+    {
+        return $this->getValue(self::VERIFY_3DSECURE, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getVerifyApiIdentifier($storeId = null)
+    {
+        return $this->getValue(self::VERIFY_API_IDENTIFIER, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getVerifyOrgUnitId($storeId = null)
+    {
+        return $this->getValue(self::VERIFY_ORG_UNIT_ID, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getVerifyApiKey($storeId = null)
+    {
+        return $this->getValue(self::VERIFY_API_KEY, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getVerifySdkUrl($storeId = null)
+    {
+        return $this->getValue(self::VERIFY_SDK_URL, $storeId);
     }
 }

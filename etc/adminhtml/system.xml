@@ -13,6 +13,11 @@
         <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Enable</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+          <requires>
+            <field id="login" />
+            <field id="trans_key" />
+            <field id="client_key" />
+          </requires>
         </field>
         <field id="payment_action" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Payment Action</label>
@@ -76,6 +81,55 @@
           <label>Sort Order</label>
           <frontend_class>validate-number</frontend_class>
         </field>
+        <group id="3dsecure" translate="label" showInDefault="1" showInWebsite="1" sortOrder="190">
+          <label>3D Secure Verification Settings</label>
+          <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+          <field id="verify_3dsecure" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>3D Secure Verification</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/tnw_authorize_cim/verify_3dsecure</config_path>
+            <requires>
+              <field id="api_identifier" />
+              <field id="org_unit_id" />
+              <field id="api_key" />
+              <field id="script_url" />
+            </requires>
+          </field>
+          <field id="threshold_amount" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Threshold Amount</label>
+            <config_path>payment/tnw_authorize_cim/threshold_amount</config_path>
+          </field>
+          <field id="api_identifier" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>API Identifier</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/verify_api_identifier</config_path>
+          </field>
+          <field id="org_unit_id" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Org Unit ID</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/verify_org_unit_id</config_path>
+          </field>
+          <field id="api_key" translate="label" type="obscure" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>API Key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/verify_api_key</config_path>
+          </field>
+          <field id="sdk_url" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+            <label>Script URL</label>
+            <config_path>payment/tnw_authorize_cim/verify_sdk_url</config_path>
+          </field>
+          <field id="allowspecific" translate="label" type="allowspecific" sortOrder="152" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+            <label>Verify for Applicable Countries</label>
+            <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+            <config_path>payment/tnw_authorize_cim/verify_all_countries_3dsecure</config_path>
+          </field>
+          <field id="specificcountry" translate="label" type="multiselect" sortOrder="153" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Verify for Specific Countries</label>
+            <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+            <can_be_empty>1</can_be_empty>
+            <config_path>payment/tnw_authorize_cim/verify_specific_countries</config_path>
+          </field>
+        </group>
       </group>
     </section>
   </system>

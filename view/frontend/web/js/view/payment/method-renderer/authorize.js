@@ -21,6 +21,7 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
             ccMessageContainer: null,
             code: 'tnw_authorize_cim',
             accept: null,
+            cardinal: null,
 
             /**
              * Additional payment data
@@ -239,6 +240,13 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
          */
         getSdkUrl: function () {
             return window.checkoutConfig.payment[this.getCode()].sdkUrl;
+        },
+
+        /**
+         * @returns {String}
+         */
+        getVerifySdkUrl: function () {
+            return window.checkoutConfig.payment[this.getCode()].verifySdkUrl;
         }
     });
 });
