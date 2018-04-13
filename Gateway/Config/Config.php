@@ -43,6 +43,10 @@ class Config extends MagentoGatewayConfig
     const VERIFY_ORG_UNIT_ID = 'verify_org_unit_id';
     const VERIFY_API_KEY = 'verify_api_key';
     const VERIFY_SDK_URL = 'verify_script_url';
+    const THRESHOLD_AMOUNT = 'threshold_amount';
+    const VALUE_3DSECURE_ALL = 0;
+    const VERIFY_ALLOW_SPECIFIC = 'verify_all_countries';
+    const VERIFY_SPECIFIC = 'verify_specific_countries';
 
     /**
      * Can method is active
@@ -175,9 +179,35 @@ class Config extends MagentoGatewayConfig
      * @param null $storeId
      * @return mixed
      */
-    public function getVerify3dSecure($storeId = null)
+    public function isVerify3dSecure($storeId = null)
     {
         return $this->getValue(self::VERIFY_3DSECURE, $storeId);
+    }
+
+    /**
+     * Gets threshold amount for 3d secure.
+     *
+     * @param int|null $storeId
+     * @return float
+     */
+    public function getThresholdAmount($storeId = null)
+    {
+        return (double) $this->getValue(self::THRESHOLD_AMOUNT, $storeId);
+    }
+
+    /**
+     * Gets list of specific countries for 3d secure.
+     *
+     * @param int|null $storeId
+     * @return array
+     */
+    public function get3DSecureSpecificCountries($storeId = null)
+    {
+        if ((int) $this->getValue(self::VERIFY_ALLOW_SPECIFIC, $storeId) == self::VALUE_3DSECURE_ALL) {
+            return [];
+        }
+
+        return explode(',', $this->getValue(self::VERIFY_SPECIFIC, $storeId));
     }
 
     /**

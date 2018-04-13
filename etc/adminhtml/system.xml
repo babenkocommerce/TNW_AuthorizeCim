@@ -121,7 +121,7 @@
           <field id="allowspecific" translate="label" type="allowspecific" sortOrder="152" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
             <label>Verify for Applicable Countries</label>
             <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
-            <config_path>payment/tnw_authorize_cim/verify_all_countries_3dsecure</config_path>
+            <config_path>payment/tnw_authorize_cim/verify_all_countries</config_path>
           </field>
           <field id="specificcountry" translate="label" type="multiselect" sortOrder="153" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Verify for Specific Countries</label>

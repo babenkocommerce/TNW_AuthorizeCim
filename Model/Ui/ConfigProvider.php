@@ -49,12 +49,17 @@ class ConfigProvider implements ConfigProviderInterface
                 self::CODE => [
                     'isActive' => $this->config->isActive($storeId),
                     'clientKey' => $this->config->getClientKey($storeId),
-                    'apiLoginId' => $this->config->getApiLoginId($storeId),
+                    'apiLoginID' => $this->config->getApiLoginId($storeId),
                     'sdkUrl' => $this->config->getSdkUrl($storeId),
-                    //'verifySdkUrl' => $this->config->getVerifySdkUrl($storeId),
-                    //'cardinalRequestJwt' => (string)$this->generateJwtToken($storeId),
                     'vaultCode' => self::VAULT_CODE,
-                ]
+                ],
+                'verify_authorize' => [
+                    'enabled' => $this->config->isVerify3DSecure($storeId),
+                    'thresholdAmount' => $this->config->getThresholdAmount($storeId),
+                    'specificCountries' => $this->config->get3DSecureSpecificCountries($storeId),
+                    'sdkUrl' => $this->config->getVerifySdkUrl($storeId),
+                    'jwt' => (string)$this->generateJwtToken($storeId),
+                ],
             ]
         ];
     }

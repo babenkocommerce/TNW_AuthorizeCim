@@ -9,9 +9,10 @@ define([
     'Magento_Payment/js/view/payment/cc-form',
     'Magento_Checkout/js/model/quote',
     'Magento_Vault/js/view/payment/vault-enabler',
+    'TNW_AuthorizeCim/js/view/payment/validator-handler',
     'Magento_Checkout/js/model/full-screen-loader'
 ],
-function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
+function ($, $t, Component, quote, VaultEnabler, validatorManager, fullScreenLoader) {
     'use strict';
 
     return Component.extend({
@@ -19,9 +20,8 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
             template: 'TNW_AuthorizeCim/payment/cc-form',
             ccCode: null,
             ccMessageContainer: null,
+            validatorManager: validatorManager,
             code: 'tnw_authorize_cim',
-            accept: null,
-            cardinal: null,
 
             /**
              * Additional payment data
@@ -56,6 +56,7 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
             this._super()
                 .observe(['active']);
 
+            this.validatorManager.initialize();
             return this;
         },
 
@@ -77,8 +78,6 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
          * @param {Boolean} isActive
          */
         onActiveChange: function (isActive) {
-            var self = this;
-
             if (!isActive) {
                 return;
             }
@@ -87,8 +86,7 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
             this.restoreCode();
 
             fullScreenLoader.startLoader();
-            require([this.getSdkUrl()], function () {
-                self.accept = window.Accept;
+            this.validatorManager.load(function() {
                 fullScreenLoader.stopLoader();
             });
         },
@@ -151,6 +149,15 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
         },
 
         /**
+         * Add data
+         * @param key {String}
+         * @param value {String}
+         */
+        addAdditionalData: function(key, value) {
+            this.additionalData[key] = value;
+        },
+
+        /**
          * @returns {Boolean}
          */
         isVaultEnabled: function () {
@@ -177,55 +184,9 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
          * Triggers order placing
          */
         placeOrderClick: function () {
-            var self = this;
-
             if (this.validateCardType()) {
-                this.isPlaceOrderActionAllowed(false);
-                var paymentData = {
-                        cardData: {
-                            cardNumber: $(this.getSelector('cc_number')).val().replace(/\D/g, ''),
-                            month: $(this.getSelector('expiration')).val(),
-                            year: $(this.getSelector('expiration_yr')).val(),
-                            cardCode: $(this.getSelector('cc_cid')).val()
-                        },
-                        authData: {
-                            clientKey: this.getClientKey(),
-                            apiLoginID: this.getApiLoginId()
-                        }
-                    };
-
-                this.accept.dispatchData(paymentData, function (response) {
-                    if (response.messages.resultCode === "Error") {
-                        self.isPlaceOrderActionAllowed(true);
-
-                        var i = 0;
-                        while (i < response.messages.message.length) {
-                            self.messageContainer.addErrorMessage({
-                                message:response.messages.message[i].code + ": " + response.messages.message[i].text
-                            });
-                            i = i + 1;
-                        }
-                    } else {
-                        self.additionalData['opaqueDescriptor'] = response.opaqueData.dataDescriptor;
-                        self.additionalData['opaqueValue'] = response.opaqueData.dataValue;
-                        self.placeOrder();
-                    }
-                });
+                this.placeOrder();
             }
-        },
-
-        /**
-         * @returns {String}
-         */
-        getClientKey: function () {
-            return window.checkoutConfig.payment[this.getCode()].clientKey;
-        },
-
-        /**
-         * @returns {String}
-         */
-        getApiLoginId: function () {
-            return window.checkoutConfig.payment[this.getCode()].apiLoginId;
         },
 
         /**
@@ -236,17 +197,30 @@ function ($, $t, Component, quote, VaultEnabler, fullScreenLoader) {
         },
 
         /**
-         * @returns {String}
+         * Action to place order
+         * @param {String} key
          */
-        getSdkUrl: function () {
-            return window.checkoutConfig.payment[this.getCode()].sdkUrl;
-        },
+        placeOrder: function (key) {
+            var self = this;
 
-        /**
-         * @returns {String}
-         */
-        getVerifySdkUrl: function () {
-            return window.checkoutConfig.payment[this.getCode()].verifySdkUrl;
+            if (key) {
+                return self._super();
+            }
+
+            // place order on success validation
+            self.isPlaceOrderActionAllowed(false);
+            self.validatorManager.validate(self)
+                .done(function () {
+                    self.placeOrder('parent');
+                })
+                .fail(function (error) {
+                    self.isPlaceOrderActionAllowed(true);
+                    self.messageContainer.addErrorMessage({
+                        message: error
+                    });
+                });
+
+            return false;
         }
     });
 });
