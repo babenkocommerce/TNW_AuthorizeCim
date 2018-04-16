@@ -41,13 +41,13 @@ define([
          */
         load: function(callback) {
             var self = this,
-                deps = $.map(this.validators, function () {
-                    return this.config.sdkUrl;
+                deps = $.map(this.validators, function (validator) {
+                    return validator.config.sdkUrl;
                 });
 
             require(deps, function () {
-                $.each(self.validators, function () {
-                    this.load();
+                $.each(self.validators, function (key, validator) {
+                    validator.load();
                 });
 
                 callback();

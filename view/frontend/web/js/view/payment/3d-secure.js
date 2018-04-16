@@ -4,8 +4,8 @@
  */
 define([
     'jquery',
-    'Magento_Checkout/js/model/quote',
-    'mage/translate'
+    'mage/translate',
+    'Magento_Checkout/js/model/quote'
 ], function ($, $t, quote) {
     'use strict';
 
@@ -35,6 +35,9 @@ define([
          */
         load: function() {
             this.cardinal = window.Cardinal;
+
+            this.cardinal.configure({ logging: { level: 'verbose' } });
+            this.cardinal.setup('init', { jwt: this.config.jwt });
         },
 
         /**
@@ -49,13 +52,41 @@ define([
 
             if (!this.isAmountAvailable(totalAmount) || !this.isCountryAvailable(billingAddress.countryId)) {
                 state.resolve();
-
                 return state.promise();
             }
 
-            //state.resolve();
-            //state.reject(error.message);
-            state.reject($t('Please try again with another form of payment.'));
+            try {
+                this.cardinal.on('payments.validated', function (data, jwt) {
+                    switch(data.ActionCode) {
+                        case "SUCCESS":
+                        case "NOACTION":
+                            state.reject($t('Handle successful authentication scenario'));
+                            //self.state.resolve();
+                            break;
+
+                        case "FAILURE":
+                        case "ERROR":
+                            state.reject(data.ErrorDescription);
+                            break;
+                    }
+                });
+
+                this.cardinal.start('cca', {
+                    OrderDetails: {
+                        Amount: totalAmount,
+                        CurrencyCode: "840"
+                    },
+                    Consumer: {
+                        Account: {
+                            AccountNumber: $(context.getSelector('cc_number')).val().replace(/\D/g, ''),
+                            ExpirationMonth: $(context.getSelector('expiration')).val(),
+                            ExpirationYear: $(context.getSelector('expiration_yr')).val()
+                        }
+                    }
+                });
+            } catch (error) {
+                state.reject(error);
+            }
 
             return state.promise();
         },

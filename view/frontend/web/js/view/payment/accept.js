@@ -58,11 +58,11 @@ define([
 
             this.accept.dispatchData(paymentData, function (response) {
                 if (response.messages.resultCode === "Error") {
-                    var messages = $.map(response.messages.message, function() {
-                        return this.code + ": " + this.text;
+                    var messages = $.map(response.messages.message, function(message) {
+                        return message.code + ": " + message.text;
                     });
 
-                    state.reject(messages.join('. '));
+                    state.reject(messages.join(' '));
                 } else {
                     context.addAdditionalData('opaqueDescriptor', response.opaqueData.dataDescriptor);
                     context.addAdditionalData('opaqueValue', response.opaqueData.dataValue);

@@ -42,7 +42,7 @@ class Config extends MagentoGatewayConfig
     const VERIFY_API_IDENTIFIER = 'verify_api_identifier';
     const VERIFY_ORG_UNIT_ID = 'verify_org_unit_id';
     const VERIFY_API_KEY = 'verify_api_key';
-    const VERIFY_SDK_URL = 'verify_script_url';
+    const VERIFY_SDK_URL = 'verify_sdk_url';
     const THRESHOLD_AMOUNT = 'threshold_amount';
     const VALUE_3DSECURE_ALL = 0;
     const VERIFY_ALLOW_SPECIFIC = 'verify_all_countries';
