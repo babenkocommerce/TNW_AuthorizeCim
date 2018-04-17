@@ -165,6 +165,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="customer" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CustomerDataBuilder</item>
                 <item name="payment" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\PaymentDataBuilder</item>
+                <item name="cardholder" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CardholderDataBuilder</item>
                 <item name="opaque" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\OpaqueDataBuilder</item>
                 <item name="address" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\AddressDataBuilder</item>
                 <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>

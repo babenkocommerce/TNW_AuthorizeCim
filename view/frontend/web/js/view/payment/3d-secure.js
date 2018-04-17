@@ -59,9 +59,13 @@ define([
                 this.cardinal.on('payments.validated', function (data, jwt) {
                     switch(data.ActionCode) {
                         case "SUCCESS":
+                            context.addAdditionalData('ECIFlag', data.Payment.ExtendedData.ECIFlag);
+                            context.addAdditionalData('CAVV', data.Payment.ExtendedData.CAVV);
+                            state.resolve();
+                            break;
+
                         case "NOACTION":
-                            state.reject($t('Handle successful authentication scenario'));
-                            //self.state.resolve();
+                            state.resolve();
                             break;
 
                         case "FAILURE":
@@ -80,7 +84,8 @@ define([
                         Account: {
                             AccountNumber: $(context.getSelector('cc_number')).val().replace(/\D/g, ''),
                             ExpirationMonth: $(context.getSelector('expiration')).val(),
-                            ExpirationYear: $(context.getSelector('expiration_yr')).val()
+                            ExpirationYear: $(context.getSelector('expiration_yr')).val(),
+                            CardCode: $(context.getSelector('cc_cid')).val()
                         }
                     }
                 });

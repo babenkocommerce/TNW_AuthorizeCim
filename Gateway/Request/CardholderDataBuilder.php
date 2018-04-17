@@ -38,11 +38,18 @@ class CardholderDataBuilder implements BuilderInterface
         $paymentDO = $this->subjectReader->readPayment($subject);
         $payment = $paymentDO->getPayment();
 
+        $indicator = $payment->getAdditionalInformation('ECIFlag');
+        $value = $payment->getAdditionalInformation('CAVV');
+
+        if (empty($indicator) || empty($value)) {
+            return [];
+        }
+
         return [
             'transaction_request' => [
-                'cardholderAuthentication' => [
-                    'authenticationIndicator' => $payment->getAdditionalInformation('ECIFlag'),
-                    'cardholderAuthenticationValue' => $payment->getAdditionalInformation('CAVV'),
+                'cardholder_authentication' => [
+                    'authentication_indicator' => $indicator,
+                    'cardholder_authentication_value' => $value,
                 ]
             ]
         ];
