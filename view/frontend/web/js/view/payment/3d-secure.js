@@ -39,14 +39,15 @@ define([
         },
 
         /**
-         * Validate Braintree payment nonce
          * @param {Object} context
          * @returns {Object}
          */
         validate: function (context) {
             var self = this,
                 state = $.Deferred(),
+                orderNumber = 'ORDER-' + quote.getQuoteId(),
                 totalAmount = quote.totals()['base_grand_total'],
+                currencyCode = quote.totals()['base_currency_code'],
                 billingAddress = quote.billingAddress();
 
             if (!this.isAmountAvailable(totalAmount) || !this.isCountryAvailable(billingAddress.countryId)) {
@@ -57,7 +58,13 @@ define([
             $.ajax({
                 method: 'get',
                 url: this.config.jwtUrl,
-                data: {'quote_id': quote.getQuoteId()},
+                data: {
+                    'order_details': {
+                        'OrderNumber': orderNumber,
+                        'Amount': totalAmount,
+                        'CurrencyCode': currencyCode
+                    }
+                },
                 dataType: 'json'
             }).done(function (responseData) {
                 try {
@@ -84,7 +91,7 @@ define([
 
                     self.cardinal.start('cca', {
                         OrderDetails: {
-                            OrderNumber: responseData.number
+                            OrderNumber: orderNumber
                         },
                         Consumer: {
                             Account: {
