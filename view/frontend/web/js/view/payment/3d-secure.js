@@ -35,9 +35,7 @@ define([
          */
         load: function() {
             this.cardinal = window.Cardinal;
-
             this.cardinal.configure({ logging: { level: 'verbose' } });
-            this.cardinal.setup('init', { jwt: this.config.jwt });
         },
 
         /**
@@ -48,6 +46,7 @@ define([
         validate: function (context) {
             var state = $.Deferred(),
                 totalAmount = quote.totals()['base_grand_total'],
+                currencyCode = quote.totals()['base_currency_code'],
                 billingAddress = quote.billingAddress();
 
             if (!this.isAmountAvailable(totalAmount) || !this.isCountryAvailable(billingAddress.countryId)) {
@@ -56,6 +55,8 @@ define([
             }
 
             try {
+                this.cardinal.setup('init', { jwt: '' });
+
                 this.cardinal.on('payments.validated', function (data, jwt) {
                     switch(data.ActionCode) {
                         case "SUCCESS":
@@ -65,7 +66,8 @@ define([
                             break;
 
                         case "NOACTION":
-                            state.resolve();
+                            state.reject(data.ErrorDescription);
+                            //state.resolve();
                             break;
 
                         case "FAILURE":
@@ -78,14 +80,14 @@ define([
                 this.cardinal.start('cca', {
                     OrderDetails: {
                         Amount: totalAmount,
-                        CurrencyCode: "840"
+                        CurrencyCode: currencyCode
                     },
                     Consumer: {
                         Account: {
                             AccountNumber: $(context.getSelector('cc_number')).val().replace(/\D/g, ''),
                             ExpirationMonth: $(context.getSelector('expiration')).val(),
                             ExpirationYear: $(context.getSelector('expiration_yr')).val(),
-                            CardCode: $(context.getSelector('cc_cid')).val()
+                            //CardCode: $(context.getSelector('cc_cid')).val()
                         }
                     }
                 });
