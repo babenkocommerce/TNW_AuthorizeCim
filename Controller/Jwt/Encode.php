@@ -3,7 +3,7 @@
  * Copyright © 2017 TechNWeb, Inc. All rights reserved.
  * See TNW_LICENSE.txt for license details.
  */
-namespace TNW\AuthorizeCim\Controller\Adminhtml\Jwt;
+namespace TNW\AuthorizeCim\Controller\Jwt;
 
 use Magento\Framework\App\Action;
 use Magento\Framework\Controller\ResultFactory;
@@ -64,7 +64,10 @@ class Encode extends Action\Action
         }
 
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)
-            ->setData(['jwt' => $this->generateToken($quote)]);
+            ->setData([
+                'jwt' => $this->generateToken($quote),
+                'number' => 'ORDER-' . $quote->getId()
+            ]);
     }
 
     /**
@@ -76,6 +79,10 @@ class Encode extends Action\Action
         $currentTime = time();
         $expireTime = 3600; // expiration in seconds - this equals 1hr
         $storeId = $quote->getStoreId();
+
+        if (!$this->config->isVerify3DSecure($storeId)) {
+            return '';
+        }
 
         return (string)(new Builder())
             ->setIssuer($this->config->getVerifyApiIdentifier($storeId))

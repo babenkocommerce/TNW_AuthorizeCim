@@ -44,9 +44,9 @@ define([
          * @returns {Object}
          */
         validate: function (context) {
-            var state = $.Deferred(),
+            var self = this,
+                state = $.Deferred(),
                 totalAmount = quote.totals()['base_grand_total'],
-                currencyCode = quote.totals()['base_currency_code'],
                 billingAddress = quote.billingAddress();
 
             if (!this.isAmountAvailable(totalAmount) || !this.isCountryAvailable(billingAddress.countryId)) {
@@ -54,46 +54,53 @@ define([
                 return state.promise();
             }
 
-            try {
-                this.cardinal.setup('init', { jwt: '' });
+            $.ajax({
+                method: 'get',
+                url: this.config.jwtUrl,
+                data: {'quote_id': quote.getQuoteId()},
+                dataType: 'json'
+            }).done(function (responseData) {
+                try {
+                    self.cardinal.setup('init', {jwt: responseData.jwt});
 
-                this.cardinal.on('payments.validated', function (data, jwt) {
-                    switch(data.ActionCode) {
-                        case "SUCCESS":
-                            context.addAdditionalData('ECIFlag', data.Payment.ExtendedData.ECIFlag);
-                            context.addAdditionalData('CAVV', data.Payment.ExtendedData.CAVV);
-                            state.resolve();
-                            break;
+                    self.cardinal.on('payments.validated', function (data, jwt) {
+                        switch(data.ActionCode) {
+                            case "SUCCESS":
+                                context.addAdditionalData('ECIFlag', data.Payment.ExtendedData.ECIFlag);
+                                context.addAdditionalData('CAVV', data.Payment.ExtendedData.CAVV);
+                                state.resolve();
+                                break;
 
-                        case "NOACTION":
-                            state.reject(data.ErrorDescription);
-                            //state.resolve();
-                            break;
+                            case "NOACTION":
+                                state.resolve();
+                                break;
 
-                        case "FAILURE":
-                        case "ERROR":
-                            state.reject(data.ErrorDescription);
-                            break;
-                    }
-                });
-
-                this.cardinal.start('cca', {
-                    OrderDetails: {
-                        Amount: totalAmount,
-                        CurrencyCode: currencyCode
-                    },
-                    Consumer: {
-                        Account: {
-                            AccountNumber: $(context.getSelector('cc_number')).val().replace(/\D/g, ''),
-                            ExpirationMonth: $(context.getSelector('expiration')).val(),
-                            ExpirationYear: $(context.getSelector('expiration_yr')).val(),
-                            //CardCode: $(context.getSelector('cc_cid')).val()
+                            case "FAILURE":
+                            case "ERROR":
+                                state.reject(data.ErrorDescription);
+                                break;
                         }
-                    }
-                });
-            } catch (error) {
-                state.reject(error);
-            }
+                    });
+
+                    self.cardinal.start('cca', {
+                        OrderDetails: {
+                            OrderNumber: responseData.number
+                        },
+                        Consumer: {
+                            Account: {
+                                AccountNumber: $(context.getSelector('cc_number')).val().replace(/\D/g, ''),
+                                ExpirationMonth: $(context.getSelector('expiration')).val(),
+                                ExpirationYear: $(context.getSelector('expiration_yr')).val(),
+                                //CardCode: $(context.getSelector('cc_cid')).val()
+                            }
+                        }
+                    });
+                } catch (error) {
+                    state.reject(error);
+                }
+            }).fail(function (xhr, ajaxError) {
+                state.reject($t('Error getting JWT'));
+            });
 
             return state.promise();
         },

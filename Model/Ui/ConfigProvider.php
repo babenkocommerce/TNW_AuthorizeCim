@@ -8,6 +8,7 @@ namespace TNW\AuthorizeCim\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Session\SessionManagerInterface;
 use TNW\AuthorizeCim\Gateway\Config\Config;
+use Magento\Framework\UrlInterface;
 
 class ConfigProvider implements ConfigProviderInterface
 {
@@ -23,15 +24,23 @@ class ConfigProvider implements ConfigProviderInterface
     private $session;
 
     /**
+     * @var UrlInterface
+     */
+    private $url;
+
+    /**
      * @param Config $config
      * @param SessionManagerInterface $session
+     * @param UrlInterface $url
      */
     public function __construct(
         Config $config,
-        SessionManagerInterface $session
+        SessionManagerInterface $session,
+        UrlInterface $url
     ) {
         $this->config = $config;
         $this->session = $session;
+        $this->url = $url;
     }
 
     /**
@@ -56,6 +65,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'thresholdAmount' => $this->config->getThresholdAmount($storeId),
                     'specificCountries' => $this->config->get3DSecureSpecificCountries($storeId),
                     'sdkUrl' => $this->config->getVerifySdkUrl($storeId),
+                    'jwtUrl' => $this->url->getUrl('tnw_authorizecim/jwt/encode'),
                 ],
             ]
         ];
