@@ -59,10 +59,10 @@
             <config_path>payment/tnw_authorize_cim/client_key</config_path>
           </field>
         </group>
-        <group id="stripe_advanced" translate="label" showInDefault="1" showInWebsite="1" sortOrder="20">
-          <label>Advanced Stripe Settings</label>
+        <group id="advanced" translate="label" showInDefault="1" showInWebsite="1" sortOrder="20">
+          <label>Advanced Settings</label>
           <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
-          <field id="stripe_vault_title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+          <field id="vault_title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Vault Title</label>
             <config_path>payment/tnw_authorize_cim_vault/title</config_path>
           </field>
