@@ -26,7 +26,7 @@
           </requires>
         </field>
         <group id="required" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">
-          <label>Basic Stripe Settings</label>
+          <label>Basic Settings</label>
           <attribute type="expanded">1</attribute>
           <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
           <field id="title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
