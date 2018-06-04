@@ -61,7 +61,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'vaultCode' => self::VAULT_CODE,
                 ],
                 'verify_authorize' => [
-                    'enabled' => $this->config->isVerify3DSecure($storeId),
+                    'enabled' => (int)$this->config->isVerify3DSecure($storeId),
                     'thresholdAmount' => $this->config->getThresholdAmount($storeId),
                     'specificCountries' => $this->config->get3DSecureSpecificCountries($storeId),
                     'sdkUrl' => $this->config->getVerifySdkUrl($storeId),
