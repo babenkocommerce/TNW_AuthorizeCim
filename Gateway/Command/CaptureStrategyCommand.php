@@ -75,7 +75,9 @@ class CaptureStrategyCommand implements CommandInterface
         $this->commandPool->get($command)->execute($commandSubject);
 
         if ($paymentInfo->getAdditionalInformation('is_active_payment_token_enabler')) {
-            $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
+            try {
+                $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
+            } catch (\Exception $e) { }
         }
     }
 
