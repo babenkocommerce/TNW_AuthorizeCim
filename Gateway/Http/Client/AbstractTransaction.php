@@ -66,7 +66,7 @@ abstract class AbstractTransaction implements ClientInterface
             'client' => static::class
         ];
 
-        $response['object'] = [];
+        $response['object'] = new \stdClass();
 
         try {
             $response['object'] = $this->process($data);
