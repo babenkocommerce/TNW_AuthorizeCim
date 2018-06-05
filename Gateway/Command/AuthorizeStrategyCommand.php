@@ -5,7 +5,7 @@
  */
 namespace TNW\AuthorizeCim\Gateway\Command;
 
-use TNW\Stripe\Gateway\Helper\SubjectReader;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Payment\Gateway\Command;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
