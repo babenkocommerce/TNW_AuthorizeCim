@@ -81,11 +81,11 @@
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/tnw_authorize_cim/debug</config_path>
           </field>
-          <field id="useccv" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-            <label>Credit Card Verification</label>
-            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>payment/tnw_authorize_cim/useccv</config_path>
-          </field>
+          <!--<field id="useccv" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">-->
+            <!--<label>Credit Card Verification</label>-->
+            <!--<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>-->
+            <!--<config_path>payment/tnw_authorize_cim/useccv</config_path>-->
+          <!--</field>-->
           <field id="min_order_total" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Minimum Order Total</label>
             <config_path>payment/tnw_authorize_cim/min_order_total</config_path>
