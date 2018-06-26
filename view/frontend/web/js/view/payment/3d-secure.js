@@ -46,7 +46,7 @@ define([
             var self = this,
                 state = $.Deferred(),
                 orderNumber = 'ORDER-' + quote.getQuoteId(),
-                totalAmount = quote.totals()['base_grand_total'],
+                totalAmount = parseFloat(quote.totals()['base_grand_total']).toFixed(2).replace('.', ''),
                 currencyCode = quote.totals()['base_currency_code'],
                 billingAddress = quote.billingAddress();
 
