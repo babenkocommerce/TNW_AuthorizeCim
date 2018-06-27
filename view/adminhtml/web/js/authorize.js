@@ -79,7 +79,7 @@ define([
             this.disableEventListeners();
             window.order.addExcludedPaymentMethod(this.code);
 
-            if (!this.apiLoginId || !this.clientKey) {
+            if (!this.apiLoginID || !this.clientKey) {
                 this.error($.mage.__('This payment is not available'));
 
                 return;
@@ -175,7 +175,7 @@ define([
                 },
                 authData: {
                     clientKey: this.clientKey,
-                    apiLoginID: this.apiLoginId
+                    apiLoginID: this.apiLoginID
                 }
             };
 
