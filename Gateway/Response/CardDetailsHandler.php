@@ -1,50 +1,61 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Gateway\Response;
+namespace TNW\AuthorizeCim\Gateway\Response;
 
 use Magento\Payment\Gateway\Helper\ContextHelper;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class CardDetailsHandler implements HandlerInterface
 {
-    /** @var SubjectReader */
-    protected $_subjectReader;
+    const CARD_NUMBER = 'cc_number';
+    const CARD_LAST4 = 'cc_last4';
 
+    /** @var
+     * SubjectReader
+     */
+    private $subjectReader;
+
+    /**
+     * CardDetailsHandler constructor.
+     * @param SubjectReader $subjectReader
+     */
     public function __construct(
         SubjectReader $subjectReader
     ) {
-        $this->_subjectReader = $subjectReader;
+        $this->subjectReader = $subjectReader;
     }
 
+    /**
+     * @param array $subject
+     * @param array $response
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function handle(array $subject, array $response)
     {
-        $paymentDataObject = $this->_subjectReader->readPayment($subject);
-        $transaction = $this->_subjectReader->readTransaction($response);
-        $transaction = $transaction->getData('transactionResponse');
-        $payment = $paymentDataObject->getPayment();
+        $paymentDO = $this->subjectReader->readPayment($subject);
+
+        /** @var \net\authorize\api\contract\v1\CreateTransactionResponse $transaction */
+        $transaction = $this->subjectReader->readTransaction($response);
+
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
+        $payment = $paymentDO->getPayment();
         ContextHelper::assertOrderPayment($payment);
 
-        $payment->setCcLast4($this->_getLast4($transaction->getData('accountNumber')));
-        $payment->setCcType($transaction->getData('accountType'));
-    }
+        $transactionResponse = $transaction->getTransactionResponse();
+        $ccLast4 = substr($transactionResponse->getAccountNumber(), -4);
 
-    protected function _getLast4($string)
-    {
-        return substr($string, strlen($string) - 4, strlen($string));
+        $payment->setCcLast4($ccLast4);
+        $payment->setCcType($transactionResponse->getAccountType());
+
+        // set card details to additional info
+        $payment->setAdditionalInformation(self::CARD_LAST4, $ccLast4);
+        $payment->setAdditionalInformation(self::CARD_NUMBER, 'xxxx-' . $ccLast4);
+        $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $transactionResponse->getAccountType());
     }
 }

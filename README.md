@@ -19,20 +19,12 @@ frontend or backend.
 
 ## Installation
 In your Magento 2 root directory run  
-`composer require pmclain/magento2-authorizenetcim`  
+`composer require tnw/module-authorizenetcim`  
 `bin/magento setup:upgrade`
 
 ## Configuration
 The configuration can be found in the Magento 2 admin panel under  
 Store->Configuration->Sales->Payment Methods->Authorize.net CIM  
-
-## Magento Version Support
-| Module Version | Magento Version |
-| -------------- | --------------- |
-| v1.x           | v2.2.x          |
-| v0.1.x         | v2.1.x          |
-| None           | v2.0.x          |
-
 
 #### Accept.js and Test mode
 Test Mode requires your checkout and admin pages use the HTTPS protocol even

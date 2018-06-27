@@ -1,68 +1,47 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Gateway\Request;
 
-namespace Pmclain\AuthorizenetCim\Gateway\Request;
-
-use Magento\Framework\Exception\LocalizedException;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Payment\Helper\Formatter;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
-use Pmclain\Authnet\TransactionRequestFactory;
-use Pmclain\Authnet\TransactionRequest;
 
+/**
+ * Void Data Builder
+ */
 class VoidDataBuilder implements BuilderInterface
 {
-    use Formatter;
-
     /**
      * @var SubjectReader
      */
-    protected $subjectReader;
+    private $subjectReader;
 
     /**
-     * @var TransactionRequestFactory
+     * VoidDataBuilder constructor.
+     * @param SubjectReader $subjectReader
      */
-    protected $transactionRequestFactory;
-
     public function __construct(
-        SubjectReader $subjectReader,
-        TransactionRequestFactory $transactionRequestFactory
+        SubjectReader $subjectReader
     ) {
         $this->subjectReader = $subjectReader;
-        $this->transactionRequestFactory = $transactionRequestFactory;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function build(array $subject)
     {
-        $paymentDataObject = $this->subjectReader->readPayment($subject);
-        $payment = $paymentDataObject->getPayment();
+        $paymentDO = $this->subjectReader->readPayment($subject);
 
-        $transactionId = $payment->getParentTransactionId() ?: $payment->getLastTransId();
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
+        $payment = $paymentDO->getPayment();
 
-        if (!$transactionId) {
-            throw new LocalizedException(__('No Transaction to void'));
-        }
-
-        /**
-         * @var TransactionRequest $transactionRequest
-         */
-        $transactionRequest = $this->transactionRequestFactory->create();
-        $transactionRequest->setRefTransId($transactionId);
-        $transactionRequest->setTransactionType(TransactionRequest\TransactionType::TYPE_VOID);
-
-        return [PaymentDataBuilder::TRANSACTION_REQUEST => $transactionRequest];
+        return [
+            'transaction_request' => [
+                'ref_trans_id' => $payment->getParentTransactionId() ?: $payment->getLastTransId()
+            ]
+        ];
     }
 }

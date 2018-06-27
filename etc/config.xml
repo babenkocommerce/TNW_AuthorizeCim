@@ -1,63 +1,60 @@
 <?xml version="1.0" ?>
 <!--
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
-  <default>
-    <payment>
-      <pmclain_authorizenetcim>
-        <model>AuthorizenetCimFacade</model>
-        <is_gateway>1</is_gateway>
-        <can_use_checkout>1</can_use_checkout>
-        <can_authorize>1</can_authorize>
-        <can_capture>1</can_capture>
-        <can_capture_partial>1</can_capture_partial>
-        <can_authorize_vault>1</can_authorize_vault>
-        <can_capture_vault>1</can_capture_vault>
-        <can_use_internal>1</can_use_internal>
-        <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
-        <can_refund>1</can_refund>
-        <can_void>1</can_void>
-        <can_cancel>1</can_cancel>
-        <can_edit>1</can_edit>
-        <can_review_payment>1</can_review_payment>
-        <can_deny_payment>1</can_deny_payment>
-        <active>0</active>
-        <payment_action>authorize</payment_action>
-        <title>Credit Cards (Authorize.net CIM)</title>
-        <login backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-        <trans_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-        <client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-        <order_status>processing</order_status>
-        <test>1</test>
-        <currency>USD</currency>
-        <debug>0</debug>
-        <cctypes>AE,VI,MC,DI,JCB,DN</cctypes>
-        <useccv>1</useccv>
-        <validation_mode>none</validation_mode>
-        <vault_active>1</vault_active>
-        <allowspecific>0</allowspecific>
-      </pmclain_authorizenetcim>
-      <pmclain_authorizenetcim_vault>
-        <model>AuthorizenetCimVaultFacade</model>
-        <title>Stored Cards (Authorize.net CIM)</title>
-        <instant_purchase>
-          <supported>1</supported>
-        </instant_purchase>
-      </pmclain_authorizenetcim_vault>
-    </payment>
-  </default>
+    <default>
+        <payment>
+            <tnw_authorize_cim>
+                <model>AuthorizeCimFacade</model>
+                <title>Credit Cards (Authorize.net CIM)</title>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
+                <can_use_internal>1</can_use_internal>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_edit>1</can_edit>
+                <can_review_payment>1</can_review_payment>
+                <can_deny_payment>1</can_deny_payment>
+                <active>0</active>
+                <payment_action>authorize</payment_action>
+                <login backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <trans_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <verify_api_identifier backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <verify_org_unit_id backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <verify_api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <order_status>processing</order_status>
+                <currency>USD</currency>
+                <debug>0</debug>
+                <cctypes>AE,VI,MC,DI,JCB,DN</cctypes>
+                <useccv>1</useccv>
+                <validation_mode>none</validation_mode>
+                <vault_active>1</vault_active>
+                <allowspecific>0</allowspecific>
+                <privateInfoKeys>auth_code,avs_code,cavv_code,cvv_code</privateInfoKeys>
+                <paymentInfoKeys>cc_type,cc_number,auth_code,avs_code,cavv_code,cvv_code</paymentInfoKeys>
+                <debugReplaceKeys />
+                <sdk_url_test_mode><![CDATA[https://jstest.authorize.net/v1/Accept.js]]></sdk_url_test_mode>
+                <sdk_url><![CDATA[https://js.authorize.net/v1/Accept.js]]></sdk_url>
+                <verify_sdk_url><![CDATA[https://includestest.ccdc02.com/cardinalcruise/v1/songbird.js]]></verify_sdk_url>
+                <cctypes_mapper><![CDATA[{"american-express":"AE","discover":"DI","jcb":"JCB","mastercard":"MC","master-card":"MC","visa":"VI","maestro":"MI","diners-club":"DN","unionpay":"CUP"}]]></cctypes_mapper>
+            </tnw_authorize_cim>
+            <tnw_authorize_cim_vault>
+                <model>AuthorizeCimVaultFacade</model>
+                <title>Stored Cards (Authorize.net CIM)</title>
+                <active>0</active>
+            </tnw_authorize_cim_vault>
+        </payment>
+    </default>
 </config>

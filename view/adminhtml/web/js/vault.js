@@ -1,37 +1,59 @@
 define([
-  'jquery',
-  'uiComponent'
+    'jquery',
+    'uiComponent'
 ], function ($, Class) {
-  'use strict';
+    'use strict';
 
-  return Class.extend({
-    defaults: {
-      $selector: null,
-      selector: 'edit_form'
-    },
+    return Class.extend({
+        defaults: {
+            $selector: null,
+            selector: 'edit_form',
+            $container: null
+        },
 
-    initObservable: function () {
-      var self = this;
+        /**
+         * Set list of observable attributes
+         * @returns {exports.initObservable}
+         */
+        initObservable: function () {
+            var self = this;
 
-      self.$selector = $('#' + self.selector);
-      this._super();
+            self.$selector = $('#' + self.selector);
+            self.$container =  $('#' + self.container);
+            self.$selector.on(
+                'setVaultNotActive.' + self.getCode(),
+                function () {
+                    self.$selector.off('submitOrder.' + self.getCode());
+                }
+            );
+            self._super();
 
-      this.initEventHandlers();
+            self.initEventHandlers();
 
-      return this;
-    },
+            return self;
+        },
 
-    getCode: function () {
-      return this.code;
-    },
+        /**
+         * Get payment code
+         * @returns {String}
+         */
+        getCode: function () {
+            return this.code;
+        },
 
-    initEventHandlers: function () {
-      $('#' + this.container).find('[name="payment[token_switcher]"]')
-        .on('click', this.setPaymentDetails.bind(this));
-    },
+        /**
+         * Init event handlers
+         */
+        initEventHandlers: function () {
+            this.$container.find('[name="payment[token_switcher]"]')
+                .on('click', this.setPaymentDetails.bind(this));
+        },
 
-    setPaymentDetails: function () {
-      this.$selector.find('[name="payment[public_hash]"]').val(this.publicHash);
-    }
-  });
+        /**
+         * Store payment details
+         */
+        setPaymentDetails: function () {
+            this.$selector.find('[name="payment[public_hash]"]').val(this.publicHash);
+        }
+    });
 });

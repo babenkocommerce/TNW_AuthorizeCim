@@ -1,82 +1,73 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
-
-namespace Pmclain\AuthorizenetCim\Model\Ui;
+namespace TNW\AuthorizeCim\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\Session\SessionManagerInterface;
+use TNW\AuthorizeCim\Gateway\Config\Config;
+use Magento\Framework\UrlInterface;
 
 class ConfigProvider implements ConfigProviderInterface
 {
-    const CODE = 'pmclain_authorizenetcim';
-    const CC_VAULT_CODE = 'pmclain_authorizenetcim_vault';
+    /** Payment code */
+    const CODE = 'tnw_authorize_cim';
+    /** Vault payment code */
+    const VAULT_CODE = 'tnw_authorize_cim_vault';
 
-    /** @var ScopeConfigInterface */
-    protected $_config;
+    /** @var Config */
+    private $config;
+
+    /** @var SessionManagerInterface */
+    private $session;
 
     /**
-     * ConfigProvider constructor.
-     * @param ScopeConfigInterface $config
+     * @var UrlInterface
      */
-    public function __construct(ScopeConfigInterface $config)
-    {
-        $this->_config = $config;
+    private $url;
+
+    /**
+     * @param Config $config
+     * @param SessionManagerInterface $session
+     * @param UrlInterface $url
+     */
+    public function __construct(
+        Config $config,
+        SessionManagerInterface $session,
+        UrlInterface $url
+    ) {
+        $this->config = $config;
+        $this->session = $session;
+        $this->url = $url;
     }
 
+    /**
+     * Get payment config array for payment method in checkout
+     *
+     * @return array
+     */
     public function getConfig()
     {
+        $storeId = $this->session->getStoreId();
         return [
             'payment' => [
                 self::CODE => [
-                    'clientKey' => $this->_getClientKey(),
-                    'apiLoginId' => $this->_getApiLoginId(),
-                    'useccv' => $this->_getUseCcv(),
-                    'vaultCode' => self::CC_VAULT_CODE,
-                    'test' => $this->_getIsTest(),
-                ]
+                    'isActive' => $this->config->isActive($storeId),
+                    'clientKey' => $this->config->getClientKey($storeId),
+                    'apiLoginID' => $this->config->getApiLoginId($storeId),
+                    'sdkUrl' => $this->config->getSdkUrl($storeId),
+                    'vaultCode' => self::VAULT_CODE,
+                ],
+                'verify_authorize' => [
+                    'enabled' => (int)$this->config->isVerify3DSecure($storeId),
+                    'thresholdAmount' => $this->config->getThresholdAmount($storeId),
+                    'specificCountries' => $this->config->get3DSecureSpecificCountries($storeId),
+                    'sdkUrl' => $this->config->getVerifySdkUrl($storeId),
+                    'jwtUrl' => $this->url->getUrl('tnw_authorizecim/jwt/encode'),
+                ],
             ]
         ];
-    }
-
-    protected function _getClientKey()
-    {
-        return $this->_getConfig('client_key');
-    }
-
-    protected function _getApiLoginId()
-    {
-        return $this->_getConfig('login');
-    }
-
-    protected function _getIsTest()
-    {
-        return $this->_getConfig('test');
-    }
-
-    protected function _getUseCcv()
-    {
-        return $this->_getConfig('useccv');
-    }
-
-    protected function _getConfig($value)
-    {
-        return $this->_config->getValue(
-            'payment/pmclain_authorizenetcim/' . $value,
-            ScopeInterface::SCOPE_STORE
-        );
     }
 }

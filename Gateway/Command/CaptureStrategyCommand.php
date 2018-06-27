@@ -1,53 +1,42 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Gateway\Command;
 
-namespace Pmclain\AuthorizenetCim\Gateway\Command;
-
-use Magento\Payment\Gateway\CommandInterface;
-use Magento\Payment\Gateway\Command\CommandPoolInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Framework\Api\FilterBuilder;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\ContextHelper;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
 class CaptureStrategyCommand implements CommandInterface
 {
     const SALE = 'sale';
     const CAPTURE = 'settlement';
+    const CUSTOMER = 'customer';
 
     /** @var SearchCriteriaBuilder */
-    private $_searchCriteriaBuilder;
+    private $searchCriteriaBuilder;
 
     /** @var TransactionRepositoryInterface */
-    private $_transactionRepository;
+    private $transactionRepository;
 
     /** @var FilterBuilder */
-    private $_filterBuilder;
+    private $filterBuilder;
 
     /** @var SubjectReader */
-    private $_subjectReader;
+    private $subjectReader;
 
     /** @var CommandPoolInterface */
-    private $_commandPool;
+    private $commandPool;
 
     /**
-     * CaptureStrategyCommand constructor.
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
      * @param FilterBuilder $filterBuilder
@@ -61,25 +50,35 @@ class CaptureStrategyCommand implements CommandInterface
         SubjectReader $subjectReader,
         CommandPoolInterface $commandPool
     ) {
-        $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->_transactionRepository = $transactionRepository;
-        $this->_filterBuilder = $filterBuilder;
-        $this->_subjectReader = $subjectReader;
-        $this->_commandPool = $commandPool;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->transactionRepository = $transactionRepository;
+        $this->filterBuilder = $filterBuilder;
+        $this->subjectReader = $subjectReader;
+        $this->commandPool = $commandPool;
     }
 
     /**
      * @param array $commandSubject
      * @return void
+     * @throws \Magento\Framework\Exception\NotFoundException
+     * @throws \Magento\Payment\Gateway\Command\CommandException
      */
     public function execute(array $commandSubject)
     {
-        $paymentDataObject = $this->_subjectReader->readPayment($commandSubject);
+        $paymentDataObject = $this->subjectReader->readPayment($commandSubject);
+
+        /** @var \Magento\Sales\Model\Order\Payment $paymentInfo */
         $paymentInfo = $paymentDataObject->getPayment();
         ContextHelper::assertOrderPayment($paymentInfo);
 
         $command = $this->getCommand($paymentInfo);
-        $this->_commandPool->get($command)->execute($commandSubject);
+        $this->commandPool->get($command)->execute($commandSubject);
+
+        if ($paymentInfo->getAdditionalInformation('is_active_payment_token_enabler')) {
+            try {
+                $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
+            } catch (\Exception $e) { }
+        }
     }
 
     /**
@@ -104,27 +103,13 @@ class CaptureStrategyCommand implements CommandInterface
      */
     private function isExistsCaptureTransaction(OrderPaymentInterface $payment)
     {
-        $this->_searchCriteriaBuilder->addFilters(
-            [
-                $this->_filterBuilder
-                    ->setField('payment_id')
-                    ->setValue($payment->getId())
-                    ->create()
-            ]
-        );
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('payment_id', $payment->getId())
+            ->addFilter('txn_type', TransactionInterface::TYPE_CAPTURE)
+            ->create();
 
-        $this->_searchCriteriaBuilder->addFilters(
-            [
-                $this->_filterBuilder
-                    ->setField('txn_type')
-                    ->setValue(TransactionInterface::TYPE_CAPTURE)
-                    ->create()
-            ]
-        );
-
-        $searchCriteria = $this->_searchCriteriaBuilder->create();
-
-        $count = $this->_transactionRepository->getList($searchCriteria)->getTotalCount();
-        return (boolean)$count;
+        return (boolean)$this->transactionRepository
+            ->getList($searchCriteria)
+            ->getTotalCount();
     }
 }

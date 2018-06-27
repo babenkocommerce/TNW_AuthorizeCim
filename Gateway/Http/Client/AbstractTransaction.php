@@ -1,55 +1,63 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Gateway\Http\Client;
 
-namespace Pmclain\AuthorizenetCim\Gateway\Http\Client;
-
-use Pmclain\AuthorizenetCim\Model\Adapter\AuthorizenetAdapter;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger;
 use Psr\Log\LoggerInterface;
+use TNW\AuthorizeCim\Gateway\Helper\DataObject;
+use TNW\AuthorizeCim\Model\Adapter\AuthorizeAdapterFactory;
 
 abstract class AbstractTransaction implements ClientInterface
 {
-    /** @var LoggerInterface */
-    protected $_logger;
-
-    /** @var Logger */
-    protected $_customLogger;
-
-    /** @var AuthorizenetAdapter */
-    protected $_adapter;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
-     * AbstractTransaction constructor.
+     * @var Logger
+     */
+    private $customLogger;
+
+    /**
+     * @var AuthorizeAdapterFactory
+     */
+    protected $adapterFactory;
+
+    /**
+     * @var DataObject
+     */
+    private $dataObjectHelper;
+
+    /**
      * @param LoggerInterface $logger
      * @param Logger $customLogger
-     * @param AuthorizenetAdapter $adapter
+     * @param AuthorizeAdapterFactory $adapterFactory
+     * @param DataObject $dataObjectHelper
      */
     public function __construct(
         LoggerInterface $logger,
         Logger $customLogger,
-        AuthorizenetAdapter $adapter
+        AuthorizeAdapterFactory $adapterFactory,
+        DataObject $dataObjectHelper
     ) {
-        $this->_logger = $logger;
-        $this->_customLogger = $customLogger;
-        $this->_adapter = $adapter;
+        $this->logger = $logger;
+        $this->customLogger = $customLogger;
+        $this->adapterFactory = $adapterFactory;
+        $this->dataObjectHelper = $dataObjectHelper;
     }
 
+    /**
+     * @param TransferInterface $transferObject
+     * @return array
+     * @throws ClientException
+     */
     public function placeRequest(TransferInterface $transferObject)
     {
         $data = $transferObject->getBody();
@@ -58,21 +66,26 @@ abstract class AbstractTransaction implements ClientInterface
             'client' => static::class
         ];
 
-        $response['object'] = [];
+        $response['object'] = new \stdClass();
 
         try {
             $response['object'] = $this->process($data);
         } catch (\Exception $e) {
             $message = __($e->getMessage() ?: 'Sorry, but something went wrong.');
-            $this->_logger->critical($message);
+            $this->logger->critical($message);
             throw new ClientException($message);
         } finally {
-            $log['response'] = (array)$response['object'];
-            $this->_customLogger->debug($log);
+            $log['response'] = [];
+            $this->dataObjectHelper->populateWithObject($log['response'], $response['object']);
+            $this->customLogger->debug($log);
         }
 
         return $response;
     }
 
+    /**
+     * @param array $data
+     * @return \net\authorize\api\contract\v1\AnetApiResponseType
+     */
     abstract protected function process(array $data);
 }

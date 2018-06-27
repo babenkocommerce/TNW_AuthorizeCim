@@ -1,20 +1,9 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
-
-namespace Pmclain\AuthorizenetCim\Model\Ui;
+namespace TNW\AuthorizeCim\Model\Ui;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Model\Ui\TokenUiComponentInterface;
@@ -22,6 +11,9 @@ use Magento\Vault\Model\Ui\TokenUiComponentProviderInterface;
 use Magento\Vault\Model\Ui\TokenUiComponentInterfaceFactory;
 use Magento\Framework\UrlInterface;
 
+/**
+ * Token Component Provider
+ */
 class TokenUiComponentProvider implements TokenUiComponentProviderInterface
 {
     /**
@@ -53,21 +45,15 @@ class TokenUiComponentProvider implements TokenUiComponentProviderInterface
      */
     public function getComponentForToken(PaymentTokenInterface $paymentToken)
     {
-        $jsonDetails = json_decode(
-            $paymentToken->getTokenDetails() ?: '{}',
-            true
-        );
-        $component = $this->componentFactory->create(
-            [
-                'config' => [
-                    'code' => ConfigProvider::CC_VAULT_CODE,
-                    TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
-                    TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash()
-                ],
-                'name' => 'Pmclain_AuthorizenetCim/js/view/payment/method-renderer/vault'
-            ]
-        );
+        $jsonDetails = json_decode($paymentToken->getTokenDetails() ?: '{}', true);
 
-        return $component;
+        return $this->componentFactory->create([
+            'config' => [
+                'code' => ConfigProvider::VAULT_CODE,
+                TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
+                TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash()
+            ],
+            'name' => 'TNW_AuthorizeCim/js/view/payment/method-renderer/vault'
+        ]);
     }
 }
