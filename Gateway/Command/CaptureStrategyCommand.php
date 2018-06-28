@@ -27,9 +27,6 @@ class CaptureStrategyCommand implements CommandInterface
     /** @var TransactionRepositoryInterface */
     private $transactionRepository;
 
-    /** @var FilterBuilder */
-    private $filterBuilder;
-
     /** @var SubjectReader */
     private $subjectReader;
 
@@ -39,20 +36,17 @@ class CaptureStrategyCommand implements CommandInterface
     /**
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
-     * @param FilterBuilder $filterBuilder
      * @param SubjectReader $subjectReader
      * @param CommandPoolInterface $commandPool
      */
     public function __construct(
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository,
-        FilterBuilder $filterBuilder,
         SubjectReader $subjectReader,
         CommandPoolInterface $commandPool
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->transactionRepository = $transactionRepository;
-        $this->filterBuilder = $filterBuilder;
         $this->subjectReader = $subjectReader;
         $this->commandPool = $commandPool;
     }

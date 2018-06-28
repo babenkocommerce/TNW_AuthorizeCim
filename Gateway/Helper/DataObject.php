@@ -61,7 +61,7 @@ class DataObject
             }
 
             $methodName = array_values($methodNames)[0];
-            $returnType = $this->methodsMapProcessor->getMethodReturnType(get_class($dataObject), "get{$camelCaseKey}");
+            $returnType = $this->methodsMapProcessor->getMethodReturnType(\get_class($dataObject), "get{$camelCaseKey}");
 
             switch (true) {
                 case $this->typeProcessor->isTypeSimple($returnType):
@@ -115,21 +115,20 @@ class DataObject
                 case \is_array($value):
                     $arrays = [];
                     foreach ($value as $key => $arrayElementData) {
-                        $array = [];
                         switch (true) {
                             case $arrayElementData === null:
                                 break;
 
                             case \is_object($arrayElementData):
+                                $array = [];
                                 $this->populateWithObject($array, $arrayElementData);
+                                $arrays[$key] = $array;
                                 break;
 
                             default:
-                                $array = $arrayElementData;
+                                $arrays[$key] = $arrayElementData;
                                 break;
                         }
-
-                        $arrays[$key] = $array;
                     }
 
                     $data[$snakeCaseKey] = $arrays;
