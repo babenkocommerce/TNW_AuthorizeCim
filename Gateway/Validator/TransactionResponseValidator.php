@@ -22,7 +22,7 @@ class TransactionResponseValidator extends GeneralResponseValidator
             function (CreateTransactionResponse $response) {
                 $transactionResponse = $response->getTransactionResponse();
                 if (!$transactionResponse) {
-                    return [true, [__('')]];
+                    return [true, []];
                 }
 
                 $messages = $transactionResponse->getMessages();

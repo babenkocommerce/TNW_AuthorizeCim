@@ -17,8 +17,6 @@ class RefundDataBuilder implements BuilderInterface
 {
     use Formatter;
 
-    const TRANSACTION_ID = 'transaction_id';
-
     /**
      * @var SubjectReader
      */
