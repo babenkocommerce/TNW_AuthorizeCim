@@ -1,6 +1,6 @@
 # Magento 2 Authorize.net CIM
 
-[![Build Status](https://travis-ci.com/PowerSync/TNW_AuthorizeCim.svg?token=wTy7W42WZpomVzzpPmp4&branch=develop)](https://travis-ci.com/PowerSync/TNW_AuthorizeCim)
+[![CircleCI](https://circleci.com/gh/PowerSync/TNW_AuthorizeCim.svg?style=svg&circle-token=52899cb3d7dc3d27fccc718aca591d8fe5183e13)](https://circleci.com/gh/PowerSync/TNW_AuthorizeCim)
 
 Accept and store customer information, including payment methods, with
 Authorize.net's Customer Information Manager(CIM). 
