@@ -69,6 +69,8 @@ jobs:
           command: |
             cd /var/www/html/magento2-$MAGENTO_VERSION
             rm -rf ./generated/*
+            composer require authorizenet/authorizenet:~1.9.6 lcobucci/jwt:~3.2.2 --no-update
+            composer update
             ./bin/magento module:status
             ./bin/magento module:enable TNW_AuthorizeCim
             ./bin/magento setup:upgrade
@@ -82,11 +84,11 @@ jobs:
           command: |
             cd /var/www/html
             ./magento-coding-standard/vendor/bin/phpcs $CIRCLE_WORKING_DIRECTORY --standard=MEQP2 --severity=10 --extensions=php,phtml
-      #- run:
-      #    name: Run Unit Test
-      #    command: |
-      #      cd /var/www/html/magento2-$MAGENTO_VERSION
-      #      ./bin/magento dev:tests:run -c'--filter=TNW' unit
+      - run:
+          name: Run Unit Test
+          command: |
+            cd /var/www/html/magento2-$MAGENTO_VERSION
+            ./bin/magento dev:tests:run -c'--filter=TNW' unit
   "test-php-7.1-mage-2.2.3":
     <<: *php71-build
     environment:

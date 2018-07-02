@@ -18,19 +18,13 @@ class TokenUiComponentProvider implements TokenUiComponentProviderInterface
     /** @var TokenUiComponentInterfaceFactory */
     private $componentFactory;
 
-    /** @var \Magento\Framework\UrlInterface */
-    private $urlBuilder;
-
     /**
      * @param TokenUiComponentInterfaceFactory $componentFactory
-     * @param UrlInterface $urlBuilder
      */
     public function __construct(
-        TokenUiComponentInterfaceFactory $componentFactory,
-        UrlInterface $urlBuilder
+        TokenUiComponentInterfaceFactory $componentFactory
     ) {
         $this->componentFactory = $componentFactory;
-        $this->urlBuilder = $urlBuilder;
     }
 
     /**
