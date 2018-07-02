@@ -36,7 +36,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::isActive
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::isActive
      */
     public function testIsActive()
     {
@@ -49,7 +49,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::getApiLoginId
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::getApiLoginId
      */
     public function testGetApiLoginId()
     {
@@ -62,7 +62,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::getTransactionKey
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::getTransactionKey
      */
     public function testGetTransactionKey()
     {
@@ -75,7 +75,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::getClientKey
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::getClientKey
      */
     public function testGetClientKey()
     {
@@ -88,7 +88,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::getEnvironment
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::getEnvironment
      */
     public function testGetEnvironment()
     {
@@ -101,7 +101,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::isSandboxMode
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::isSandboxMode
      */
     public function testIsSandboxMode()
     {
@@ -114,7 +114,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::getSdkUrl
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::getSdkUrl
      */
     public function testGetSdkUrlTest()
     {
@@ -132,7 +132,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::getSdkUrl
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::getSdkUrl
      */
     public function testGetSdkUrl()
     {
@@ -153,7 +153,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
      * @param string $value
      * @param array $expected
      * @dataProvider getAvailableCardTypesDataProvider
-     * @covers Config::getAvailableCardTypes
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::getAvailableCardTypes
      */
     public function testGetAvailableCardTypes($value, $expected)
     {
@@ -225,7 +225,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Config::isCcvEnabled
+     * @covers \TNW\AuthorizeCim\Gateway\Config\Config::isCcvEnabled
      */
     public function testUseCcv()
     {

@@ -45,7 +45,7 @@ class ProfileDataBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers TokenDataBuilder::build
+     * @covers \TNW\AuthorizeCim\Gateway\Request\ProfileDataBuilder::build
      */
     public function testBuild()
     {

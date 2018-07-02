@@ -24,7 +24,7 @@ class SubjectReaderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers SubjectReader::readTransaction
+     * @covers \TNW\AuthorizeCim\Gateway\Helper\SubjectReader::readTransaction
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Response object does not exist
      */
@@ -34,7 +34,7 @@ class SubjectReaderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers SubjectReader::readTransaction
+     * @covers \TNW\AuthorizeCim\Gateway\Helper\SubjectReader::readTransaction
      */
     public function testReadTransaction()
     {
@@ -43,7 +43,7 @@ class SubjectReaderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers SubjectReader::readResponseObject
+     * @covers \TNW\AuthorizeCim\Gateway\Helper\SubjectReader::readResponseObject
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Response does not exist
      */
@@ -53,7 +53,7 @@ class SubjectReaderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers SubjectReader::readResponseObject
+     * @covers \TNW\AuthorizeCim\Gateway\Helper\SubjectReader::readResponseObject
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Response object does not exist.
      */
@@ -63,7 +63,7 @@ class SubjectReaderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers SubjectReader::readResponseObject
+     * @covers \TNW\AuthorizeCim\Gateway\Helper\SubjectReader::readResponseObject
      */
     public function testReadResponseObject()
     {

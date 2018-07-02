@@ -44,6 +44,7 @@ class VaultDataBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @covers \TNW\AuthorizeCim\Gateway\Request\VaultDataBuilder::build()
      * @expectedException \InvalidArgumentException
      */
     public function testBuildReadPaymentException()
@@ -56,7 +57,7 @@ class VaultDataBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers VaultDataBuilder::build()
+     * @covers \TNW\AuthorizeCim\Gateway\Request\VaultDataBuilder::build()
      */
     public function testBuild()
     {

@@ -141,7 +141,7 @@ class VaultDetailsHandlerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers VaultDetailsHandler::handle
+     * @covers \TNW\AuthorizeCim\Gateway\Response\VaultDetailsHandler::handle
      */
     public function testHandle()
     {

@@ -52,7 +52,7 @@ class VoidHandlerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers VoidHandler::handle()
+     * @covers \TNW\AuthorizeCim\Gateway\Response\VoidHandler::handle()
      */
     public function testHandle()
     {

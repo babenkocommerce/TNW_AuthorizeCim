@@ -58,7 +58,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers DataObject::populateWithArray()
+     * @covers \TNW\AuthorizeCim\Gateway\Helper\DataObject::populateWithArray()
      */
     public function testPopulateWithArray()
     {
@@ -157,7 +157,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers DataObject::populateWithObject()
+     * @covers \TNW\AuthorizeCim\Gateway\Helper\DataObject::populateWithObject()
      */
     public function testPopulateWithObject()
     {

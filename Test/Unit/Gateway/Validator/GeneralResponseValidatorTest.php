@@ -6,15 +6,15 @@
 namespace TNW\AuthorizeCim\Test\Unit\Gateway\Validator;
 
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
-use TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator;
+use TNW\AuthorizeCim\Gateway\Validator\GeneralResponseValidator;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 /**
- * TransactionResponseValidator Test
- * @covers \TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator
+ * GeneralResponseValidator Test
+ * @covers \TNW\AuthorizeCim\Gateway\Validator\GeneralResponseValidator
  */
-class TransactionResponseValidatorTest extends \PHPUnit\Framework\TestCase
+class GeneralResponseValidatorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var ResultInterfaceFactory|MockObject
@@ -22,7 +22,7 @@ class TransactionResponseValidatorTest extends \PHPUnit\Framework\TestCase
     private $resultInterfaceFactory;
 
     /**
-     * @var TransactionResponseValidator
+     * @var GeneralResponseValidator
      */
     private $validator;
 
@@ -33,14 +33,14 @@ class TransactionResponseValidatorTest extends \PHPUnit\Framework\TestCase
             ->setMethods(['create'])
             ->getMock();
 
-        $this->validator = new TransactionResponseValidator(
+        $this->validator = new GeneralResponseValidator(
             $this->resultInterfaceFactory,
             new SubjectReader()
         );
     }
 
     /**
-     * @covers \TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator::validate()
+     * @covers \TNW\AuthorizeCim\Gateway\Validator\GeneralResponseValidator::validate()
      * @param array $validationSubject
      * @param $isValid
      * @param $messages
@@ -73,20 +73,16 @@ class TransactionResponseValidatorTest extends \PHPUnit\Framework\TestCase
         $objectSuccess->setTransactionResponse($transaction);
         $objectSuccess->setMessages($messages);
 
-        $messageAType = new \net\authorize\api\contract\v1\TransactionResponseType\MessagesAType\MessageAType;
-        $messageAType->setCode(500);
-        $messageAType->setDescription('Test error Message');
-
-        $messageSuccess = new \net\authorize\api\contract\v1\TransactionResponseType\MessagesAType\MessageAType;
-        $messageSuccess->setCode(1);
-        $messageSuccess->setDescription('Success');
-
         $transaction = new \net\authorize\api\contract\v1\TransactionResponseType;
-        $transaction->setMessages([$messageAType, $messageSuccess]);
+        $transaction->setMessages([]);
+
+        $messageAType = new \net\authorize\api\contract\v1\MessagesType\MessageAType;
+        $messageAType->setCode(500);
+        $messageAType->setText('Test error Message');
 
         $messages = new \net\authorize\api\contract\v1\MessagesType;
-        $messages->setResultCode('Ok');
-        $messages->setMessage([]);
+        $messages->setResultCode('Error');
+        $messages->setMessage([$messageAType]);
 
         $objectError = new \net\authorize\api\contract\v1\CreateTransactionResponse;
         $objectError->setTransactionResponse($transaction);
@@ -102,7 +98,7 @@ class TransactionResponseValidatorTest extends \PHPUnit\Framework\TestCase
                 ['response' => ['object' => $objectError]],
                 false,
                 [
-                    __('Test error Message')
+                    __('%1: %2', 500, 'Test error Message')
                 ]
             ],
         ];

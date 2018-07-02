@@ -56,7 +56,7 @@ class PaymentDetailsHandlerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers PaymentDetailsHandler::handle
+     * @covers \TNW\AuthorizeCim\Gateway\Response\PaymentDetailsHandler::handle
      */
     public function testHandle()
     {

@@ -83,7 +83,7 @@ class RefundHandlerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers RefundHandler::handle()
+     * @covers \TNW\AuthorizeCim\Gateway\Response\RefundHandler::handle()
      */
     public function testHandle()
     {

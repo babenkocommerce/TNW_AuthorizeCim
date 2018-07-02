@@ -51,6 +51,6 @@ class TransactionResponseValidator extends GeneralResponseValidator
      */
     private function map(MessageAType $message)
     {
-        return $message->getDescription();
+        return __($message->getDescription());
     }
 }

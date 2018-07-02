@@ -58,7 +58,7 @@ class CardDetailsHandlerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers CardDetailsHandler::handle
+     * @covers \TNW\AuthorizeCim\Gateway\Response\CardDetailsHandler::handle()
      */
     public function testHandle()
     {

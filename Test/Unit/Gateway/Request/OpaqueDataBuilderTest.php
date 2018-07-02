@@ -44,7 +44,7 @@ class OpaqueDataBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers OpaqueDataBuilder::build()
+     * @covers \TNW\AuthorizeCim\Gateway\Request\OpaqueDataBuilder::build()
      * @expectedException \InvalidArgumentException
      */
     public function testBuildReadPaymentException()
@@ -57,7 +57,7 @@ class OpaqueDataBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers OpaqueDataBuilder::build()
+     * @covers \TNW\AuthorizeCim\Gateway\Request\OpaqueDataBuilder::build()
      */
     public function testBuild()
     {
