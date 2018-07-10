@@ -1,67 +1,78 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Gateway\Response;
 
-namespace Pmclain\AuthorizenetCim\Gateway\Response;
-
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Model\Order\Payment;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
+/**
+ * TransactionId Handler
+ */
 class TransactionIdHandler implements HandlerInterface
 {
-    /** @var SubjectReader */
-    protected $_subjectReader;
+    /**
+     * @var SubjectReader
+     */
+    private $subjectReader;
 
+    /**
+     * TransactionIdHandler constructor.
+     * @param SubjectReader $subjectReader
+     */
     public function __construct(
         SubjectReader $subjectReader
     ) {
-        $this->_subjectReader = $subjectReader;
+        $this->subjectReader = $subjectReader;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function handle(array $handlingSubject, array $response)
     {
-        $paymentDataObject = $this->_subjectReader->readPayment($handlingSubject);
+        $paymentDO = $this->subjectReader->readPayment($handlingSubject);
+        $orderPayment = $paymentDO->getPayment();
+        /** @var \net\authorize\api\contract\v1\CreateTransactionResponse $transaction */
+        $transaction = $this->subjectReader->readTransaction($response);
 
-        if ($paymentDataObject->getPayment() instanceof Payment) {
-            $transaction = $this->_subjectReader->readTransaction($response);
-            $transaction = $transaction->getData('transactionResponse');
-            $orderPayment = $paymentDataObject->getPayment();
+        if ($orderPayment instanceof Payment) {
+            $transaction = $transaction->getTransactionResponse();
 
-            $this->_setTransactionId(
+            $this->setTransactionId(
                 $orderPayment,
                 $transaction
             );
 
-            $orderPayment->setIsTransactionClosed($this->_shouldCloseTransaction());
-            $closed = $this->_shouldCloseParentTransaction($orderPayment);
+            $orderPayment->setIsTransactionClosed($this->shouldCloseTransaction());
+            $closed = $this->shouldCloseParentTransaction($orderPayment);
             $orderPayment->setShouldCloseParentTransaction($closed);
         }
     }
 
-    protected function _setTransactionId(Payment $orderPayment, $transaction)
+    /**
+     * @inheritdoc
+     */
+    protected function setTransactionId(Payment $orderPayment, $transaction)
     {
-        $orderPayment->setTransactionId($transaction->getData('transId'));
+        $orderPayment->setTransactionId($transaction->getTransId());
     }
 
-    protected function _shouldCloseTransaction()
+    /**
+     * @inheritdoc
+     */
+    protected function shouldCloseTransaction()
     {
         return false;
     }
 
-    protected function _shouldCloseParentTransaction(Payment $orderPayment)
+    /**
+     * @inheritdoc
+     */
+    protected function shouldCloseParentTransaction(Payment $orderPayment)
     {
         return false;
     }

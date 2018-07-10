@@ -1,107 +1,83 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Test\Unit\Gateway\Request;
 
-namespace Pmclain\AuthorizenetCim\Test\Unit\Gateway\Request;
-
-use Pmclain\Authnet\TransactionRequest;
-use Pmclain\Authnet\TransactionRequestFactory;
-use Pmclain\AuthorizenetCim\Gateway\Request\CaptureDataBuilder;
-use \PHPUnit_Framework_MockObject_MockObject as MockObject;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
+use TNW\AuthorizeCim\Gateway\Request\CaptureDataBuilder;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
-use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Model\Order\Payment;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
+/**
+ * Test CaptureDataBuilder
+ */
 class CaptureDataBuilderTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var CaptureDataBuilder */
-    private $captureDataBuilder;
+    /**
+     * @var CaptureDataBuilder
+     */
+    private $builder;
 
-    /** @var SubjectReader */
-    private $subjectReader;
+    /**
+     * @var Payment|MockObject
+     */
+    private $payment;
 
-    /** @var TransactionRequestFactory|MockObject */
-    private $transactionRequestFactoryMock;
-
-    /** @var TransactionRequest */
-    private $transactionRequest;
-
-    /** @var PaymentDataObjectInterface|MockObject */
-    private $paymentDataObjectMock;
-
-    /** @var InfoInterface|MockObject */
-    private $paymentMock;
+    /**
+     * @var PaymentDataObjectInterface|MockObject
+     */
+    private $paymentDO;
 
     protected function setUp()
     {
-        $this->subjectReader = new SubjectReader();
-
-        $this->transactionRequestFactoryMock = $this->createMock(TransactionRequestFactory::class);
-        $this->paymentDataObjectMock = $this->createMock(PaymentDataObjectInterface::class);
-        $this->paymentMock = $this->getMockBuilder(InfoInterface::class)
+        $this->paymentDO = $this->createMock(PaymentDataObjectInterface::class);
+        $this->payment = $this->getMockBuilder(Payment::class)
+            ->disableOriginalConstructor()
             ->setMethods(['getCcTransId'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
-        $this->transactionRequestFactoryMock->method('create')
-            ->willReturn(new TransactionRequest());
+        $this->paymentDO->method('getPayment')
+            ->willReturn($this->payment);
 
-        $this->paymentDataObjectMock->method('getPayment')
-            ->willReturn($this->paymentMock);
-
-        $this->captureDataBuilder = new CaptureDataBuilder(
-            $this->subjectReader,
-            $this->transactionRequestFactoryMock
-        );
-    }
-
-    /** @cover CaptureDataBuilder::build */
-    public function testBuild()
-    {
-        $transId = '123456789';
-
-        $this->paymentMock->method('getCcTransId')
-            ->willReturn($transId);
-
-        $subject = [
-            'payment' => $this->paymentDataObjectMock,
-            'amount' => '1.00',
-        ];
-
-        $result = $this->captureDataBuilder->build($subject);
-        $resultRequest = $result[CaptureDataBuilder::TRANSACTION_REQUEST]->toArray();
-
-        $this->assertEquals(
-            $transId,
-            $resultRequest[TransactionRequest::FIELD_REF_TRANS_ID]
-        );
+        $this->builder = new CaptureDataBuilder(new SubjectReader());
     }
 
     /**
-     * @cover CaptureDataBuilder::build
      * @expectedException \Magento\Framework\Exception\LocalizedException
+     * @expectedExceptionMessage No authorization transaction to proceed capture.
      */
-    public function testBuildWithoutTransactionId()
+    public function testBuildWithException()
     {
-        $this->paymentMock->method('getCcTransId')
-            ->willReturn('');
-
-        $subject = [
-            'payment' => $this->paymentDataObjectMock,
-            'amount' => '1.00',
+        $buildSubject = [
+            'payment' => $this->paymentDO
         ];
 
-        $this->captureDataBuilder->build($subject);
+        $this->payment->method('getCcTransId')
+            ->willReturn('');
+
+        $this->builder->build($buildSubject);
+    }
+
+    public function testBuild()
+    {
+        $transactionId = 'b3b99d';
+
+        $expected = [
+            'transaction_request' => [
+                'ref_trans_id' => $transactionId
+            ]
+        ];
+
+        $buildSubject = [
+            'payment' => $this->paymentDO
+        ];
+
+        $this->payment->method('getCcTransId')
+            ->willReturn($transactionId);
+
+        self::assertEquals($expected, $this->builder->build($buildSubject));
     }
 }

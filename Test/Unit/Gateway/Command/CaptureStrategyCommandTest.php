@@ -1,185 +1,244 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Test\Unit\Gateway\Command;
 
-namespace Pmclain\AuthorizenetCim\Test\Unit\Gateway\Command;
-
-use Pmclain\AuthorizenetCim\Gateway\Command\CaptureStrategyCommand;
-use \PHPUnit_Framework_MockObject_MockObject as MockObject;
-use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
-use Magento\Sales\Model\Order\Payment;
+use TNW\AuthorizeCim\Gateway\Command\CaptureStrategyCommand;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
+use TNW\AuthorizeCim\Model\Adapter\AuthorizeAdapter;
+use TNW\AuthorizeCim\Model\Adapter\AuthorizeAdapterFactory;
+use Magento\Framework\Api\Search\SearchCriteria;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\Api\SearchCriteria;
-use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Api\Data\TransactionSearchResultInterface;
-use Magento\Framework\Api\FilterBuilder;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\Command\GatewayCommand;
+use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObject;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use Magento\Sales\Model\Order\Payment;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
+/**
+ * Test CaptureStrategyCommand
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CaptureStrategyCommandTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var CaptureStrategyCommand */
+    /**
+     * @var CommandPoolInterface|MockObject
+     */
+    private $commandPool;
+
+    /**
+     * @var TransactionRepositoryInterface|MockObject
+     */
+    private $transactionRepository;
+
+    /**
+     * @var SearchCriteriaBuilder|MockObject
+     */
+    private $searchCriteriaBuilder;
+
+    /**
+     * @var PaymentDataObject|MockObject
+     */
+    private $paymentDO;
+
+    /**
+     * @var Payment|MockObject
+     */
+    private $payment;
+
+    /**
+     * @var GatewayCommand|MockObject
+     */
+    private $command;
+
+    /**
+     * @var AuthorizeAdapter|MockObject
+     */
+    private $authorizeAdapter;
+
+    /**
+     * @var CaptureStrategyCommand
+     */
     private $strategyCommand;
-
-    /** @var SubjectReader|MockObject */
-    private $subjectReaderMock;
-
-    /** @var PaymentDataObjectInterface|MockObject */
-    private $paymentDataObjectMock;
-
-    /** @var Payment|MockObject */
-    private $paymentMock;
-
-    /** @var SearchCriteriaBuilder|MockObject */
-    private $searchCriteriaBuilderMock;
-
-    /** @var SearchCriteria|MockObject */
-    private $searchCriteriaMock;
-
-    /** @var TransactionRepositoryInterface|MockObject */
-    private $transactionRepositoryMock;
-
-    /** @var TransactionSearchResultInterface|MockObject */
-    private $transactionSearchResultMock;
-
-    /** @var FilterBuilder|MockObject */
-    private $filterBuilderMock;
-
-    /** @var CommandPoolInterface|MockObject */
-    private $commandPoolMock;
 
     protected function setUp()
     {
-        $objectManager = new ObjectManager($this);
-
-        $this->subjectReaderMock = $this->getMockBuilder(SubjectReader::class)
+        $this->commandPool = $this->getMockBuilder(CommandPoolInterface::class)
             ->disableOriginalConstructor()
-            ->setMethods(['readPayment'])
+            ->setMethods(['get', '__wakeup'])
             ->getMock();
 
-        $this->paymentDataObjectMock = $this->getMockBuilder(PaymentDataObjectInterface::class)
-            ->setMethods(['getPayment'])
-            ->getMockForAbstractClass();
+        $this->initCommandMock();
+        $this->initTransactionRepositoryMock();
+        $this->initSearchCriteriaBuilderMock();
 
-        $this->paymentMock = $this->getMockBuilder(Payment::class)
+        $this->payment = $this->getMockBuilder(Payment::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getAuthorizationTransaction', 'getId'])
+            ->setMethods(['getId', 'getAuthorizationTransaction', 'getAdditionalInformation'])
             ->getMock();
 
-        $this->searchCriteriaBuilderMock = $this->getMockBuilder(SearchCriteriaBuilder::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['addFilters', 'create'])
-            ->getMock();
-
-        $this->searchCriteriaMock = $this->getMockBuilder(SearchCriteria::class)
+        $this->paymentDO = $this->getMockBuilder(PaymentDataObject::class)
+            ->setMethods(['getPayment', 'getOrder'])
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->transactionRepositoryMock = $this->getMockBuilder(TransactionRepositoryInterface::class)
-            ->setMethods(['getList'])
-            ->getMockForAbstractClass();
+        $this->paymentDO->method('getPayment')
+            ->willReturn($this->payment);
 
-        $this->transactionSearchResultMock = $this->getMockBuilder(TransactionSearchResultInterface::class)
-            ->setMethods(['getTotalCount'])
-            ->getMockForAbstractClass();
-
-        $this->commandPoolMock = $this->getMockBuilder(CommandPoolInterface::class)
-            ->setMethods(['get', 'execute'])
-            ->getMockForAbstractClass();
-
-        $this->filterBuilderMock = $this->getMockBuilder(FilterBuilder::class)
+        $order = $this->getMockBuilder(OrderAdapterInterface::class)
             ->disableOriginalConstructor()
-            ->setMethods(['setField', 'setValue', 'create'])
             ->getMock();
 
-        $this->subjectReaderMock->expects($this->once())
-            ->method('readPayment')
-            ->willReturn($this->paymentDataObjectMock);
+        $this->paymentDO->method('getOrder')
+            ->willReturn($order);
 
-        $this->paymentDataObjectMock->expects($this->once())
-            ->method('getPayment')
-            ->willReturn($this->paymentMock);
+        $this->authorizeAdapter = $this->getMockBuilder(AuthorizeAdapter::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $this->searchCriteriaBuilderMock->expects($this->exactly(2))
-            ->method('addFilters')
-            ->willReturnSelf();
+        /** @var AuthorizeAdapterFactory|MockObject $adapterFactory */
+        $adapterFactory = $this->getMockBuilder(AuthorizeAdapterFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $this->filterBuilderMock->expects($this->exactly(2))
-            ->method('setField')
-            ->willReturnSelf();
+        $adapterFactory->method('create')
+            ->willReturn($this->authorizeAdapter);
 
-        $this->filterBuilderMock->expects($this->exactly(2))
-            ->method('setValue')
-            ->willReturnSelf();
+        /** @var \Psr\Log\LoggerInterface|MockObject $logger */
+        $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
 
-        $this->filterBuilderMock->expects($this->exactly(2))
-            ->method('create')
-            ->willReturnSelf();
-
-        $this->searchCriteriaBuilderMock->expects($this->once())
-            ->method('create')
-            ->willReturn($this->searchCriteriaMock);
-
-        $this->transactionRepositoryMock->expects($this->once())
-            ->method('getList')
-            ->willReturn($this->transactionSearchResultMock);
-
-        $this->transactionSearchResultMock->expects($this->once())
-            ->method('getTotalCount')
-            ->willReturn(0);
-
-        $this->strategyCommand = $objectManager->getObject(
-            CaptureStrategyCommand::class,
-            [
-                '_subjectReader' => $this->subjectReaderMock,
-                '_searchCriteriaBuilder' => $this->searchCriteriaBuilderMock,
-                '_filterBuilder' => $this->filterBuilderMock,
-                '_transactionRepository' => $this->transactionRepositoryMock,
-                '_commandPool' => $this->commandPoolMock,
-            ]
+        $this->strategyCommand = new CaptureStrategyCommand(
+            $this->searchCriteriaBuilder,
+            $this->transactionRepository,
+            new SubjectReader(),
+            $this->commandPool,
+            $logger
         );
     }
 
-    /** @cover CaptureStrategyCommand::execute */
-    public function testSaleExecute()
+    /**
+     * Creates mock for gateway command object
+     */
+    private function initCommandMock()
     {
-        $this->paymentMock->expects($this->once())
-            ->method('getAuthorizationTransaction')
-            ->willReturn(false);
-
-        $this->commandPoolMock->expects($this->once())
-            ->method('get')
-            ->with(CaptureStrategyCommand::SALE)
-            ->willReturnSelf();
-
-        $this->strategyCommand->execute([]);
+        $this->command = $this->getMockBuilder(GatewayCommand::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['execute'])
+            ->getMock();
     }
 
-    /** @cover CaptureStrategyCommand::execute */
+    /**
+     * Create mock for transaction repository
+     */
+    private function initTransactionRepositoryMock()
+    {
+        $this->transactionRepository = $this->getMockBuilder(TransactionRepositoryInterface::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getList', 'getTotalCount', 'delete', 'get', 'save', 'create'])
+            ->getMock();
+    }
+
+    /**
+     * Create mock for search criteria object
+     */
+    private function initSearchCriteriaBuilderMock()
+    {
+        $this->searchCriteriaBuilder = $this->getMockBuilder(SearchCriteriaBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['addFilter', 'create'])
+            ->getMock();
+    }
+
+    public function testSaleExecute()
+    {
+        $commandSubject = [
+            'payment' => $this->paymentDO
+        ];
+
+        $this->payment->method('getAuthorizationTransaction')
+            ->willReturn(false);
+
+        $this->payment->method('getId')
+            ->willReturn(1);
+
+        $this->payment->method('getAdditionalInformation')
+            ->with('is_active_payment_token_enabler')
+            ->willReturn(null);
+
+        $this->buildSearchCriteria();
+
+        $this->transactionRepository->method('getTotalCount')
+            ->willReturn(0);
+
+        $this->commandPool->expects(static::once())
+            ->method('get')
+            ->with(CaptureStrategyCommand::SALE)
+            ->willReturn($this->command);
+
+        $this->command->method('execute')
+            ->with($commandSubject)
+            ->willReturn([]);
+
+        $this->strategyCommand->execute($commandSubject);
+    }
+
     public function testCaptureExecute()
     {
-        $this->paymentMock->expects($this->once())
-            ->method('getAuthorizationTransaction')
+        $commandSubject = [
+            'payment' => $this->paymentDO
+        ];
+
+        $this->payment->method('getAuthorizationTransaction')
             ->willReturn(true);
 
-        $this->commandPoolMock->expects($this->once())
+        $this->payment->method('getId')
+            ->willReturn(1);
+
+        $this->payment->method('getAdditionalInformation')
+            ->with('is_active_payment_token_enabler')
+            ->willReturn(true);
+
+        $this->buildSearchCriteria();
+
+        $this->transactionRepository->method('getTotalCount')
+            ->willReturn(0);
+
+        $this->commandPool->expects(static::at(0))
             ->method('get')
             ->with(CaptureStrategyCommand::CAPTURE)
-            ->willReturnSelf();
+            ->willReturn($this->command);
 
-        $this->strategyCommand->execute([]);
+        $this->commandPool->expects(static::at(1))
+            ->method('get')
+            ->with(CaptureStrategyCommand::CUSTOMER)
+            ->willReturn($this->command);
+
+        $this->command->method('execute')
+            ->with($commandSubject)
+            ->willReturn([]);
+
+        $this->strategyCommand->execute($commandSubject);
+    }
+
+    /**
+     * Builds search criteria
+     */
+    private function buildSearchCriteria()
+    {
+        $searchCriteria = new SearchCriteria();
+        $this->searchCriteriaBuilder->expects(self::exactly(2))
+            ->method('addFilter')
+            ->willReturnSelf();
+        $this->searchCriteriaBuilder->method('create')
+            ->willReturn($searchCriteria);
+
+        $this->transactionRepository->method('getList')
+            ->with($searchCriteria)
+            ->willReturnSelf();
     }
 }

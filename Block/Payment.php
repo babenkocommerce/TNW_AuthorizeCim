@@ -1,29 +1,21 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Block;
+namespace TNW\AuthorizeCim\Block;
 
-use Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 
 class Payment extends Template
 {
-    /** @var ConfigProvider */
-    protected $_config;
+    /**
+     * @var ConfigProvider
+     */
+    private $config;
 
     /**
      * Payment constructor.
@@ -37,15 +29,17 @@ class Payment extends Template
         array $data = []
     ) {
         parent::__construct($context);
-        $this->_config = $configProvider;
+        $this->config = $configProvider;
     }
 
     /** @return string */
     public function getPaymentConfig()
     {
-        $payment = $this->_config->getConfig()['payment'];
+        $payment = $this->config->getConfig()['payment'];
+
         $config = $payment[$this->getCode()];
         $config['code'] = $this->getCode();
+
         return json_encode($config, JSON_UNESCAPED_SLASHES);
     }
 

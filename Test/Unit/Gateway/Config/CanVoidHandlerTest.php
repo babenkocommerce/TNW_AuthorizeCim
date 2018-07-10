@@ -1,99 +1,71 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Test\Unit\Gateway\Config;
 
-namespace Pmclain\AuthorizenetCim\Test\Unit\Gateway\Config;
-
-use Pmclain\AuthorizenetCim\Gateway\Config\CanVoidHandler;
-use \PHPUnit_Framework_MockObject_MockObject as MockObject;
-use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
+use TNW\AuthorizeCim\Gateway\Config\CanVoidHandler;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Sales\Model\Order\Payment;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 class CanVoidHandlerTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var CanVoidHandler */
-    private $canVoidHandler;
+    /**
+     * @var PaymentDataObjectInterface|MockObject
+     */
+    private $paymentDO;
 
-    /** @var SubjectReader|MockObject */
-    private $subjectReaderMock;
+    /**
+     * @var Payment|MockObject
+     */
+    private $payment;
 
-    /** @var PaymentDataObjectInterface|MockObject */
-    private $paymentDataObjectMock;
-
-    /** @var Payment|MockObject */
-    private $paymentMock;
+    /**
+     * @var CanVoidHandler
+     */
+    private $voidHandler;
 
     protected function setUp()
     {
-        $objectManager = new ObjectManager($this);
+        $this->paymentDO = $this->createMock(PaymentDataObjectInterface::class);
 
-        $this->subjectReaderMock = $this->getMockBuilder(SubjectReader::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['readPayment'])
-            ->getMock();
+        $this->payment = $this->createMock(Payment::class);
 
-        $this->paymentDataObjectMock = $this->getMockBuilder(PaymentDataObjectInterface::class)
-            ->setMethods(['getPayment'])
-            ->getMockForAbstractClass();
-
-        $this->paymentMock = $this->getMockBuilder(Payment::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getAmountPaid'])
-            ->getMock();
-
-        $this->subjectReaderMock->expects($this->once())
-            ->method('readPayment')
-            ->willReturn($this->paymentDataObjectMock);
-
-        $this->paymentDataObjectMock->expects($this->once())
+        $this->paymentDO->expects(static::once())
             ->method('getPayment')
-            ->willReturn($this->paymentMock);
+            ->willReturn($this->payment);
 
-        $this->canVoidHandler = $objectManager->getObject(
-            CanVoidHandler::class,
-            [
-                '_subjectReader' => $this->subjectReaderMock,
-            ]
+        $this->voidHandler = new CanVoidHandler(
+            new SubjectReader()
         );
     }
 
-    /** @cover CanVoidHandler::handle */
-    public function testHandleCanNotVoid()
+    public function testHandleNotOrderPayment()
     {
-        $this->paymentMock->expects($this->once())
-            ->method('getAmountPaid')
-            ->willReturn('10.01');
+        $subject = [
+            'payment' => $this->paymentDO
+        ];
 
-        $this->assertEquals(
-            false,
-            $this->canVoidHandler->handle([])
-        );
+        $this->payment->expects(static::once())
+            ->method('getAmountPaid')
+            ->willReturn(0.00);
+
+        static::assertTrue($this->voidHandler->handle($subject));
     }
 
-    /** @cover CanVoidHandler::handle */
-    public function testHandleCanVoid()
+    public function testHandleSomeAmoutWasPaid()
     {
-        $this->paymentMock->expects($this->once())
-            ->method('getAmountPaid')
-            ->willReturn(0);
+        $subject = [
+            'payment' => $this->paymentDO
+        ];
 
-        $this->assertEquals(
-            true,
-            $this->canVoidHandler->handle([])
-        );
+        $this->payment->expects(static::once())
+            ->method('getAmountPaid')
+            ->willReturn(1.00);
+
+        static::assertFalse($this->voidHandler->handle($subject));
     }
 }

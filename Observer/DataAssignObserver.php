@@ -1,55 +1,40 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Observer;
+namespace TNW\AuthorizeCim\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 
+/**
+ * Observer for set additional data
+ */
 class DataAssignObserver extends AbstractDataAssignObserver
 {
+    /** additional information key */
+    const KEY_ADDITIONAL_DATA = 'additional_data';
+
     /**
+     * Set additional information from additional data
+     *
      * @param Observer $observer
      * @return void
      */
     public function execute(Observer $observer)
     {
-        $paymentInfo = $this->readPaymentModelArgument($observer);
         $data = $this->readDataArgument($observer);
-        $additionalData = $data->getDataByKey('additional_data');
 
-        if (isset($additionalData['public_hash'])) {
-            return;
-        }
+        $additionalData = $data->getData(self::KEY_ADDITIONAL_DATA);
 
-        // This smells, but i'm tired of fucking with this.
-        if (isset($additionalData['cc_token'])) {
-            $paymentInfo->setAdditionalInformation('cc_token', $additionalData['cc_token']);
-        }
-        if (isset($additionalData['cc_last4'])) {
-            $paymentInfo->setAdditionalInformation('cc_last4', $additionalData['cc_last4']);
-        }
-        if (isset($additionalData['cc_exp_month'])) {
-            $paymentInfo->setAdditionalInformation('cc_exp_month', $additionalData['cc_exp_month']);
-        }
-        if (isset($additionalData['cc_exp_year'])) {
-            $paymentInfo->setAdditionalInformation('cc_exp_year', $additionalData['cc_exp_year']);
-        }
-        if (isset($additionalData['cc_type'])) {
-            $paymentInfo->setAdditionalInformation('cc_type', $additionalData['cc_type']);
+        if (is_array($additionalData)) {
+            $paymentInfo = $this->readPaymentModelArgument($observer);
+
+            foreach ($additionalData as $key => $value) {
+                $paymentInfo->setAdditionalInformation($key, $value);
+            }
         }
     }
 }

@@ -1,99 +1,168 @@
 <?xml version="1.0" ?>
 <!--
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
   <system>
     <section id="payment">
-      <group id="pmclain_authorizenetcim" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+      <group id="tnw_authorize_cim" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Authorize.net CIM</label>
         <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
           <label>Enable</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+          <requires>
+            <group id="required"/>
+          </requires>
         </field>
-        <field id="payment_action" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Payment Action</label>
-          <source_model>Magento\Authorizenet\Model\Source\PaymentAction</source_model>
-        </field>
-        <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-          <label>Title</label>
-        </field>
-        <field id="login" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>API Login ID</label>
-          <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-        </field>
-        <field id="trans_key" translate="label" type="obscure" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Transaction Key</label>
-          <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-        </field>
-        <field id="client_key" translate="label" type="obscure" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Client Key</label>
-          <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-        </field>
-        <field id="order_status" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>New Order Status</label>
-          <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
-        </field>
-        <field id="test" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Test Mode</label>
+        <field id="vault_active" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+          <label>Vault Enabled</label>
           <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+          <config_path>payment/tnw_authorize_cim_vault/active</config_path>
+          <requires>
+            <group id="required"/>
+          </requires>
         </field>
-        <field id="currency" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Accepted Currency</label>
-          <source_model>Magento\Config\Model\Config\Source\Locale\Currency</source_model>
-        </field>
-        <field id="debug" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Debug</label>
-          <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-        </field>
-        <field id="cctypes" translate="label" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Credit Card Types</label>
-          <source_model>Magento\Authorizenet\Model\Source\Cctype</source_model>
-        </field>
-        <field id="useccv" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Credit Card Verification</label>
-          <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-        </field>
-        <field id="validation_mode" translate="label" type="select" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Validation Mode</label>
-          <source_model>Pmclain\AuthorizenetCim\Model\Config\Source\ValidationMode</source_model>
-        </field>
-        <field id="vault_active" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Allow Stored Credit Cards</label>
-          <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-          <config_path>payment/pmclain_authorizenetcim_vault/active</config_path>
-        </field>
-        <field id="allowspecific" translate="label" type="allowspecific" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-          <label>Payment from Applicable Countries</label>
-          <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
-        </field>
-        <field id="specificcountry" translate="label" type="multiselect" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Payment from Specific Countries</label>
-          <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
-        </field>
-        <field id="min_order_total" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Minimum Order Total</label>
-        </field>
-        <field id="max_order_total" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Maximum Order Total</label>
-        </field>
-        <field id="sort_order" translate="label" type="text" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="0">
-          <label>Sort Order</label>
-          <frontend_class>validate-number</frontend_class>
-        </field>
+        <group id="required" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">
+          <label>Basic Settings</label>
+          <attribute type="expanded">1</attribute>
+          <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+          <field id="title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Title</label>
+            <config_path>payment/tnw_authorize_cim/title</config_path>
+          </field>
+          <field id="payment_action" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Payment Action</label>
+            <source_model>Magento\Authorizenet\Model\Source\PaymentAction</source_model>
+            <config_path>payment/tnw_authorize_cim/payment_action</config_path>
+          </field>
+          <field id="environment" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Environment</label>
+            <source_model>TNW\AuthorizeCim\Model\Adminhtml\Source\Environment</source_model>
+            <config_path>payment/tnw_authorize_cim/environment</config_path>
+          </field>
+          <field id="login" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>API Login ID</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/login</config_path>
+          </field>
+          <field id="trans_key" translate="label" type="obscure" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Transaction Key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/trans_key</config_path>
+          </field>
+          <field id="client_key" translate="label" type="obscure" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Client Key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/client_key</config_path>
+          </field>
+        </group>
+        <group id="advanced" translate="label" showInDefault="1" showInWebsite="1" sortOrder="20">
+          <label>Advanced Settings</label>
+          <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+          <field id="vault_title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Vault Title</label>
+            <config_path>payment/tnw_authorize_cim_vault/title</config_path>
+          </field>
+          <field id="order_status" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>New Order Status</label>
+            <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+            <config_path>payment/tnw_authorize_cim/order_status</config_path>
+          </field>
+          <field id="cctypes" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Credit Card Types</label>
+            <source_model>Magento\Authorizenet\Model\Source\Cctype</source_model>
+            <config_path>payment/tnw_authorize_cim/cctypes</config_path>
+          </field>
+          <field id="debug" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Debug</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/tnw_authorize_cim/debug</config_path>
+          </field>
+          <!--<field id="useccv" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">-->
+            <!--<label>Credit Card Verification</label>-->
+            <!--<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>-->
+            <!--<config_path>payment/tnw_authorize_cim/useccv</config_path>-->
+          <!--</field>-->
+          <field id="min_order_total" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Minimum Order Total</label>
+            <config_path>payment/tnw_authorize_cim/min_order_total</config_path>
+          </field>
+          <field id="max_order_total" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Maximum Order Total</label>
+            <config_path>payment/tnw_authorize_cim/max_order_total</config_path>
+          </field>
+          <field id="sort_order" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Sort Order</label>
+            <frontend_class>validate-number</frontend_class>
+            <config_path>payment/tnw_authorize_cim/sort_order</config_path>
+          </field>
+        </group>
+        <group id="country_specific" translate="label" showInDefault="1" showInWebsite="1" sortOrder="30">
+          <label>Country Specific Settings</label>
+          <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+          <field id="allowspecific" translate="label" type="allowspecific" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Payment from Applicable Countries</label>
+            <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+            <config_path>payment/tnw_authorize_cim/allowspecific</config_path>
+          </field>
+          <field id="specificcountry" translate="label" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Payment from Specific Countries</label>
+            <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+            <config_path>payment/tnw_authorize_cim/specificcountry</config_path>
+          </field>
+        </group>
+        <group id="3dsecure" translate="label" showInDefault="1" showInWebsite="1" sortOrder="190">
+          <label>3D Secure Verification Settings</label>
+          <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+          <field id="verify_3dsecure" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>3D Secure Verification</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/tnw_authorize_cim/verify_3dsecure</config_path>
+            <requires>
+              <field id="api_identifier" />
+              <field id="org_unit_id" />
+              <field id="api_key" />
+              <field id="script_url" />
+            </requires>
+          </field>
+          <field id="threshold_amount" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Threshold Amount</label>
+            <config_path>payment/tnw_authorize_cim/threshold_amount</config_path>
+          </field>
+          <field id="api_identifier" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>API Identifier</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/verify_api_identifier</config_path>
+          </field>
+          <field id="org_unit_id" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Org Unit ID</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/verify_org_unit_id</config_path>
+          </field>
+          <field id="api_key" translate="label" type="obscure" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>API Key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/tnw_authorize_cim/verify_api_key</config_path>
+          </field>
+          <field id="sdk_url" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+            <label>Script URL</label>
+            <config_path>payment/tnw_authorize_cim/verify_sdk_url</config_path>
+          </field>
+          <field id="allowspecific" translate="label" type="allowspecific" sortOrder="152" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+            <label>Verify for Applicable Countries</label>
+            <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+            <config_path>payment/tnw_authorize_cim/verify_all_countries</config_path>
+          </field>
+          <field id="specificcountry" translate="label" type="multiselect" sortOrder="153" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Verify for Specific Countries</label>
+            <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+            <can_be_empty>1</can_be_empty>
+            <config_path>payment/tnw_authorize_cim/verify_specific_countries</config_path>
+          </field>
+        </group>
       </group>
     </section>
   </system>

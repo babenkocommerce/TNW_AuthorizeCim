@@ -1,101 +1,189 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Test\Unit\Gateway\Request;
 
-namespace Pmclain\AuthorizenetCim\Test\Unit\Gateway\Request;
-
-use Pmclain\AuthorizenetCim\Gateway\Request\AddressDataBuilder;
-use \PHPUnit_Framework_MockObject_MockObject as MockObject;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
-use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
+use TNW\AuthorizeCim\Gateway\Request\AddressDataBuilder;
 use Magento\Payment\Gateway\Data\AddressAdapterInterface;
-use Pmclain\Authnet\PaymentProfile\Address;
-use Pmclain\Authnet\PaymentProfile\AddressFactory;
+use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
+/**
+ * Test AddressDataBuilder
+ */
 class AddressDataBuilderTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var AddressDataBuilder */
-    private $addressDataBuilder;
+    /**
+     * @var PaymentDataObjectInterface|MockObject
+     */
+    private $paymentDO;
 
-    /** @var SubjectReader */
-    private $subjectReader;
+    /**
+     * @var OrderAdapterInterface|MockObject
+     */
+    private $order;
 
-    /** @var AddressFactory|MockObject */
-    private $addressFactoryMock;
-
-    /** @var PaymentDataObjectInterface|MockObject */
-    private $paymentDataObjectMock;
-
-    /** @var OrderAdapterInterface|MockObject */
-    private $orderMock;
-
-    /** @var AddressAdapterInterface|MockObject */
-    private $addressMock;
+    /**
+     * @var AddressDataBuilder
+     */
+    private $builder;
 
     protected function setUp()
     {
-        $this->subjectReader = new SubjectReader();
+        $this->paymentDO = $this->createMock(PaymentDataObjectInterface::class);
+        $this->order = $this->createMock(OrderAdapterInterface::class);
 
-        $this->addressFactoryMock = $this->createMock(AddressFactory::class);
-        $this->paymentDataObjectMock = $this->createMock(PaymentDataObjectInterface::class);
-        $this->orderMock = $this->createMock(OrderAdapterInterface::class);
-        $this->addressMock = $this->createMock(AddressAdapterInterface::class);
-
-        $this->addressDataBuilder = new AddressDataBuilder(
-            $this->subjectReader,
-            $this->addressFactoryMock
-        );
+        $this->builder = new AddressDataBuilder(new SubjectReader());
     }
 
-    public function testBuild()
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testBuildReadPaymentException()
     {
-        $this->paymentDataObjectMock->method('getOrder')
-            ->willReturn($this->orderMock);
-
-        $this->orderMock->method('getBillingAddress')
-            ->willReturn($this->addressMock);
-
-        $this->addressFactoryMock->method('create')
-            ->willReturn(new Address());
-
-        $addressData = [
-            'John' => ['Firstname', Address::FIELD_FIRSTNAME],
-            'Doe' => ['Lastname',  Address::FIELD_LASTNAME],
-            'Acme Co' => ['Company', Address::FIELD_COMPANY],
-            '123 Abc St' => ['StreetLine1', Address::FIELD_ADDRESS],
-            'Lawton' => ['City', Address::FIELD_CITY],
-            'MI' => ['RegionCode', Address::FIELD_STATE],
-            '49065' => ['Postcode', Address::FIELD_ZIP],
-            'US' => ['CountryId', Address::FIELD_COUNTRY],
-            '(555) 229-3326' => ['Telephone', Address::FIELD_PHONE_NUMBER],
+        $buildSubject = [
+            'payment' => null,
         ];
 
-        foreach ($addressData as $value => $fieldNames) {
-            $this->addressMock->method('get' . $fieldNames[0])
-                ->willReturn($value);
-        }
+        $this->builder->build($buildSubject);
+    }
 
-        $result = $this->addressDataBuilder->build(['payment' => $this->paymentDataObjectMock]);
-        $customerAddress = $result[AddressDataBuilder::BILL_TO]->toArray();
+    public function testBuildNoAddresses()
+    {
+        $this->paymentDO->method('getOrder')
+            ->willReturn($this->order);
 
-        foreach ($addressData as $value => $fieldNames) {
-            $this->assertEquals(
-                $value,
-                $customerAddress[$fieldNames[1]]
-            );
-        }
+        $this->order->method('getBillingAddress')
+            ->willReturn(null);
+
+        $this->order->method('getShippingAddress')
+            ->willReturn(null);
+
+        $buildSubject = [
+            'payment' => $this->paymentDO,
+        ];
+
+        self::assertEquals([], $this->builder->build($buildSubject));
+    }
+
+    /**
+     * @param array $addressData
+     * @param array $expectedResult
+     *
+     * @dataProvider dataProviderBuild
+     */
+    public function testBuild($addressData, $expectedResult)
+    {
+        $address = $this->getAddressMock($addressData);
+
+        $this->paymentDO->method('getOrder')
+            ->willReturn($this->order);
+
+        $this->order->method('getBillingAddress')
+            ->willReturn($address);
+
+        $this->order->method('getShippingAddress')
+            ->willReturn($address);
+
+        $buildSubject = [
+            'payment' => $this->paymentDO,
+        ];
+
+        self::assertEquals($expectedResult, $this->builder->build($buildSubject));
+    }
+
+    /**
+     * @return array
+     */
+    public function dataProviderBuild()
+    {
+        return [
+            [
+                [
+                    'first_name' => 'John',
+                    'last_name' => 'Smith',
+                    'email' => 'j.smith@magento.com',
+                    'company' => 'Company Ltd.',
+                    'phone' => '987654321',
+                    'street_1' => 'street1',
+                    'city' => 'Chicago',
+                    'region_code' => 'IL',
+                    'country_id' => 'US',
+                    'post_code' => '00000'
+                ],
+                [
+                    'transaction_request' => [
+                        'bill_to' => [
+                            'first_name' => 'John',
+                            'last_name' => 'Smith',
+                            'company' => 'Company Ltd.',
+                            'address' => 'street1',
+                            'city' => 'Chicago',
+                            'state' => 'IL',
+                            'zip' => '00000',
+                            'country' => 'US',
+                            'phone_number' => '987654321',
+                            'email' => 'j.smith@magento.com',
+                        ],
+                        'ship_to' => [
+                            'first_name' => 'John',
+                            'last_name' => 'Smith',
+                            'company' => 'Company Ltd.',
+                            'address' => 'street1',
+                            'city' => 'Chicago',
+                            'state' => 'IL',
+                            'zip' => '00000',
+                            'country' => 'US',
+                        ],
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @param array $addressData
+     * @return AddressAdapterInterface|MockObject
+     */
+    private function getAddressMock($addressData)
+    {
+        $addressMock = $this->createMock(AddressAdapterInterface::class);
+
+        $addressMock->expects(self::exactly(2))
+            ->method('getFirstname')
+            ->willReturn($addressData['first_name']);
+        $addressMock->expects(self::exactly(2))
+            ->method('getLastname')
+            ->willReturn($addressData['last_name']);
+        $addressMock->expects(self::exactly(1))
+            ->method('getEmail')
+            ->willReturn($addressData['email']);
+        $addressMock->expects(self::exactly(2))
+            ->method('getCompany')
+            ->willReturn($addressData['company']);
+        $addressMock->expects(self::exactly(1))
+            ->method('getTelephone')
+            ->willReturn($addressData['phone']);
+        $addressMock->expects(self::exactly(2))
+            ->method('getStreetLine1')
+            ->willReturn($addressData['street_1']);
+        $addressMock->expects(self::exactly(2))
+            ->method('getCity')
+            ->willReturn($addressData['city']);
+        $addressMock->expects(self::exactly(2))
+            ->method('getRegionCode')
+            ->willReturn($addressData['region_code']);
+        $addressMock->expects(self::exactly(2))
+            ->method('getPostcode')
+            ->willReturn($addressData['post_code']);
+        $addressMock->expects(self::exactly(2))
+            ->method('getCountryId')
+            ->willReturn($addressData['country_id']);
+
+        return $addressMock;
     }
 }

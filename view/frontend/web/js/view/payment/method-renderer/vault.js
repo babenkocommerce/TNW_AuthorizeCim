@@ -1,29 +1,40 @@
-/*browser:true*/
-/*global define*/
+/*
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
+ */
+
 define([
-  'Magento_Vault/js/view/payment/method-renderer/vault'
+    'Magento_Vault/js/view/payment/method-renderer/vault'
 ], function (VaultComponent) {
-  'use strict';
+    'use strict';
 
-  return VaultComponent.extend({
-    defaults: {
-      template: 'Magento_Vault/payment/form'
-    },
+    return VaultComponent.extend({
+        /**
+         * @inheritDoc
+         */
+        getMaskedCard: function () {
+            return this.details.maskedCC;
+        },
 
-    getMaskedCard: function () {
-      return this.details.maskedCC;
-    },
+        /**
+         * @inheritDoc
+         */
+        getExpirationDate: function () {
+            return this.details.expirationDate;
+        },
 
-    getExpirationDate: function () {
-      return this.details.expirationDate;
-    },
+        /**
+         * @inheritDoc
+         */
+        getCardType: function () {
+            return this.details.type;
+        },
 
-    getCardType: function () {
-      return this.details.type;
-    },
-
-    getToken: function() {
-      return this.publicHash;
-    }
+        /**
+         * @inheritDoc
+         */
+        getToken: function () {
+            return this.publicHash;
+        }
   });
 });

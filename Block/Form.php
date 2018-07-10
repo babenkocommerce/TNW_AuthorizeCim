@@ -1,36 +1,33 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Block;
 
-namespace Pmclain\AuthorizenetCim\Block;
-
-use Magento\Payment\Block\Form\Cc;
-use Pmclain\AuthorizenetCim\Gateway\Config\Config;
-use Magento\Payment\Model\Config as PaymentConfig;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Payment\Block\Form\Cc;
 use Magento\Payment\Helper\Data as Helper;
-use Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider;
+use Magento\Payment\Model\Config as PaymentConfig;
+use TNW\AuthorizeCim\Gateway\Config\Config;
+use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 
 class Form extends Cc
 {
     /** @var Config */
-    protected $_config;
+    private $config;
 
     /** @var Helper */
-    protected $_helper;
+    private $helper;
 
+    /**
+     * Form constructor.
+     * @param Context $context
+     * @param PaymentConfig $paymentConfig
+     * @param Config $config
+     * @param Helper $helper
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         PaymentConfig $paymentConfig,
@@ -39,17 +36,20 @@ class Form extends Cc
         array $data = []
     ) {
         parent::__construct($context, $paymentConfig, $data);
-        $this->_config = $config;
-        $this->_helper = $helper;
+        $this->config = $config;
+        $this->helper = $helper;
     }
 
     /** @return bool */
     public function useCcv()
     {
-        return $this->_config->isCcvEnabled();
+        return $this->config->isCcvEnabled();
     }
 
-    /** @return bool */
+    /**
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function isVaultEnabled()
     {
         $storeId = $this->_storeManager->getStore()->getId();
@@ -57,9 +57,12 @@ class Form extends Cc
         return $vaultPayment->isActive($storeId);
     }
 
-    /** @return \Magento\Vault\Model\VaultPaymentInterface */
+    /**
+     * @return \Magento\Payment\Model\MethodInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function getVaultPayment()
     {
-        return $this->_helper->getMethodInstance(ConfigProvider::CC_VAULT_CODE);
+        return $this->helper->getMethodInstance(ConfigProvider::VAULT_CODE);
     }
 }

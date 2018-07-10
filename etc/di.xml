@@ -1,317 +1,357 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-  <virtualType name="AuthorizenetCimFacade" type="Magento\Payment\Model\Method\Adapter">
-    <arguments>
-      <argument name="code" xsi:type="const">Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider::CODE</argument>
-      <argument name="formBlockType" xsi:type="string">Pmclain\AuthorizenetCim\Block\Form</argument>
-      <argument name="infoBlockType" xsi:type="string">Pmclain\AuthorizenetCim\Block\Info</argument>
-      <argument name="valueHandlerPool" xsi:type="object">AuthorizenetCimValueHandlerPool</argument>
-      <argument name="validatorPool" xsi:type="object">AuthorizenetCimValidatorPool</argument>
-      <argument name="commandPool" xsi:type="object">AuthorizenetCimCommandPool</argument>
-    </arguments>
-  </virtualType>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Payment Method Facade configuration -->
+    <virtualType name="AuthorizeCimFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">TNW\AuthorizeCim\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">TNW\AuthorizeCim\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">TNW\AuthorizeCim\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">AuthorizeCimValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">AuthorizeCimValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">AuthorizeCimCommandPool</argument>
+        </arguments>
+    </virtualType>
 
-  <virtualType name="AuthorizenetCimVaultFacade" type="Magento\Vault\Model\Method\Vault">
-    <arguments>
-      <argument name="code" xsi:type="const">Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider::CC_VAULT_CODE</argument>
-      <argument name="valueHandlerPool" xsi:type="object">AuthorizenetCimVaultValueHandlerPool</argument>
-      <argument name="vaultProvider" xsi:type="object">AuthorizenetCimFacade</argument>
-      <argument name="config" xsi:type="object">AuthorizenetCimVaultConfig</argument>
-    </arguments>
-  </virtualType>
+    <!-- Configuration for Vault payments -->
+    <virtualType name="AuthorizeCimVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">TNW\AuthorizeCim\Model\Ui\ConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimVaultPaymentValueHandler" type="VaultPaymentDefaultValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">AuthorizeCimVaultPaymentConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimVaultPaymentValueHandlerPool" type="VaultPaymentValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">AuthorizeCimVaultPaymentValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">AuthorizeCimVaultPaymentConfig</argument>
+            <argument name="valueHandlerPool" xsi:type="object">AuthorizeCimVaultPaymentValueHandlerPool</argument>
+            <argument name="vaultProvider" xsi:type="object">AuthorizeCimFacade</argument>
+            <argument name="code" xsi:type="const">TNW\AuthorizeCim\Model\Ui\ConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Configuration for Vault payments -->
 
-  <type name="Pmclain\AuthorizenetCim\Gateway\Config\Config">
-    <arguments>
-      <argument name="methodCode" xsi:type="const">Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider::CODE</argument>
-    </arguments>
-  </type>
+    <!-- Configuration reader -->
+    <type name="TNW\AuthorizeCim\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">TNW\AuthorizeCim\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </type>
 
-  <virtualType name="AuthorizenetCimVaultConfig" type="Magento\Payment\Gateway\Config\Config">
-    <arguments>
-      <argument name="methodCode" xsi:type="const">Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider::CC_VAULT_CODE</argument>
-    </arguments>
-  </virtualType>
+    <!-- Logger, initialized with BraintreeConfig -->
+    <virtualType name="AuthorizeCimLoggerForTransactionSale" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">TNW\AuthorizeCim\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\TransactionAuthorize">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\TransactionCapture">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\TransactionSale">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\TransactionRefund">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\TransactionVoid">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\CreateCustomerProfile">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <type name="TNW\AuthorizeCim\Gateway\Http\Client\CreateCustomerProfileFromTransaction">
+        <arguments>
+            <argument name="customLogger" xsi:type="object">AuthorizeCimLoggerForTransactionSale</argument>
+        </arguments>
+    </type>
+    <!-- END Logger, initialized with BraintreeConfig -->
 
-  <virtualType name="AuthorizenetCimLoggerForTransactionSale" type="Magento\Payment\Model\Method\Logger">
-    <arguments>
-      <argument name="config" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Config\Config</argument>
-    </arguments>
-  </virtualType>
-  <type name="Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionSale">
-    <arguments>
-      <argument name="customLogger" xsi:type="object">AuthorizenetCimLoggerForTransactionSale</argument>
-    </arguments>
-  </type>
-  <type name="Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionSubmitForSettlement">
-    <arguments>
-      <argument name="customLogger" xsi:type="object">AuthorizenetCimLoggerForTransactionSale</argument>
-    </arguments>
-  </type>
-  <type name="Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionRefund">
-    <arguments>
-      <argument name="customLogger" xsi:type="object">AuthorizenetCimLoggerForTransactionSale</argument>
-    </arguments>
-  </type>
-  <type name="Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionVoid">
-    <arguments>
-      <argument name="customLogger" xsi:type="object">AuthorizenetCimLoggerForTransactionSale</argument>
-    </arguments>
-  </type>
+    <!-- Commands infrastructure -->
+    <virtualType name="AuthorizeCimCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">AuthorizeCimAuthorizeStrategyCommand</item>
+                <item name="capture" xsi:type="string">AuthorizeCimCaptureStrategyCommand</item>
+                <item name="vault_authorize" xsi:type="string">AuthorizeCimVaultAuthorizeCommand</item>
+                <item name="vault_sale" xsi:type="string">AuthorizeCimVaultSaleCommand</item>
+                <item name="void" xsi:type="string">AuthorizeCimVoidCommand</item>
+                <item name="refund" xsi:type="string">AuthorizeCimRefundCommand</item>
+                <item name="cancel" xsi:type="string">AuthorizeCimVoidCommand</item>
+                <item name="deny_payment" xsi:type="string">AuthorizeCimVoidCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimAuthorizeStrategyCommand" type="TNW\AuthorizeCim\Gateway\Command\AuthorizeStrategyCommand">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">AuthorizeCimStrategyCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimCaptureStrategyCommand" type="TNW\AuthorizeCim\Gateway\Command\CaptureStrategyCommand">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">AuthorizeCimStrategyCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimStrategyCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">AuthorizeCimAuthorizeCommand</item>
+                <item name="settlement" xsi:type="string">AuthorizeCimCaptureCommand</item>
+                <item name="sale" xsi:type="string">AuthorizeCimSaleCommand</item>
+                <item name="customer" xsi:type="string">AuthorizeCimCustomerProfileCommand</item>
+                <item name="vault_capture" xsi:type="string">AuthorizeCimVaultCaptureCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Commands infrastructure -->
 
-  <virtualType name="AuthorizenetCimCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
-    <arguments>
-      <argument name="commands" xsi:type="array">
-        <item name="authorize" xsi:type="string">AuthorizenetCimAuthorizeCommand</item>
-        <item name="sale" xsi:type="string">AuthorizenetCimSaleCommand</item>
-        <item name="capture" xsi:type="string">AuthorizenetCimCaptureStrategyCommand</item>
-        <item name="settlement" xsi:type="string">AuthorizenetCimCaptureCommand</item>
-        <item name="vault_authorize" xsi:type="string">AuthorizenetCimVaultAuthorizeCommand</item>
-        <item name="vault_sale" xsi:type="string">AuthorizenetCimVaultSaleCommand</item>
-        <item name="vault_capture" xsi:type="string">AuthorizenetCimVaultCaptureCommand</item>
-        <item name="void" xsi:type="string">AuthorizenetCimVoidCommand</item>
-        <item name="refund" xsi:type="string">AuthorizenetCimRefundCommand</item>
-        <item name="cancel" xsi:type="string">AuthorizenetCimVoidCommand</item>
-        <item name="deny_payment" xsi:type="string">AuthorizenetCimVoidCommand</item>
-      </argument>
-    </arguments>
-  </virtualType>
+    <!-- Command managers section for Vault -->
+    <virtualType name="AuthorizeCimCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">AuthorizeCimCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="tnw_authorize_cim" xsi:type="string">AuthorizeCimCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- END command managers section for Vault -->
 
-  <virtualType name="AuthorizenetCimCaptureStrategyCommand" type="Pmclain\AuthorizenetCim\Gateway\Command\CaptureStrategyCommand">
-    <arguments>
-      <argument name="commandPool" xsi:type="object">AuthorizenetCimCommandPool</argument>
-    </arguments>
-  </virtualType>
+    <!-- AuthorizeCim commands. Authorize -->
+    <virtualType name="AuthorizeCimAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AuthorizeCimAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="handler" xsi:type="object">AuthorizeCimAuthorizationHandler</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="customer" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CustomerDataBuilder</item>
+                <item name="payment" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\PaymentDataBuilder</item>
+                <item name="cardholder" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CardholderDataBuilder</item>
+                <item name="opaque" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\OpaqueDataBuilder</item>
+                <item name="address" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\AddressDataBuilder</item>
+                <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Authorization&Capture command  -->
+    <virtualType name="AuthorizeCimSaleCommand" type="AuthorizeCimAuthorizeCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionSale</argument>
+        </arguments>
+    </virtualType>
+    <!-- Capture commands  -->
+    <virtualType name="AuthorizeCimCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AuthorizeCimCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionCapture</argument>
+            <argument name="handler" xsi:type="object">TNW\AuthorizeCim\Gateway\Response\TransactionIdHandler</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="capture" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CaptureDataBuilder</item>
+                <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Vault Authorization command -->
+    <virtualType name="AuthorizeCimVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AuthorizeCimVaultAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="handler" xsi:type="object">AuthorizeCimVaultResponseHandler</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimVaultAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="customer" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\ProfileDataBuilder</item>
+                <item name="payment" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\PaymentDataBuilder</item>
+                <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Vault Authorization&Capture command -->
+    <virtualType name="AuthorizeCimVaultSaleCommand" type="AuthorizeCimVaultAuthorizeCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionSale</argument>
+        </arguments>
+    </virtualType>
+    <!-- Vault Capture (Sale actually) command -->
+    <virtualType name="AuthorizeCimVaultCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AuthorizeCimVaultCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionCapture</argument>
+            <argument name="handler" xsi:type="object">TNW\AuthorizeCim\Gateway\Response\TransactionIdHandler</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimVaultCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="capture" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CaptureDataBuilder</item>
+                <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Void Command -->
+    <virtualType name="AuthorizeCimVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AuthorizeCimVoidRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionVoid</argument>
+            <argument name="handler" xsi:type="object">TNW\AuthorizeCim\Gateway\Response\VoidHandler</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimVoidRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="void" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\VoidDataBuilder</item>
+                <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Refund Command -->
+    <virtualType name="AuthorizeCimRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AuthorizeCimRefundBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\TransactionResponseValidator</argument>
+            <argument name="handler" xsi:type="object">TNW\AuthorizeCim\Gateway\Response\RefundHandler</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimRefundBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\RefundDataBuilder</item>
+                <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimCustomerProfileCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AuthorizeCimCustomerProfileBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">TNW\AuthorizeCim\Gateway\Http\Client\CreateCustomerProfileFromTransaction</argument>
+            <argument name="validator" xsi:type="object">TNW\AuthorizeCim\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="handler" xsi:type="object">TNW\AuthorizeCim\Gateway\Response\VaultDetailsHandler</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimCustomerProfileBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="customer_profile" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\CustomerProfileDataBuilder</item>
+                <item name="store" xsi:type="string">TNW\AuthorizeCim\Gateway\Request\StoreConfigBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END AuthorizeCim commands -->
 
-  <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
-    <arguments>
-      <argument name="executors" xsi:type="array">
-        <item name="pmclain_authorizenetcim" xsi:type="string">AuthorizenetCimCommandManager</item>
-      </argument>
-    </arguments>
-  </type>
+    <!-- Value handlers infrastructure -->
+    <type name="TNW\AuthorizeCim\Gateway\Response\VaultDetailsHandler">
+        <arguments>
+            <argument name="paymentTokenFactory" xsi:type="object">Magento\Vault\Model\CreditCardTokenFactory</argument>
+        </arguments>
+    </type>
+    <virtualType name="AuthorizeCimValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">AuthorizeCimConfigValueHandler</item>
+                <item name="can_void" xsi:type="string">TNW\AuthorizeCim\Gateway\Config\CanVoidHandler</item>
+                <item name="can_cancel" xsi:type="string">TNW\AuthorizeCim\Gateway\Config\CanVoidHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">TNW\AuthorizeCim\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimAuthorizationHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="payment_details" xsi:type="string">TNW\AuthorizeCim\Gateway\Response\PaymentDetailsHandler</item>
+                <item name="txn_id" xsi:type="string">TNW\AuthorizeCim\Gateway\Response\TransactionIdHandler</item>
+                <item name="card_details" xsi:type="string">TNW\AuthorizeCim\Gateway\Response\CardDetailsHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimVaultResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="payment_details" xsi:type="string">TNW\AuthorizeCim\Gateway\Response\PaymentDetailsHandler</item>
+                <item name="txn_id" xsi:type="string">TNW\AuthorizeCim\Gateway\Response\TransactionIdHandler</item>
+                <item name="card_details" xsi:type="string">TNW\AuthorizeCim\Gateway\Response\CardDetailsHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Value handlers infrastructure -->
 
-  <virtualType name="AuthorizenetCimCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
-    <arguments>
-      <argument name="commandPool" xsi:type="object">AuthorizenetCimCommandPool</argument>
-    </arguments>
-  </virtualType>
+    <!-- AuthorizeCim validators infrastructure -->
+    <virtualType name="AuthorizeCimCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">TNW\AuthorizeCim\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AuthorizeCimValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">AuthorizeCimCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END AuthorizeCim validators infrastructure -->
 
-  <!-- Commands -->
-  <virtualType name="AuthorizenetCimAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-    <arguments>
-      <argument name="requestBuilder" xsi:type="object">AuthorizenetCimAuthorizeRequest</argument>
-      <argument name="transferFactory" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\TransferFactory</argument>
-      <argument name="client" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionSale</argument>
-      <argument name="handler" xsi:type="object">AuthorizenetCimAuthorizationHandler</argument>
-      <argument name="validator" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Validator\ResponseValidator\Authorize</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimSaleCommand" type="AuthorizenetCimAuthorizeCommand">
-    <arguments>
-      <argument name="requestBuilder" xsi:type="object">AuthorizenetCimSaleRequest</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-    <arguments>
-      <argument name="requestBuilder" xsi:type="object">AuthorizenetCimCaptureRequest</argument>
-      <argument name="transferFactory" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\TransferFactory</argument>
-      <argument name="client" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionSubmitForSettlement</argument>
-      <argument name="handler" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Response\TransactionIdHandler</argument>
-      <argument name="validator" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Validator\ResponseValidator\Capture</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-    <arguments>
-      <argument name="requestBuilder" xsi:type="object">AuthorizenetCimVaultAuthorizeRequest</argument>
-      <argument name="transferFactory" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\TransferFactory</argument>
-      <argument name="client" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionSale</argument>
-      <argument name="handler" xsi:type="object">AuthorizenetCimVaultAuthorizationHandler</argument>
-      <argument name="validator" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Validator\ResponseValidator\Authorize</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultSaleCommand" type="AuthorizenetCimVaultAuthorizeCommand">
-    <arguments>
-      <argument name="requestBuilder" xsi:type="object">AuthorizenetCimVaultSaleRequest</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-    <arguments>
-      <argument name="requestBuilder" xsi:type="object">AuthorizenetCimVaultCaptureRequest</argument>
-      <argument name="transferFactory" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\TransferFactory</argument>
-      <argument name="client" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionSubmitForSettlement</argument>
-      <argument name="handler" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Response\TransactionIdHandler</argument>
-      <argument name="validator" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Validator\ResponseValidator\Capture</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-    <arguments>
-      <argument name="client" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionVoid</argument>
-      <argument name="requestBuilder" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Request\VoidDataBuilder</argument>
-      <argument name="handler" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Response\VoidHandler</argument>
-      <argument name="validator" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Validator\GeneralResponseValidator</argument>
-      <argument name="transferFactory" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\TransferFactory</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-    <arguments>
-      <argument name="client" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\Client\TransactionRefund</argument>
-      <argument name="requestBuilder" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Request\RefundDataBuilder</argument>
-      <argument name="validator" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Validator\GeneralResponseValidator</argument>
-      <argument name="handler" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Response\RefundHandler</argument>
-      <argument name="transferFactory" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Http\TransferFactory</argument>
-    </arguments>
-  </virtualType>
-
-  <!-- Requests -->
-  <virtualType name="AuthorizenetCimAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-    <arguments>
-      <argument name="builders" xsi:type="array">
-        <item name="payment" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\PaymentDataBuilder</item>
-        <item name="address" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\AddressDataBuilder</item>
-        <item name="customer" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\CustomerDataBuilder</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimSaleRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-    <arguments>
-      <argument name="builders" xsi:type="array">
-        <item name="authorize" xsi:type="string">AuthorizenetCimAuthorizeRequest</item>
-        <item name="settlement" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\SettlementDataBuilder</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-    <arguments>
-      <argument name="builders" xsi:type="array">
-        <item name="capture" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\CaptureDataBuilder</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-    <arguments>
-      <argument name="builders" xsi:type="array">
-        <item name="payment" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\PaymentDataBuilder</item>
-        <item name="token" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\TokenDataBuilder</item>
-        <item name="address" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\AddressDataBuilder</item>
-        <item name="customer" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\CustomerDataBuilder</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultSaleRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-    <arguments>
-      <argument name="builders" xsi:type="array">
-        <item name="authorize" xsi:type="string">AuthorizenetCimVaultAuthorizeRequest</item>
-        <item name="settlement" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\SettlementDataBuilder</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-    <arguments>
-      <argument name="builders" xsi:type="array">
-        <item name="vault_capture" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Request\CaptureDataBuilder</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <!-- Value Handlers -->
-  <virtualType name="AuthorizenetCimValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-    <arguments>
-      <argument name="handlers" xsi:type="array">
-        <item name="default" xsi:type="string">AuthorizenetCimValueHandler</item>
-        <item name="can_void" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Config\CanVoidHandler</item>
-        <item name="can_cancel" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Config\CanVoidHandler</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultValueHandlerPool" type="VaultPaymentValueHandlerPool">
-    <arguments>
-      <argument name="handlers" xsi:type="array">
-        <item name="default" xsi:type="string">AuthorizenetCimVaultValueHandler</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-    <arguments>
-      <argument name="configInterface" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Config\Config</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultValueHandler" type="VaultPaymentDefaultValueHandler">
-    <arguments>
-      <argument name="configInterface" xsi:type="object">AuthorizenetCimVaultConfig</argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimAuthorizationHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
-    <arguments>
-      <argument name="handlers" xsi:type="array">
-        <item name="payment_details" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Response\PaymentDetailsHandler</item>
-        <item name="txn_id" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Response\TransactionIdHandler</item>
-        <item name="card_details" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Response\CardDetailsHandler</item>
-        <item name="vault_details" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Response\VaultDetailsHandler</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimVaultAuthorizationHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
-    <arguments>
-      <argument name="handlers" xsi:type="array">
-        <item name="payment_details" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Response\PaymentDetailsHandler</item>
-        <item name="txn_id" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Response\TransactionIdHandler</item>
-        <item name="card_details" xsi:type="string">Pmclain\AuthorizenetCim\Gateway\Response\CardDetailsHandler</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <!-- Validators -->
-  <virtualType name="AuthorizenetCimValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
-    <arguments>
-      <argument name="validators" xsi:type="array">
-        <item name="country" xsi:type="string">AuthorizenetCimCountryValidator</item>
-      </argument>
-    </arguments>
-  </virtualType>
-
-  <virtualType name="AuthorizenetCimCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-    <arguments>
-      <argument name="config" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Config\Config</argument>
-    </arguments>
-  </virtualType>
-
-  <!-- Blocks -->
-  <type name="Pmclain\AuthorizenetCim\Block\Info">
-    <arguments>
-      <argument name="config" xsi:type="object">Pmclain\AuthorizenetCim\Gateway\Config\Config</argument>
-    </arguments>
-  </type>
+    <type name="TNW\AuthorizeCim\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">TNW\AuthorizeCim\Gateway\Config\Config</argument>
+        </arguments>
+    </type>
 </config>

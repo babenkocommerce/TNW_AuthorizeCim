@@ -1,27 +1,27 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Gateway\Http\Client;
 
-namespace Pmclain\AuthorizenetCim\Gateway\Http\Client;
-
-use Pmclain\AuthorizenetCim\Gateway\Request\PaymentDataBuilder;
-
+/**
+ * Transaction Void
+ */
 class TransactionVoid extends AbstractTransaction
 {
+    /**
+     * @inheritdoc
+     */
     protected function process(array $data)
     {
-        return $this->_adapter->void($data[PaymentDataBuilder::TRANSACTION_REQUEST]);
+        $storeId = $data['store_id'] ?? null;
+        // sending store id and other additional keys are restricted by Authorize API
+        unset($data['store_id']);
+
+        return $this->adapterFactory->create($storeId)
+            ->transaction(array_merge_recursive($data, [
+                'transaction_request' => ['transaction_type' => 'voidTransaction'],
+            ]));
     }
 }

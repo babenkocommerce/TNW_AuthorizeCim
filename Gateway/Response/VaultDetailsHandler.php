@@ -1,43 +1,33 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
 
-namespace Pmclain\AuthorizenetCim\Gateway\Response;
+namespace TNW\AuthorizeCim\Gateway\Response;
 
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentExtensionInterface;
 use Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Model\CreditCardTokenFactory;
-use Pmclain\AuthorizenetCim\Gateway\Config\Config;
+use TNW\AuthorizeCim\Gateway\Config\Config;
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
 class VaultDetailsHandler implements HandlerInterface
 {
     /** @var CreditCardTokenFactory */
-    protected $_paymentTokenFactory;
+    private $paymentTokenFactory;
 
     /** @var OrderPaymentExtensionInterfaceFactory */
-    protected $_paymentExtensionFactory;
+    private $paymentExtensionFactory;
 
     /** @var SubjectReader */
-    protected $_subjectReader;
+    private $subjectReader;
 
     /** @var Config */
-    protected $_config;
+    private $config;
 
     public function __construct(
         CreditCardTokenFactory $creditCardTokenFactory,
@@ -45,17 +35,21 @@ class VaultDetailsHandler implements HandlerInterface
         Config $config,
         SubjectReader $subjectReader
     ) {
-        $this->_paymentTokenFactory = $creditCardTokenFactory;
-        $this->_paymentExtensionFactory = $paymentExtensionFactory;
-        $this->_subjectReader = $subjectReader;
-        $this->_config = $config;
+        $this->paymentTokenFactory = $creditCardTokenFactory;
+        $this->paymentExtensionFactory = $paymentExtensionFactory;
+        $this->subjectReader = $subjectReader;
+        $this->config = $config;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function handle(array $subject, array $response)
     {
-        $paymentDO = $this->_subjectReader->readPayment($subject);
-        $transaction = $this->_subjectReader->readTransaction($response);
-        $transaction = $transaction->getData('transactionResponse');
+        $paymentDO = $this->subjectReader->readPayment($subject);
+
+        /** @var \net\authorize\api\contract\v1\CreateCustomerProfileResponse $transaction */
+        $transaction = $this->subjectReader->readTransaction($response);
         $payment = $paymentDO->getPayment();
 
         if (!$payment->getAdditionalInformation('is_active_payment_token_enabler')) {
@@ -69,48 +63,69 @@ class VaultDetailsHandler implements HandlerInterface
         }
     }
 
+    /**
+     * @param \net\authorize\api\contract\v1\CreateCustomerProfileResponse $transaction
+     * @param $payment
+     * @return PaymentTokenInterface|null
+     */
     private function getVaultPaymentToken($transaction, $payment)
     {
-        // Check token existing in gateway response
-        $paymentProfileId = $transaction->getProfile()->getData('customerPaymentProfileId');
-        if (!isset($paymentProfileId)) {
-            return null;
-        }
+        $profileId = $transaction->getCustomerProfileId();
+        $paymentProfileIdList = $transaction->getCustomerPaymentProfileIdList();
 
         /** @var PaymentTokenInterface $paymentToken */
-        $paymentToken = $this->_paymentTokenFactory->create();
-        $paymentToken->setGatewayToken($paymentProfileId);
-        $paymentToken->setExpiresAt($this->_getExpirationDate($payment));
+        $paymentToken = $this->paymentTokenFactory->create()
+            ->setExpiresAt($this->_getExpirationDate($payment))
+            ->setGatewayToken(sprintf('%s/%s', $profileId, reset($paymentProfileIdList)));
 
         $paymentToken->setTokenDetails($this->_convertDetailsToJSON([
-            'type' => $payment->getAdditionalInformation('cc_type'),
+            'type' => $this->getCreditCardType($payment->getAdditionalInformation('cc_type')),
             'maskedCC' => $payment->getAdditionalInformation('cc_last4'),
-            'expirationDate' => $payment->getAdditionalInformation('cc_exp_month') . '/' . $payment->getAdditionalInformation('cc_exp_year')
+            'expirationDate' => sprintf(
+                '%s/%s',
+                $payment->getAdditionalInformation('cc_exp_month'),
+                $payment->getAdditionalInformation('cc_exp_year')
+            )
         ]));
 
         return $paymentToken;
     }
 
+    /**
+     * @param $payment
+     * @return string
+     */
     private function _getExpirationDate($payment)
     {
-        $expDate = new \DateTime(
-            trim($payment->getAdditionalInformation('cc_exp_year'))
-            . '-'
-            . trim($payment->getAdditionalInformation('cc_exp_month'))
-            . '-'
-            . '01'
-            . ' '
-            . '00:00:00',
-            new \DateTimeZone('UTC')
+        $time = sprintf(
+            '%s-%s-01 00:00:00',
+            trim($payment->getAdditionalInformation('cc_exp_year')),
+            trim($payment->getAdditionalInformation('cc_exp_month'))
         );
-        $expDate->add(new \DateInterval('P1M'));
-        return $expDate->format('Y-m-d 00:00:00');
+
+        return date_create($time, timezone_open('UTC'))
+            ->modify('+1 month')
+            ->format('Y-m-d 00:00:00');
     }
 
     private function _convertDetailsToJSON($details)
     {
         $json = \Zend_Json::encode($details);
         return $json ? $json : '{}';
+    }
+
+    /**
+     * Get type of credit card mapped from Braintree
+     *
+     * @param string $type
+     * @return array
+     */
+    private function getCreditCardType($type)
+    {
+        $replaced = str_replace(' ', '-', strtolower($type));
+        $mapper = $this->config->getCctypesMapper();
+
+        return $mapper[$replaced];
     }
 
     /**
@@ -122,7 +137,7 @@ class VaultDetailsHandler implements HandlerInterface
     {
         $extensionAttributes = $payment->getExtensionAttributes();
         if (null === $extensionAttributes) {
-            $extensionAttributes = $this->_paymentExtensionFactory->create();
+            $extensionAttributes = $this->paymentExtensionFactory->create();
             $payment->setExtensionAttributes($extensionAttributes);
         }
         return $extensionAttributes;

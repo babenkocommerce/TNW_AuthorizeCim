@@ -1,41 +1,45 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Gateway\Validator;
 
-namespace Pmclain\AuthorizenetCim\Gateway\Validator;
-
+use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
-use Pmclain\AuthorizenetCim\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use net\authorize\api\contract\v1\ANetApiResponseType;
+use net\authorize\api\contract\v1\MessagesType\MessageAType;
 
+/**
+ * Validate response data
+ */
 class GeneralResponseValidator extends AbstractValidator
 {
-    /** @var SubjectReader */
-    protected $_subjectReader;
+    /**
+     * @var SubjectReader
+     */
+    private $subjectReader;
 
-    public function __construct(
-        ResultInterfaceFactory $resultInterfaceFactory,
-        SubjectReader $subjectReader
-    ) {
-        parent::__construct($resultInterfaceFactory);
-        $this->_subjectReader = $subjectReader;
+    /**
+     * Constructor
+     *
+     * @param ResultInterfaceFactory $resultFactory
+     * @param SubjectReader $subjectReader
+     */
+    public function __construct(ResultInterfaceFactory $resultFactory, SubjectReader $subjectReader)
+    {
+        parent::__construct($resultFactory);
+        $this->subjectReader = $subjectReader;
     }
 
-    public function validate(array $subject)
+    /**
+     * @inheritdoc
+     */
+    public function validate(array $validationSubject)
     {
-        $response = $this->_subjectReader->readResponseObject($subject);
+        /** @var \net\authorize\api\contract\v1\CreateTransactionResponse $response */
+        $response = $this->subjectReader->readResponseObject($validationSubject);
 
         $isValid = true;
         $errorMessages = [];
@@ -45,25 +49,31 @@ class GeneralResponseValidator extends AbstractValidator
 
             if (!$validationResult[0]) {
                 $isValid = $validationResult[0];
-                $errorMessages = array_merge(
-                    $errorMessages,
-                    $validationResult[1]
-                );
-                break;
+                $errorMessages = array_merge($errorMessages, $validationResult[1]);
             }
         }
 
         return $this->createResult($isValid, $errorMessages);
     }
 
+    /**
+     * @return array
+     */
     protected function getResponseValidators()
     {
         return [
-            function ($response) {
-                return [
-                    $response->getMessages()->getData('resultCode') === 'Ok',
-                    [__($response->getMessages()->getMessage()[0]->getText())]
-                ];
+            function (ANetApiResponseType $response) {
+                $messages = $response->getMessages();
+
+                if (strcasecmp($messages->getResultCode(), 'Ok')  !== 0) {
+                    $errorMessages = array_map(function (MessageAType $message) {
+                        return __('%1: %2', $message->getCode(), $message->getText());
+                    }, $messages->getMessage());
+
+                    return [false, $errorMessages];
+                }
+
+                return [true, []];
             }
         ];
     }

@@ -1,22 +1,11 @@
 <?php
 /**
- * Pmclain_AuthorizenetCim extension
- * NOTICE OF LICENSE
- *
- * This source file is subject to the OSL 3.0 License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/osl-3.0.php
- *
- * @category  Pmclain
- * @package   Pmclain_AuthorizenetCim
- * @copyright Copyright (c) 2017-2018
- * @license   Open Software License (OSL 3.0)
+ * Copyright © 2017 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
  */
+namespace TNW\AuthorizeCim\Model\Ui\Adminhtml;
 
-namespace Pmclain\AuthorizenetCim\Model\Ui\Adminhtml;
-
-use Pmclain\AuthorizenetCim\Model\Ui\ConfigProvider;
+use TNW\AuthorizeCim\Model\Ui\ConfigProvider;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Framework\View\Element\Template;
 use Magento\Vault\Model\Ui\TokenUiComponentInterface;
@@ -27,21 +16,15 @@ use Magento\Framework\UrlInterface;
 class TokenUiComponentProvider implements TokenUiComponentProviderInterface
 {
     /** @var TokenUiComponentInterfaceFactory */
-    private $_componentFactory;
-
-    /** @var \Magento\Framework\UrlInterface */
-    private $_urlBuilder;
+    private $componentFactory;
 
     /**
      * @param TokenUiComponentInterfaceFactory $componentFactory
-     * @param UrlInterface $urlBuilder
      */
     public function __construct(
-        TokenUiComponentInterfaceFactory $componentFactory,
-        UrlInterface $urlBuilder
+        TokenUiComponentInterfaceFactory $componentFactory
     ) {
-        $this->_componentFactory = $componentFactory;
-        $this->_urlBuilder = $urlBuilder;
+        $this->componentFactory = $componentFactory;
     }
 
     /**
@@ -55,18 +38,15 @@ class TokenUiComponentProvider implements TokenUiComponentProviderInterface
             $paymentToken->getTokenDetails() ?: '{}',
             true
         );
-        $component = $this->_componentFactory->create(
-            [
-                'config' => [
-                    'code' => ConfigProvider::CC_VAULT_CODE,
-                    TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
-                    TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash(),
-                    'template' => 'Pmclain_AuthorizenetCim::form/vault.phtml'
-                ],
-                'name' => Template::class
-            ]
-        );
 
-        return $component;
+        return $this->componentFactory->create([
+            'config' => [
+                'code' => ConfigProvider::VAULT_CODE,
+                TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
+                TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash(),
+                'template' => 'TNW_AuthorizeCim::form/vault.phtml'
+            ],
+            'name' => Template::class
+        ]);
     }
 }
