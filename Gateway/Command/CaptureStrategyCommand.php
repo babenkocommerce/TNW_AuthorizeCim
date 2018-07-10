@@ -5,7 +5,6 @@
  */
 namespace TNW\AuthorizeCim\Gateway\Command;
 
-use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
 use Magento\Payment\Gateway\CommandInterface;
@@ -33,22 +32,28 @@ class CaptureStrategyCommand implements CommandInterface
     /** @var CommandPoolInterface */
     private $commandPool;
 
+    /** @var \Psr\Log\LoggerInterface */
+    private $logger;
+
     /**
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
      * @param SubjectReader $subjectReader
      * @param CommandPoolInterface $commandPool
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository,
         SubjectReader $subjectReader,
-        CommandPoolInterface $commandPool
+        CommandPoolInterface $commandPool,
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->transactionRepository = $transactionRepository;
         $this->subjectReader = $subjectReader;
         $this->commandPool = $commandPool;
+        $this->logger = $logger;
     }
 
     /**
@@ -71,7 +76,9 @@ class CaptureStrategyCommand implements CommandInterface
         if ($paymentInfo->getAdditionalInformation('is_active_payment_token_enabler')) {
             try {
                 $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
-            } catch (\Exception $e) { }
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage());
+            }
         }
     }
 

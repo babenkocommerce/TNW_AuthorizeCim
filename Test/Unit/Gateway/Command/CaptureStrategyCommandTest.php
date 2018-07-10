@@ -109,11 +109,15 @@ class CaptureStrategyCommandTest extends \PHPUnit\Framework\TestCase
         $adapterFactory->method('create')
             ->willReturn($this->authorizeAdapter);
 
+        /** @var \Psr\Log\LoggerInterface|MockObject $logger */
+        $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+
         $this->strategyCommand = new CaptureStrategyCommand(
             $this->searchCriteriaBuilder,
             $this->transactionRepository,
             new SubjectReader(),
-            $this->commandPool
+            $this->commandPool,
+            $logger
         );
     }
 

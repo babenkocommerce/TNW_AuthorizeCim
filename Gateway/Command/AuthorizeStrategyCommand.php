@@ -36,16 +36,24 @@ class AuthorizeStrategyCommand implements CommandInterface
     private $subjectReader;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Constructor.
      * @param CommandPoolInterface $commandPool
      * @param SubjectReader $subjectReader
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         CommandPoolInterface $commandPool,
-        SubjectReader $subjectReader
+        SubjectReader $subjectReader,
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->commandPool = $commandPool;
         $this->subjectReader = $subjectReader;
+        $this->logger = $logger;
     }
 
     /**
@@ -66,7 +74,9 @@ class AuthorizeStrategyCommand implements CommandInterface
         if ($payment->getAdditionalInformation('is_active_payment_token_enabler')) {
             try {
                 $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
-            } catch (\Exception $e) { }
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage());
+            }
         }
     }
 }

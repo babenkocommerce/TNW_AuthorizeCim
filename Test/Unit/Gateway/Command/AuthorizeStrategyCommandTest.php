@@ -71,9 +71,13 @@ class AuthorizeStrategyCommandTest extends \PHPUnit\Framework\TestCase
         $this->paymentDO->method('getPayment')
             ->willReturn($this->payment);
 
+        /** @var \Psr\Log\LoggerInterface|MockObject $logger */
+        $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+
         $this->strategyCommand = new AuthorizeStrategyCommand(
             $this->commandPool,
-            new SubjectReader()
+            new SubjectReader(),
+            $logger
         );
     }
 
