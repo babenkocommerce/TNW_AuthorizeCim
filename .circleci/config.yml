@@ -147,6 +147,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -154,6 +155,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -161,6 +163,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -168,6 +171,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -175,6 +179,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -182,6 +187,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -189,6 +195,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -196,6 +203,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
@@ -203,6 +211,7 @@ workflows:
           filters:
             branches:
               only:
+                - develop
                 - master
                 - /^hotfix*/
                 - /^release*/
