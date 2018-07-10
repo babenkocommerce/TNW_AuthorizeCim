@@ -31,37 +31,29 @@ class AuthorizeStrategyCommand implements CommandInterface
     private $commandPool;
 
     /**
-     * @var TransactionRepositoryInterface
-     */
-    private $transactionRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
      * @var SubjectReader
      */
     private $subjectReader;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Constructor.
      * @param CommandPoolInterface $commandPool
-     * @param TransactionRepositoryInterface $repository
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param SubjectReader $subjectReader
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         CommandPoolInterface $commandPool,
-        TransactionRepositoryInterface $repository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        SubjectReader $subjectReader
+        SubjectReader $subjectReader,
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->commandPool = $commandPool;
-        $this->transactionRepository = $repository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->subjectReader = $subjectReader;
+        $this->logger = $logger;
     }
 
     /**
@@ -80,7 +72,11 @@ class AuthorizeStrategyCommand implements CommandInterface
         $this->commandPool->get(self::AUTHORIZE)->execute($commandSubject);
 
         if ($payment->getAdditionalInformation('is_active_payment_token_enabler')) {
-            $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
+            try {
+                $this->commandPool->get(self::CUSTOMER)->execute($commandSubject);
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage());
+            }
         }
     }
 }

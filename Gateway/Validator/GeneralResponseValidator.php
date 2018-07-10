@@ -64,14 +64,16 @@ class GeneralResponseValidator extends AbstractValidator
         return [
             function (ANetApiResponseType $response) {
                 $messages = $response->getMessages();
-                $errorMessages = array_map(function (MessageAType $message) {
-                    return __('%1: %2', $message->getCode(), $message->getText());
-                }, $messages->getMessage());
 
-                return [
-                    strcasecmp($messages->getResultCode(), 'Ok')  === 0,
-                    $errorMessages
-                ];
+                if (strcasecmp($messages->getResultCode(), 'Ok')  !== 0) {
+                    $errorMessages = array_map(function (MessageAType $message) {
+                        return __('%1: %2', $message->getCode(), $message->getText());
+                    }, $messages->getMessage());
+
+                    return [false, $errorMessages];
+                }
+
+                return [true, []];
             }
         ];
     }
