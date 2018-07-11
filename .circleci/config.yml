@@ -78,7 +78,9 @@ jobs:
           name: Compile the Code
           command: |
             cd /var/www/html/magento2-$MAGENTO_VERSION
-            php bin/magento setup:di:compile
+            ./bin/magento deploy:mode:set production
+            ./bin/magento setup:di:compile
+            ./bin/magento setup:static-content:deploy -f
       - run:
           name: Run Magento Coding Standard
           command: |
