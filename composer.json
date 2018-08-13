@@ -1,5 +1,5 @@
 {
-  "name": "tnw/authorizecim",
+  "name": "tnw/module-authorizenetcim",
   "description": "Authorize.net CIM for Magento 2",
   "type": "magento2-module",
   "version": "2.1.2",
