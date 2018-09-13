@@ -5,26 +5,26 @@
  * See TNW_LICENSE.txt for license details.
  */
 -->
-<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" class="TNW\Marketing\Ui\Component\Form"  xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" class="TNW\Marketing\Ui\Component\Form" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
-            <item name="provider" xsi:type="string">payment_interview.payment_interview_data_source</item>
-            <item name="deps" xsi:type="string">payment_interview.payment_interview_data_source</item>
+            <item name="provider" xsi:type="string">authorizenetcim_interview.authorizenetcim_interview_data_source</item>
+            <item name="deps" xsi:type="string">authorizenetcim_interview.authorizenetcim_interview_data_source</item>
         </item>
-        <item name="label" xsi:type="string" translate="true">Authorize CIM Interview</item>
+        <item name="label" xsi:type="string" translate="true"> Interview</item>
         <item name="config" xsi:type="array">
             <item name="dataScope" xsi:type="string">data</item>
-            <item name="namespace" xsi:type="string">payment_interview</item>
+            <item name="namespace" xsi:type="string">authorizenetcim_interview</item>
         </item>
         <item name="template" xsi:type="string">templates/form/collapsible</item>
     </argument>
 
     <argument name="module" xsi:type="string">tnw_module-authorizenetcim</argument>
 
-    <dataSource name="payment_interview_data_source">
+    <dataSource name="authorizenetcim_interview_data_source">
         <argument name="dataProvider" xsi:type="configurableObject">
             <argument name="class" xsi:type="string">TNW\Marketing\Ui\DataProvider\DataProvider</argument>
-            <argument name="name" xsi:type="string">payment_interview_data_source</argument>
+            <argument name="name" xsi:type="string">authorizenetcim_interview_data_source</argument>
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="submit_url" xsi:type="url" path="marketing/interview/markUserInterviewed"/>
@@ -37,15 +37,15 @@
             </item>
         </argument>
     </dataSource>
-    <modal name="quick_survey_modal">
+    <modal name="quick_survey_modal" >
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
                 <item name="component" xsi:type="string">TNW_Marketing/js/modal/component</item>
-                <item name="provider" xsi:type="string">payment_interview.payment_interview_data_source</item>
+                <item name="provider" xsi:type="string">authorizenetcim_interview.authorizenetcim_interview_data_source</item>
                 <item name="onCancel" xsi:type="string">closeSnoozeSurvey</item>
                 <item name="state" xsi:type="boolean">true</item>
                 <item name="options" xsi:type="array">
-                    <item name="modalClass" xsi:type="string">payment-quick-survey-modal</item>
+                    <item name="modalClass" xsi:type="string">quick-survey-modal</item>
                     <item name="title" xsi:type="string" translate="true">Thank you for putting your trust in us!</item>
                     <item name="type" xsi:type="string">popup</item>
                     <item name="responsive" xsi:type="boolean">true</item>
@@ -66,11 +66,10 @@
                 </item>
             </item>
         </argument>
-        <container name="payment_interview_text">
+        <container name="authorizenetcim_interview_text">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="template" xsi:type="string">ui/form/components/complex</item>
-                    <item name="sortOrder" xsi:type="number">1</item>
                     <item name="label" xsi:type="string"/>
                     <item name="additionalClasses" xsi:type="string">payment-quick-survey-text</item>
                     <item name="content" xsi:type="string" translate="true">
@@ -92,10 +91,9 @@
         <fieldset name="quick_survey_fieldset">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="sortOrder" xsi:type="number">2</item>
                     <item name="label" xsi:type="string" translate="true">Quick Survey</item>
                     <item name="additionalClasses" xsi:type="array">
-                        <item name="payment-quick-survey-fieldset-wrapper" xsi:type="boolean">true</item>
+                        <item name="quick-survey-fieldset-wrapper" xsi:type="boolean">true</item>
                     </item>
                 </item>
             </argument>
@@ -115,6 +113,7 @@
                     </item>
                 </argument>
             </field>
+
             <field name="rating">
                 <argument name="data" xsi:type="array">
                     <item name="options" xsi:type="object">TNW\Marketing\Model\Config\Source\Survey\Stars</item>
@@ -124,10 +123,11 @@
                         <item name="formElement" xsi:type="string">select</item>
                         <item name="dataScope" xsi:type="string">rating</item>
                         <item name="dataType" xsi:type="string">text</item>
-                        <item name="additionalClasses" xsi:type="string">payment-quick-survey-field</item>
+                        <item name="additionalClasses" xsi:type="string">quick-survey-field</item>
                     </item>
                 </argument>
             </field>
+
             <field name="comments">
                 <argument name="data" xsi:type="array">
                     <item name="config" xsi:type="array">
@@ -139,7 +139,6 @@
                     </item>
                 </argument>
             </field>
-
 
             <field name="module">
                 <argument name="data" xsi:type="array">
@@ -175,5 +174,6 @@
             </field>
 
         </fieldset>
+
     </modal>
 </form>

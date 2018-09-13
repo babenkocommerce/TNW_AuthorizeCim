@@ -17,7 +17,7 @@ use Magento\Framework\Setup\UpgradeDataInterface;
 /**
  * Class UpgradeData
  *
- * @package TNW\QuickbooksBasic\Setup
+ * @package TNW\AuthorizeCim\Setup
  */
 class UpgradeData implements UpgradeDataInterface
 {
