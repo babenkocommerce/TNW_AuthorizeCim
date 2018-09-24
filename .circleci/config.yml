@@ -119,6 +119,11 @@ jobs:
       - run:
           name: Run Unit Test
           command: |
+            cd /var/www/html/magento2-ee-$MAGENTO_VERSION
+            ./bin/magento dev:tests:run -c'--filter=TNW' unit
+      - run:
+          name: Run Unit Test
+          command: |
             cd /var/www/html/magento2-$MAGENTO_VERSION
             ./bin/magento dev:tests:run -c'--filter=TNW' unit
       - run:
