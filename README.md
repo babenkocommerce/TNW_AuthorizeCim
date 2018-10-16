@@ -34,4 +34,4 @@ mode, but it will error if you attempt to use it over HTTP. You do NOT need a
 valid SSL certificate for testing. 
 
 ## License
-[GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/)
+[Open Software License v. 3.0](https://opensource.org/licenses/OSL-3.0)
