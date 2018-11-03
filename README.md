@@ -33,5 +33,8 @@ https://jstest.authorize.net/v1/Accept.js, is loaded when the module is in test
 mode, but it will error if you attempt to use it over HTTP. You do NOT need a
 valid SSL certificate for testing. 
 
+## Additonal Documentation
+[Integration with Authorize.Net CIM - Wiki](https://technweb.atlassian.net/wiki/spaces/ANG/overview)
+
 ## License
 [Open Software License v. 3.0](https://opensource.org/licenses/OSL-3.0)
