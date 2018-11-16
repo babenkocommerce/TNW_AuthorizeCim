@@ -49,6 +49,8 @@
                 <sdk_url><![CDATA[https://js.authorize.net/v1/Accept.js]]></sdk_url>
                 <verify_sdk_url><![CDATA[https://includestest.ccdc02.com/cardinalcruise/v1/songbird.js]]></verify_sdk_url>
                 <cctypes_mapper><![CDATA[{"american-express":"AE","discover":"DI","jcb":"JCB","mastercard":"MC","master-card":"MC","visa":"VI","maestro":"MI","diners-club":"DN","unionpay":"CUP"}]]></cctypes_mapper>
+                <avs_ems_adapter>TNW\AuthorizeCim\Model\AvsEmsCodeMapper</avs_ems_adapter>
+                <cvv_ems_adapter>TNW\AuthorizeCim\Model\CvvEmsCodeMapper</cvv_ems_adapter>
             </tnw_authorize_cim>
             <tnw_authorize_cim_vault>
                 <model>AuthorizeCimVaultFacade</model>

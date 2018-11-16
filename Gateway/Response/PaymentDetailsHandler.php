@@ -11,6 +11,9 @@ use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
 class PaymentDetailsHandler implements HandlerInterface
 {
+    const AVS_CODE = 'avs_code';
+    const CVV_CODE = 'cvv_code';
+
     /**
      * @var SubjectReader
      */
@@ -46,9 +49,9 @@ class PaymentDetailsHandler implements HandlerInterface
 
         $additionalInformation = [
             'auth_code' => $transaction->getAuthCode(),
-            'avs_code' => $transaction->getAvsResultCode(),
+            self::AVS_CODE => $transaction->getAvsResultCode(),
             'cavv_code' => $transaction->getCavvResultCode(),
-            'cvv_code' => $transaction->getCvvResultCode()
+            self::CVV_CODE => $transaction->getCvvResultCode()
         ];
 
         $payment->unsAdditionalInformation('opaqueDescriptor');
