@@ -15,6 +15,21 @@ class PaymentDetailsHandler implements HandlerInterface
     const CVV_CODE = 'cvv_code';
 
     /**
+     * This transaction has been approved.
+     */
+    const APPROVED_CODE = '1';
+
+    /**
+     * This transaction has been declined.
+     */
+    const DENIED_CODE = '2';
+
+    /**
+     * The code returned from the processor indicating that the card used needs to be picked up
+     */
+    const REVIEW_CODE = '4';
+
+    /**
      * @var SubjectReader
      */
     private $subjectReader;
@@ -48,15 +63,15 @@ class PaymentDetailsHandler implements HandlerInterface
         $payment->setLastTransId($transaction->getTransId());
 
         switch ($transaction->getResponseCode()) {
-            case '1':
+            case self::APPROVED_CODE:
                 $payment->setIsTransactionApproved(true);
                 break;
 
-            case '2':
+            case self::DENIED_CODE:
                 $payment->setIsTransactionDenied(true);
                 break;
 
-            default:
+            case self::REVIEW_CODE:
                 $payment->setIsTransactionPending(true);
                 break;
         }
