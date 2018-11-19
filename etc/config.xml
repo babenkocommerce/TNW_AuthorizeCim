@@ -25,6 +25,7 @@
                 <can_cancel>1</can_cancel>
                 <can_edit>1</can_edit>
                 <can_review_payment>1</can_review_payment>
+                <can_accept_payment>1</can_accept_payment>
                 <can_deny_payment>1</can_deny_payment>
                 <active>0</active>
                 <payment_action>authorize</payment_action>

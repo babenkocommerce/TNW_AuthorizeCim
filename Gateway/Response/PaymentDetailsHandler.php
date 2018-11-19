@@ -47,6 +47,20 @@ class PaymentDetailsHandler implements HandlerInterface
         $payment->setCcTransId($transaction->getTransId());
         $payment->setLastTransId($transaction->getTransId());
 
+        switch ($transaction->getResponseCode()) {
+            case '1':
+                $payment->setIsTransactionApproved(true);
+                break;
+
+            case '2':
+                $payment->setIsTransactionDenied(true);
+                break;
+
+            default:
+                $payment->setIsTransactionPending(true);
+                break;
+        }
+
         $additionalInformation = [
             'auth_code' => $transaction->getAuthCode(),
             self::AVS_CODE => $transaction->getAvsResultCode(),
