@@ -6,11 +6,9 @@
 namespace TNW\AuthorizeCim\Model\Adapter;
 
 use net\authorize\api\constants\ANetEnvironment;
-use net\authorize\api\contract\v1\UpdateHeldTransactionRequest;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CreateCustomerProfileFromTransactionRequest;
 use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
-use net\authorize\api\controller\UpdateHeldTransactionController;
 use net\authorize\api\controller\CreateTransactionController;
 use net\authorize\api\controller\CreateCustomerProfileFromTransactionController;
 use net\authorize\api\controller\CreateCustomerProfileController;
@@ -124,27 +122,6 @@ class AuthorizeAdapter
         ]));
 
         $controller = new CreateCustomerProfileController($transactionRequest);
-        return $controller->executeWithApiResponse($this->endPoint());
-    }
-
-    /**
-     * @param array $attributes
-     *
-     * @return \net\authorize\api\contract\v1\AnetApiResponseType
-     */
-    public function heldTransaction(array $attributes)
-    {
-        $transactionRequest = new UpdateHeldTransactionRequest();
-
-        // Filling the object
-        $this->dataObjectHelper->populateWithArray($transactionRequest, array_merge($attributes, [
-            'merchant_authentication' => [
-                'name' => $this->apiLoginId,
-                'transaction_key' => $this->transactionKey
-            ]
-        ]));
-
-        $controller = new UpdateHeldTransactionController($transactionRequest);
         return $controller->executeWithApiResponse($this->endPoint());
     }
 }

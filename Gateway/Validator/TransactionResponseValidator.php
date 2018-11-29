@@ -6,7 +6,7 @@
 namespace TNW\AuthorizeCim\Gateway\Validator;
 
 use net\authorize\api\contract\v1\CreateTransactionResponse;
-use net\authorize\api\contract\v1\TransactionResponseType\ErrorsAType\ErrorAType;
+use net\authorize\api\contract\v1\TransactionResponseType\MessagesAType\MessageAType;
 
 /**
  * Validate response data
@@ -25,18 +25,32 @@ class TransactionResponseValidator extends GeneralResponseValidator
                     return [true, []];
                 }
 
-                $errorMessages = array_map([$this, 'errorMap'], $transactionResponse->getErrors());
-                return [!count($errorMessages), $errorMessages];
+                $messages = $transactionResponse->getMessages();
+                $errorMessages = array_map([$this, 'map'], array_filter($messages, [$this, 'filter']));
+
+                return [
+                    !count($errorMessages),
+                    $errorMessages
+                ];
             }
         ]);
     }
 
     /**
-     * @param ErrorAType $message
+     * @param MessageAType $message
+     * @return bool
+     */
+    private function filter(MessageAType $message)
+    {
+        return $message->getCode() != 1;
+    }
+
+    /**
+     * @param MessageAType $message
      * @return string
      */
-    private function errorMap(ErrorAType $message)
+    private function map(MessageAType $message)
     {
-        return $message->getErrorCode();
+        return __($message->getDescription());
     }
 }
