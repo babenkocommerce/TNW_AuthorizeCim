@@ -5,13 +5,13 @@
  */
 namespace TNW\AuthorizeCim\Gateway\Validator;
 
-use net\authorize\api\contract\v1\CreateTransactionResponse;
+use net\authorize\api\contract\v1\UpdateHeldTransactionResponse;
 use net\authorize\api\contract\v1\TransactionResponseType\ErrorsAType\ErrorAType;
 
 /**
  * Validate response data
  */
-class TransactionResponseValidator extends GeneralResponseValidator
+class HeldTransactionResponseValidator extends GeneralResponseValidator
 {
     /**
      * @inheritdoc
@@ -19,7 +19,7 @@ class TransactionResponseValidator extends GeneralResponseValidator
     protected function getResponseValidators()
     {
         return array_merge(parent::getResponseValidators(), [
-            function (CreateTransactionResponse $response) {
+            function (UpdateHeldTransactionResponse $response) {
                 $transactionResponse = $response->getTransactionResponse();
                 if (!$transactionResponse) {
                     return [true, []];
