@@ -275,6 +275,12 @@ jobs:
           name: Run Magento Coding Standard
           command: |
             /var/www/html/magento-coding-standard/vendor/bin/phpcs $CIRCLE_WORKING_DIRECTORY --standard=MEQP2 --severity=10 --extensions=php,phtml
+
+  m230_php71:
+    <<: *php71-base
+    environment:
+      MAGENTO_VERSION: "2.3.0"
+
       # Need to FIX unit tests
       #- run:
       #    name: Run Unit Test
@@ -285,6 +291,10 @@ jobs:
     <<: *php71-base
     environment:
       MAGENTO_VERSION: "2.2.4"
+  m226_php71:
+    <<: *php71-base
+    environment:
+      MAGENTO_VERSION: "2.2.6"
   m223_php71:
     <<: *php71-base
     environment:
@@ -331,48 +341,21 @@ workflows:
 
   test-deploy-wiki:
     jobs:
-    - m225_php71:
+    - m230_php71:
+        context: powersync
+        filters:
+          branches:
+            only:
+            - develop
+            - master
+            - /^hotfix*/
+            - /^release*/
+    - m226_php71:
         context: powersync
         filters:
           branches:
             only: /.*/
-    - m224_php71:
-        context: powersync
-        filters:
-          branches:
-            only:
-            - develop
-            - master
-            - /^hotfix*/
-            - /^release*/
-    - m223_php71:
-        context: powersync
-        filters:
-          branches:
-            only:
-            - develop
-            - master
-            - /^hotfix*/
-            - /^release*/
-    - m222_php71:
-        context: powersync
-        filters:
-          branches:
-            only:
-            - develop
-            - master
-            - /^hotfix*/
-            - /^release*/
-    - m221_php71:
-        context: powersync
-        filters:
-          branches:
-            only:
-            - develop
-            - master
-            - /^hotfix*/
-            - /^release*/
-    - m225_php70:
+    - m225_php71:
         context: powersync
         filters:
           branches:
@@ -420,12 +403,9 @@ workflows:
     - deploy:
         context: powersync
         requires:
+        - m230_php71
+        - m226_php71
         - m225_php71
-        - m224_php71
-        - m223_php71
-        - m222_php71
-        - m221_php71
-        - m225_php70
         - m224_php70
         - m223_php70
         - m222_php70
