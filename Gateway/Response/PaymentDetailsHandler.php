@@ -11,6 +11,24 @@ use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
 
 class PaymentDetailsHandler implements HandlerInterface
 {
+    const AVS_CODE = 'avs_code';
+    const CVV_CODE = 'cvv_code';
+
+    /**
+     * This transaction has been approved.
+     */
+    const APPROVED_CODE = '1';
+
+    /**
+     * This transaction has been declined.
+     */
+    const DENIED_CODE = '2';
+
+    /**
+     * The code returned from the processor indicating that the card used needs to be picked up
+     */
+    const REVIEW_CODE = '4';
+
     /**
      * @var SubjectReader
      */
@@ -44,11 +62,25 @@ class PaymentDetailsHandler implements HandlerInterface
         $payment->setCcTransId($transaction->getTransId());
         $payment->setLastTransId($transaction->getTransId());
 
+        switch ($transaction->getResponseCode()) {
+            case self::APPROVED_CODE:
+                $payment->setIsTransactionApproved(true);
+                break;
+
+            case self::DENIED_CODE:
+                $payment->setIsTransactionDenied(true);
+                break;
+
+            case self::REVIEW_CODE:
+                $payment->setIsTransactionPending(true);
+                break;
+        }
+
         $additionalInformation = [
             'auth_code' => $transaction->getAuthCode(),
-            'avs_code' => $transaction->getAvsResultCode(),
+            self::AVS_CODE => $transaction->getAvsResultCode(),
             'cavv_code' => $transaction->getCavvResultCode(),
-            'cvv_code' => $transaction->getCvvResultCode()
+            self::CVV_CODE => $transaction->getCvvResultCode()
         ];
 
         $payment->unsAdditionalInformation('opaqueDescriptor');

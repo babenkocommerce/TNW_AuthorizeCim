@@ -66,15 +66,21 @@ class GeneralResponseValidator extends AbstractValidator
                 $messages = $response->getMessages();
 
                 if (strcasecmp($messages->getResultCode(), 'Ok')  !== 0) {
-                    $errorMessages = array_map(function (MessageAType $message) {
-                        return __('%1: %2', $message->getCode(), $message->getText());
-                    }, $messages->getMessage());
-
-                    return [false, $errorMessages];
+                    return [false, array_map([$this, 'messageMap'], $messages->getMessage())];
                 }
 
                 return [true, []];
             }
         ];
+    }
+
+    /**
+     * @param MessageAType $message
+     *
+     * @return string
+     */
+    private function messageMap(MessageAType $message)
+    {
+        return $message->getCode();
     }
 }

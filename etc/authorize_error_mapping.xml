@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
+ */
+-->
+<mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/error_mapping.xsd">
+    <message_list>
+        <message code="2" translate="true">This transaction has been declined.</message>
+        <message code="5" translate="true">A valid amount is required.</message>
+        <message code="6" translate="true">The credit card number is invalid.</message>
+        <message code="7" translate="true">Credit card expiration date is invalid.</message>
+        <message code="8" translate="true">The credit card has expired.</message>
+        <message code="27" translate="true">The transaction has been declined because of an AVS mismatch. The address provided does not match billing address of cardholder.</message>
+        <message code="65" translate="true">The transaction was declined because the merchant configured their account through the Merchant Interface to reject transactions with certain values for a Card Code mismatch.</message>
+    </message_list>
+</mapping>
