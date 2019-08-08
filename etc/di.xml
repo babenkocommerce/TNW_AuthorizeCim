@@ -172,6 +172,7 @@
             </argument>
         </arguments>
     </virtualType>
+    
     <!-- Authorization&Capture command  -->
     <virtualType name="AuthorizeCimSaleCommand" type="AuthorizeCimAuthorizeCommand">
         <arguments>

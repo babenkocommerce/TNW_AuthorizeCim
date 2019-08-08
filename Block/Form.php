@@ -6,7 +6,7 @@
 namespace TNW\AuthorizeCim\Block;
 
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Payment\Block\Form\Cc;
+use TNW\AuthorizeCim\Block\Form\Cc;
 use Magento\Payment\Helper\Data as Helper;
 use Magento\Payment\Model\Config as PaymentConfig;
 use TNW\AuthorizeCim\Gateway\Config\Config;
