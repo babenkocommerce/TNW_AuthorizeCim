@@ -99,6 +99,7 @@ define([
             var self = this,
                 state = self.scriptLoaded;
 
+                
             $('body').trigger('processStart');
             require([this.sdkUrl], function () {
                 state(true);

@@ -11,17 +11,22 @@ define([
     'mage/translate'
 ], function ($, mageTemplate, alert) {
     'use strict';
+    
+    console.log('custom_payment.js is loaded!!!');
 
     $.widget('authorizecim.payment', {
         options: {
             continueSelector: '#payment-continue',
             methodsContainer: '#payment-methods',
             minBalance: 0,
-            tmpl: '<input id="hidden-free" type="hidden" name="payment[method]" value="free">'
+            tmpl: '<input id="hidden-free" type="hidden" name="payment[method]" value="free">',
+            config:'',
+            paymentconfig:''
         },
 
         /** @inheritdoc */
         _create: function () {
+           
             this.element.find('dd [name^="payment["]').prop('disabled', true).end()
                 .on('click', this.options.continueSelector, $.proxy(this._submitHandler, this))
                 .on('updateCheckoutPrice', $.proxy(function (event, data) {
@@ -50,7 +55,22 @@ define([
                 this._disablePaymentMethods();
             } else {
                 this._enablePaymentMethods();
+                
             }
+
+            this.options.config = this.options.paymentconfig;
+            // if(this.options.paymentconfig){
+            //     console.log("one");
+            //     console.log(this.options.paymentconfig);
+            //     this.options.config = JSON.stringify(this.options.paymentconfig);
+                
+            //     $('#tnw_authorize_cim_config').val(this.options.config);
+            // }else{
+            //     console.log("oness");
+            //     console.log(this.options.paymentconfig);
+                
+            // }
+            
         },
 
         /**
@@ -142,6 +162,12 @@ define([
         _submitHandler: function (e) {
             var currentMethod,
                 submitButton;
+
+            //console.log(this.element);
+            console.log(this.options);
+            console.log(this.options.config);
+           
+
 
             e.preventDefault();
 

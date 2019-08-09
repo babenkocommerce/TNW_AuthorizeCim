@@ -125,5 +125,9 @@ $ccExpYear = $block->getInfoData('cc_exp_year');
            name="payment[opaqueDescriptor]"/>
     <input type="hidden" id="<?= /* @noEscape */ $code ?>_opaque_value"
            name="payment[opaqueValue]"/>
+    <input type="hidden" id="<?= /* @noEscape */ $code ?>_config"
+    name="payment[config]"/>
     <?= $block->getChildHtml() ?>
 </fieldset>
+
+

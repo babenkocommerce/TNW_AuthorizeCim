@@ -1,0 +1,22 @@
+<?php
+/**
+ * Copyright © 2018 TechNWeb, Inc. All rights reserved.
+ * See TNW_LICENSE.txt for license details.
+ */
+
+/** @var TNW\AuthorizeCim\Block\Payment $block */
+
+$code = $block->escapeHtml($block->getCode());
+$payment_config = $block->getPaymentConfig();
+?>
+
+
+<script type="text/x-magento-init">
+    {
+        "#payment-methods": {
+            "TNW_AuthorizeCim/js/custom_payment": {
+                "paymentconfig":<?php /* @noEscape */ echo $block->getPaymentConfig(); ?>
+            }
+        }
+    }
+</script>
