@@ -11,8 +11,6 @@ define([
     'mage/translate'
 ], function ($, mageTemplate, alert) {
     'use strict';
-    
-    console.log('custom_payment.js is loaded!!!');
 
     $.widget('authorizecim.payment', {
         options: {
@@ -24,8 +22,11 @@ define([
             paymentconfig:''
         },
 
+
         /** @inheritdoc */
         _create: function () {
+
+              
            
             this.element.find('dd [name^="payment["]').prop('disabled', true).end()
                 .on('click', this.options.continueSelector, $.proxy(this._submitHandler, this))
@@ -58,18 +59,14 @@ define([
                 
             }
 
-            this.options.config = this.options.paymentconfig;
-            // if(this.options.paymentconfig){
-            //     console.log("one");
-            //     console.log(this.options.paymentconfig);
-            //     this.options.config = JSON.stringify(this.options.paymentconfig);
-                
-            //     $('#tnw_authorize_cim_config').val(this.options.config);
-            // }else{
-            //     console.log("oness");
-            //     console.log(this.options.paymentconfig);
-                
-            // }
+            
+            if(this.options.paymentconfig){
+               
+                this.options.config = JSON.stringify(this.options.paymentconfig);
+                //this.options.config = this.options.paymentconfig;
+                this._loadScript(this.options.paymentconfig);
+                $('#tnw_authorize_cim_config').val(this.options.config);
+            }
             
         },
 
@@ -79,6 +76,7 @@ define([
          * @param {EventObject} e
          */
         _paymentMethodHandler: function (e) {
+          
             var element = $(e.target),
                 parentsDl = element.closest('dl');
 
@@ -97,6 +95,7 @@ define([
          * @return {Boolean}
          */
         _validatePaymentMethod: function () {
+           
             var methods = this.element.find('[name^="payment["]'),
                 isValid = false;
 
@@ -122,6 +121,7 @@ define([
          * @private
          */
         _disablePaymentMethods: function () {
+            
             var tmpl = mageTemplate(this.options.tmpl, {
                 data: {}
             });
@@ -139,6 +139,7 @@ define([
          * @private
          */
         _enablePaymentMethods: function () {
+           
             this.element.find('input[name="payment[method]"]').prop('disabled', false).end()
                 .find('dt input:radio:checked').trigger('click').end()
                 .find('input[id^="use"][name^="payment[use"]:not(:checked)').prop('disabled', false).parent().show();
@@ -151,7 +152,29 @@ define([
          * @private
          */
         _getSelectedPaymentMethod: function () {
+          
             return this.element.find('input[name=\'payment[method]\']:checked');
+        },
+
+         /**
+         * Load external Authorize SDK
+         */
+        _loadScript: function (config) {
+            var self = this,
+                state = self.scriptLoaded;
+
+            console.log(config.sdkUrl);
+            $('body').trigger('processStart');
+            require([config.sdkUrl], function () {
+                
+                self.accept = window.Accept;
+                $('body').trigger('processStop');
+            });
+        },
+
+        getSelector: function (field) {
+            this.code = 'tnw_authorize_cim';
+            return '#' + this.code + '_' + field;
         },
 
         /**
@@ -163,24 +186,82 @@ define([
             var currentMethod,
                 submitButton;
 
-            //console.log(this.element);
-            console.log(this.options);
-            console.log(this.options.config);
+                e.preventDefault();
            
+            var paymentconfig = this.element.find('#tnw_authorize_cim_config').val()
 
+            this.options.config = JSON.parse(paymentconfig);
 
-            e.preventDefault();
+            
 
-            if (this._validatePaymentMethod()) {
-                currentMethod = this._getSelectedPaymentMethod();
-                submitButton = currentMethod.parent().next('dd').find('button[type=submit]');
+            this.$selector = $(this.options.methodsContainer);
+            this.$selector.validate().form();
+            this.$selector.trigger('afterValidate.beforeSubmit');
+            $('body').trigger('processStop');
 
-                if (submitButton.length) {
-                    submitButton.first().trigger('click');
-                } else {
-                    this.element.submit();
-                }
+            // validate parent form
+            if (this.$selector.validate().errorList.length) {
+                this.element.submit();
+                return false;
+            }else{
+                var paymentData = {
+                    cardData: {
+                        cardNumber: $(this.getSelector('cc_number')).val().replace(/\D/g, ''),
+                        month: $(this.getSelector('expiration')).val(),
+                        year: $(this.getSelector('expiration_yr')).val(),
+                        cardCode: $(this.getSelector('cc_cid')).val()
+                    },
+                    authData: {
+                        clientKey:  this.options.config.clientKey,
+                        apiLoginID:  this.options.config.apiLoginID
+                    }
+                };
+
+                console.log(paymentData);
+
+                window.Accept.dispatchData(paymentData, function (response) {
+                    console.log(response);
+                    if (response.messages.resultCode === "Error") {
+                        var i = 0;
+                        while (i < response.messages.message.length) {
+                            self.error(response.messages.message[i].code + ": " + response.messages.message[i].text);
+                            i = i + 1;
+                        }
+                    } else {
+                        self.setOpaqueDescriptor(response.opaqueData.dataDescriptor);
+                        self.setOpaqueValue(response.opaqueData.dataValue);
+                        self.placeOrder();
+                    }
+                });
+    
             }
+
+           
+           
+            
+
+            // if (this._validatePaymentMethod()) {
+            //     currentMethod = this._getSelectedPaymentMethod();
+            //     submitButton = currentMethod.parent().next('dd').find('button[type=submit]');
+
+               
+            //     console.log(paymentData);
+
+            //     if (submitButton.length) {
+            //         submitButton.first().trigger('click');
+            //     } else {
+                    
+            //         return false;
+
+            //         this.element.submit();
+
+
+                    
+
+
+            //         console.log("test");
+            //     }
+            // }
         }
     });
 

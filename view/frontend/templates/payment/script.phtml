@@ -13,8 +13,8 @@ $payment_config = $block->getPaymentConfig();
 
 <script type="text/x-magento-init">
     {
-        "#payment-methods": {
-            "TNW_AuthorizeCim/js/custom_payment": {
+        "#tnw_authorize_cim_config": {
+            "TNW_AuthorizeCim/js/payment": {
                 "paymentconfig":<?php /* @noEscape */ echo $block->getPaymentConfig(); ?>
             }
         }

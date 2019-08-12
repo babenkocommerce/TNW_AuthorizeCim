@@ -6,7 +6,7 @@
 var config = {
     map: {
         '*': {
-           payment: 'TNW_AuthorizeCim/js/custom_payment',
+           payment: 'TNW_AuthorizeCim/js/payment',
         }
   }
 };

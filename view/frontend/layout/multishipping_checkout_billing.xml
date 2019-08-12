@@ -25,12 +25,12 @@
         <referenceBlock name="head.components">
             <block class="Magento\Framework\View\Element\Js\Components" name="multishipping_checkout_billing_page_head_components" template="Magento_Checkout::js/components.phtml"/>
         </referenceBlock> -->
-        <referenceBlock name="content">
+        <referenceContainer name="content">
             <block name="tnw_authorize_cim_payment_script"
                      as="tnw_authorize_cim_payment_script"
                      template="TNW_AuthorizeCim::payment/script.phtml"
                      class="TNW\AuthorizeCim\Block\Payment"
                      />
-        </referenceBlock>
+        </referenceContainer>
     </body>
 </page>
