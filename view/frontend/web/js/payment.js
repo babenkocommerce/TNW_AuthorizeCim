@@ -25,8 +25,6 @@ define([
 
         /** @inheritdoc */
         _create: function () {
-
-              
            
             this.element.find('dd [name^="payment["]').prop('disabled', true).end()
                 .on('click', this.options.continueSelector, $.proxy(this._submitHandler, this))
@@ -208,7 +206,7 @@ define([
                     cardData: {
                         cardNumber: $(this.getSelector('cc_number')).val().replace(/\D/g, ''),
                         month: $(this.getSelector('expiration')).val(),
-                        year: $(this.getSelector('expiration_yr')).val(),
+                        year: ($(this.getSelector('expiration_yr')).val()  % 100),
                         cardCode: $(this.getSelector('cc_cid')).val()
                     },
                     authData: {

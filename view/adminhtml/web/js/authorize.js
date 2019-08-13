@@ -105,7 +105,7 @@ define([
                 state(true);
                 self.accept = window.Accept;
                 $('body').trigger('processStop');
-            });
+            }); 
         },
 
         /**
