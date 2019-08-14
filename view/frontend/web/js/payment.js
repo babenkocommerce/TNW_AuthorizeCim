@@ -25,6 +25,7 @@ define([
 
         /** @inheritdoc */
         _create: function () {
+            
            
             this.element.find('dd [name^="payment["]').prop('disabled', true).end()
                 .on('click', this.options.continueSelector, $.proxy(this._submitHandler, this))
@@ -164,15 +165,37 @@ define([
             console.log(config.sdkUrl);
             $('body').trigger('processStart');
             require([config.sdkUrl], function () {
-                
+                //state(true);
                 self.accept = window.Accept;
                 $('body').trigger('processStop');
             });
         },
 
-        getSelector: function (field) {
-            this.code = 'tnw_authorize_cim';
+        _getSelector: function (field) {
+            var currentMethod = this._getSelectedPaymentMethod();//'tnw_authorize_cim';
+            this.code = currentMethod.val();
+
             return '#' + this.code + '_' + field;
+        },
+
+         /**
+         * Store payment details
+         * @param {String} nonce
+         */
+        _setOpaqueDescriptor: function (nonce) {
+            var $container =  this.element.find(this.options.methodsContainer);
+
+            $container.find('[name="payment[opaqueDescriptor]"]').val(nonce);
+        },
+
+        /**
+         * Store payment details
+         * @param {String} nonce
+         */
+        _setOpaqueValue: function (nonce) {
+            var $container =this.element.find(this.options.methodsContainer);
+
+            $container.find('[name="payment[opaqueValue]"]').val(nonce);
         },
 
         /**
@@ -182,16 +205,14 @@ define([
          */
         _submitHandler: function (e) {
             var currentMethod,
-                submitButton;
+                payment_code;
+            var self = this;
 
-                e.preventDefault();
+            e.preventDefault();
            
             var paymentconfig = this.element.find('#tnw_authorize_cim_config').val()
 
             this.options.config = JSON.parse(paymentconfig);
-
-            
-
             this.$selector = $(this.options.methodsContainer);
             this.$selector.validate().form();
             this.$selector.trigger('afterValidate.beforeSubmit');
@@ -200,66 +221,44 @@ define([
             // validate parent form
             if (this.$selector.validate().errorList.length) {
                 this.element.submit();
-                return false;
             }else{
-                var paymentData = {
-                    cardData: {
-                        cardNumber: $(this.getSelector('cc_number')).val().replace(/\D/g, ''),
-                        month: $(this.getSelector('expiration')).val(),
-                        year: ($(this.getSelector('expiration_yr')).val()  % 100),
-                        cardCode: $(this.getSelector('cc_cid')).val()
-                    },
-                    authData: {
-                        clientKey:  this.options.config.clientKey,
-                        apiLoginID:  this.options.config.apiLoginID
-                    }
-                };
-
-                console.log(paymentData);
-
-                window.Accept.dispatchData(paymentData, function (response) {
-                    console.log(response);
-                    if (response.messages.resultCode === "Error") {
-                        var i = 0;
-                        while (i < response.messages.message.length) {
-                            self.error(response.messages.message[i].code + ": " + response.messages.message[i].text);
-                            i = i + 1;
+                currentMethod = this._getSelectedPaymentMethod();//'tnw_authorize_cim';
+                payment_code = currentMethod.val();
+                if(payment_code == 'tnw_authorize_cim'){
+                    var paymentData = {
+                        cardData: {
+                            cardNumber: $(this._getSelector('cc_number')).val().replace(/\D/g, ''),
+                            month: $(this._getSelector('expiration')).val(),
+                            year: $(this._getSelector('expiration_yr')).val().toString().substr(2, 2),
+                            cardCode: $(this._getSelector('cc_cid')).val()
+                        },
+                        authData: {
+                            clientKey:  this.options.config.clientKey,
+                            apiLoginID:  this.options.config.apiLoginID
                         }
-                    } else {
-                        self.setOpaqueDescriptor(response.opaqueData.dataDescriptor);
-                        self.setOpaqueValue(response.opaqueData.dataValue);
-                        self.placeOrder();
-                    }
-                });
+                    };
+    
+                    window.Accept.dispatchData(paymentData, function (response) {
+                        console.log(response);
+                        if (response.messages.resultCode === "Error") {
+                            var i = 0;
+                            while (i < response.messages.message.length) {
+                                self.error(response.messages.message[i].code + ": " + response.messages.message[i].text);
+                                i = i + 1;
+                            }
+                        } else {
+                            self._setOpaqueDescriptor(response.opaqueData.dataDescriptor);
+                            self._setOpaqueValue(response.opaqueData.dataValue);
+                            self.element.submit();
+                        }
+                    });
+                }else{
+                    this.element.submit();
+                }
+                
     
             }
 
-           
-           
-            
-
-            // if (this._validatePaymentMethod()) {
-            //     currentMethod = this._getSelectedPaymentMethod();
-            //     submitButton = currentMethod.parent().next('dd').find('button[type=submit]');
-
-               
-            //     console.log(paymentData);
-
-            //     if (submitButton.length) {
-            //         submitButton.first().trigger('click');
-            //     } else {
-                    
-            //         return false;
-
-            //         this.element.submit();
-
-
-                    
-
-
-            //         console.log("test");
-            //     }
-            // }
         }
     });
 
