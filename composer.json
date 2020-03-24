@@ -2,13 +2,12 @@
   "name": "tnw/module-authorizenetcim",
   "description": "Authorize.net CIM for Magento 2",
   "type": "magento2-module",
-  "version": "2.1.9",
+  "version": "2.3.3",
   "license": [
     "proprietary"
   ],
   "require": {
-    "magento/framework": ">100",
-    "authorizenet/authorizenet": "~1.9.6",
+    "authorizenet/authorizenet": "2.0.0",
     "tnw/marketing": "~2",
     "lcobucci/jwt": "~3.2.2"
   },
