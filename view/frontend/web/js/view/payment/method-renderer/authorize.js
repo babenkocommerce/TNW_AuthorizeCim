@@ -211,6 +211,7 @@ function ($, $t, Component, quote, VaultEnabler, validatorManager, fullScreenLoa
             self.isPlaceOrderActionAllowed(false);
             self.validatorManager.validate(self)
                 .done(function () {
+                    self.isPlaceOrderActionAllowed(true);
                     self.placeOrder('parent');
                 })
                 .fail(function (error) {
