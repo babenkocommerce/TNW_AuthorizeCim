@@ -32,7 +32,7 @@ class TransactionResponseValidator extends GeneralResponseValidator
                 if ($messages) {
                     $errorMessages = array_map([$this, 'map'], array_filter($messages, [$this, 'filter']));
                 }
-                if ($errorMessages) {
+                if ($errorMessages || $transactionResponse->getErrors()) {
                     $messages = $transactionResponse->getErrors();
                     $errorMessages = array_map([$this, 'errorMap'], array_filter($messages, [$this, 'errorFilter']));
                 } else {
