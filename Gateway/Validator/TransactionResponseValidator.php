@@ -28,8 +28,10 @@ class TransactionResponseValidator extends GeneralResponseValidator
                 }
 
                 $messages = $transactionResponse->getMessages();
-                $errorMessages = array_map([$this, 'map'], array_filter($messages, [$this, 'filter']));
-
+                $errorMessages = [];
+                if ($messages) {
+                    $errorMessages = array_map([$this, 'map'], array_filter($messages, [$this, 'filter']));
+                }
                 if ($errorMessages) {
                     $messages = $transactionResponse->getErrors();
                     $errorMessages = array_map([$this, 'errorMap'], array_filter($messages, [$this, 'errorFilter']));
