@@ -33,7 +33,7 @@ class TransactionResponseValidator extends GeneralResponseValidator
                     $errorMessages = array_map([$this, 'map'], array_filter($messages, [$this, 'filter']));
                 }
                 if ($errorMessages || $transactionResponse->getErrors()) {
-                    $messages = $transactionResponse->getErrors();
+                    $messages = $transactionResponse->getErrors() ? : $transactionResponse->getMessages();
                     $errorMessages = array_map([$this, 'errorMap'], array_filter($messages, [$this, 'errorFilter']));
                 } else {
                     return $result;
@@ -65,21 +65,19 @@ class TransactionResponseValidator extends GeneralResponseValidator
         return __($message->getDescription());
     }
 
-    /**
-     * @param MessageAType $message
-     * @return bool
-     */
-    private function errorFilter(ErrorAType $message)
+    private function errorFilter($message)
     {
-        return $message->getErrorCode() != 1;
+        $errorCode = method_exists($message, 'getErrorCode')
+            ? $message->getErrorCode()
+            : $message->getCode();
+        return  $errorCode != 1;
     }
 
-    /**
-     * @param MessageAType $message
-     * @return string
-     */
-    private function errorMap(ErrorAType $message)
+    private function errorMap($message)
     {
-        return __($message->getErrorText());
+        $messageText = method_exists($message, 'getErrorText')
+            ? $message->getErrorText()
+            : $message->getDescription();
+        return __($messageText);
     }
 }

@@ -14,6 +14,7 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Model\CreditCardTokenFactory;
 use TNW\AuthorizeCim\Gateway\Config\Config;
 use TNW\AuthorizeCim\Gateway\Helper\SubjectReader;
+use Magento\Vault\Model\PaymentTokenManagement;
 
 class VaultDetailsHandler implements HandlerInterface
 {
@@ -29,12 +30,16 @@ class VaultDetailsHandler implements HandlerInterface
     /** @var Config */
     private $config;
 
+    private $paymentTokenManagement;
+
     public function __construct(
         CreditCardTokenFactory $creditCardTokenFactory,
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
         Config $config,
-        SubjectReader $subjectReader
+        SubjectReader $subjectReader,
+        PaymentTokenManagement $paymentTokenManagement
     ) {
+        $this->paymentTokenManagement = $paymentTokenManagement;
         $this->paymentTokenFactory = $creditCardTokenFactory;
         $this->paymentExtensionFactory = $paymentExtensionFactory;
         $this->subjectReader = $subjectReader;
@@ -70,6 +75,15 @@ class VaultDetailsHandler implements HandlerInterface
      */
     private function getVaultPaymentToken($transaction, $payment)
     {
+        if (
+            $payment->getAdditionalInformation('customer_id')
+            && $payment->getAdditionalInformation('public_hash')
+        ) {
+            return $this->paymentTokenManagement->getByPublicHash(
+                $payment->getAdditionalInformation('public_hash'),
+                $payment->getAdditionalInformation('customer_id')
+            );
+        }
         $profileId = $transaction->getCustomerProfileId();
         $paymentProfileIdList = $transaction->getCustomerPaymentProfileIdList();
 
