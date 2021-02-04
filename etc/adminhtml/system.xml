@@ -35,7 +35,7 @@
           </field>
           <field id="payment_action" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Payment Action</label>
-            <source_model>Magento\Authorizenet\Model\Source\PaymentAction</source_model>
+            <source_model>TNW\AuthorizeCim\Model\Source\PaymentAction</source_model>
             <config_path>payment/tnw_authorize_cim/payment_action</config_path>
           </field>
           <field id="environment" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -73,7 +73,7 @@
           </field>
           <field id="cctypes" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Credit Card Types</label>
-            <source_model>Magento\Authorizenet\Model\Source\Cctype</source_model>
+            <source_model>TNW\AuthorizeCim\Model\Source\Cctype</source_model>
             <config_path>payment/tnw_authorize_cim/cctypes</config_path>
           </field>
           <field id="debug" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="0">
