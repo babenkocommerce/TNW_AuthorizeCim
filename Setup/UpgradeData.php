@@ -45,14 +45,31 @@ class UpgradeData implements UpgradeDataInterface
         ModuleContextInterface $context,
         ModuleDataSetupInterface $setup
     ) {
-        $setup->getConnection()->insert(
-            $setup->getTable('core_config_data'),
-            [
-                'scope' => 'default',
-                'scope_id' => 0,
-                'path' => 'tnw_module-authorizenetcim/survey/start_date',
-                'value' => date_create()->modify('+7 day')->getTimestamp()
-            ]
-        );
+        $configTable = $setup->getTable('core_config_data');
+        $select = $setup->getConnection()->select()
+            ->from($configTable)
+            ->where("path = 'tnw_module-authorizenetcim/survey/start_date'");
+        $result = $setup->getConnection()->fetchAll($select);
+        if ($result) {
+            foreach ($result as $configNode) {
+                $setup->getConnection()->update(
+                    $configTable,
+                    [
+                        'value' => date_create()->modify('+7 day')->getTimestamp()
+                    ],
+                    ['config_id = ?' => $configNode['config_id']]
+                );
+            }
+        } else {
+            $setup->getConnection()->insert(
+                $configTable,
+                [
+                    'scope' => 'default',
+                    'scope_id' => 0,
+                    'path' => 'tnw_module-authorizenetcim/survey/start_date',
+                    'value' => date_create()->modify('+7 day')->getTimestamp()
+                ]
+            );
+        }
     }
 }
